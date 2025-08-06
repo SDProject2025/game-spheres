@@ -1,9 +1,13 @@
-import { initializeApp, credential } from "firebase-admin";
-import { getFirestore } from "firebase-admin/firestore";
-var serviceAccount = require("./game-spheres-firebase-adminsdk-fbsvc-7d1a8bbbc1.json");
+import * as admin from "firebase-admin";
 
-const app = initializeApp({
-  credential: credential.cert(serviceAccount)
-});
+const serviceAccount = require("./game-spheres-firebase-adminsdk-fbsvc-7d1a8bbbc1.json");
 
-export const db = getFirestore(app);
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
+const db = admin.firestore();
+
+export { db };

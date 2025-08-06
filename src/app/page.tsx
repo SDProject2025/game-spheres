@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/config/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
-export default function Home() {
+export default function Index() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 

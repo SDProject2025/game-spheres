@@ -1,29 +1,44 @@
 'use client'
 import { withProvider } from "@/config/authorisation";
 import { googleProvider, auth } from "@/config/firebaseConfig";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import AuthContainer from "@/components/auth/authContainer";
+import SignInForm from "@/components/auth/signIn/signInForm";
+import SignUpForm from "@/components/auth/signUp/signUpForm";
 
 export default function Auth() {
+    const [isSignIn, setIsSignIn] = useState(true);
+    const router = useRouter();
 
-    // async function handleSignUp() {
-    //     await withProvider(googleProvider);
-    // }
+    async function signInWithProvider() {
+        const user = await withProvider(googleProvider);
+        if (user) {
+            router.replace("/");        
+        } else {
+            console.error("Something broke ig");
+        }
+    }
 
-        // <button type="button" className='flex flex-row justify-evenly items-center rounded-2xl bg-gray-300 shadow-md text-gray-700 w-[50%] h-10 hover:bg-gray-500 hover:text-white transition-colors duration-200'>
-        //     <span className="font-medium">Sign in with Google</span>
-        //     <img
-        //         src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-        //         alt="Google icon"
-        //         className="h-5 w-5"
-        //     />
-        // </button>
+    async function signInManual(email: string, password: string) {
+
+    }
+
+    async function signUpManual(username: string, email: string, password: string) {
+
+    }
 
     return (
-        <div>
-            <AuthContainer>
-                
-            </AuthContainer>
+        <div className="relative flex justify-center w-full h-full pt-20">
+            <div className={`w-[30%] absolute ${isSignIn ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} transition-opacity duration-700`}>
+                <SignInForm signInWithGoogle={signInWithProvider} handleSignInClick={signInManual}/>
+                <p onClick={() => setIsSignIn(!isSignIn)} className="hover:text-green-500 hover:underline hover:cursor-pointer">Don't have an account?</p>
+            </div>
+
+            <div className={`w-[30%] absolute ${isSignIn ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"} transition-opacity duration-700`}>
+                <SignUpForm handleSignUpClick={signUpManual}/>
+                <p onClick={() => setIsSignIn(!isSignIn)} className="hover:text-green-500 hover:underline hover:cursor-pointer">Already have an account?</p>
+            </div>
         </div>
     );
 }

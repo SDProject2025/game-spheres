@@ -14,7 +14,29 @@ export default function Auth() {
     async function signInWithProvider() {
         const user = await withProvider(googleProvider);
         if (user) {
-            router.replace("/");        
+            let username = user.user.displayName;
+
+            const res = await fetch(`/api/auth/username?username=${username}`);
+            const data = await res.json();
+
+            username = data.username; 
+
+            const postBody = {
+                username,
+                displayName: user.user.displayName,
+                email: user.user.email,
+            };
+
+            const response = await fetch("/api/auth/signUp", {
+                method: "POST",
+                body: JSON.stringify(postBody),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok)
+                router.replace("/");
         } else {
             console.error("Something broke ig");
         }

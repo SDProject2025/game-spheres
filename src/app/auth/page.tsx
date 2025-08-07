@@ -10,7 +10,7 @@ import SignUpForm from "@/components/auth/signUp/signUpForm";
 export default function Auth() {
     const [isSignIn, setIsSignIn] = useState(true);
     const router = useRouter();
-
+    // boom
     async function signInWithProvider() {
         const user = await withProvider(googleProvider);
         if (user) {

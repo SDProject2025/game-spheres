@@ -10,11 +10,42 @@ import SignUpForm from "@/components/auth/signUp/signUpForm";
 export default function Auth() {
     const [isSignIn, setIsSignIn] = useState(true);
     const router = useRouter();
-
+    // boom
     async function signInWithProvider() {
         const user = await withProvider(googleProvider);
         if (user) {
-            router.replace("/");        
+            const uid = user.user.uid;
+            let username = user.user.displayName;
+
+            const checkRes = await fetch(`/api/auth/checkUser?uid=${uid}`);
+            const checkData = await checkRes.json();
+
+            if (checkData.exists) {
+                router.replace("/");
+            } else {
+                const usernameRes = await fetch(`/api/auth/signUp?username=${username}`);
+                const usernameData = await usernameRes.json();
+
+                username = usernameData.username; 
+
+                const postBody = {
+                    uid: uid,
+                    username: username,
+                    displayName: user.user.displayName,
+                    email: user.user.email,
+                };
+
+                const response = await fetch("/api/auth/signUp", {
+                    method: "POST",
+                    body: JSON.stringify(postBody),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response.ok)
+                    router.replace("/");
+            }
         } else {
             console.error("Something broke ig");
         }

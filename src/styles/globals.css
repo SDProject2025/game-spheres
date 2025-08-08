@@ -104,72 +104,8 @@ body {
   }
 }
 
-/* these are blue neon rings for signup form, just experimenting for now*/
-@keyframes neonRotateClockwiseBlue {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes neonRotateCounterClockwiseBlue {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(-360deg);
-  }
-}
-
-.neon-rings-wrapper-blue {
-  position: relative;
-  border-radius: 12px;
-  display: inline-block;
-}
-
-.neon-ring-blue {
-  position: absolute;
-  top: -12px;
-  left: -12px;
-  width: calc(100% + 24px);
-  height: calc(100% + 24px);
-  border-radius: 16px;
-  pointer-events: none;
-  box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6, 0 0 40px #3b82f6,
-    0 0 80px #3b82f6;
-  border: 2px solid transparent;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  z-index: -1;
-}
-
-.neon-ring-blue-1 {
-  animation-name: neonRotateClockwiseBlue;
-  animation-duration: 16s;
-  opacity: 0.6;
-}
-
-.neon-ring-blue-2 {
-  top: -24px;
-  left: -24px;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  border-radius: 24px;
-  opacity: 0.5;
-  filter: blur(8px);
-  animation-name: neonRotateCounterClockwiseBlue;
-  animation-duration: 20s;
-}
-.neon-ring-blue-3 {
-  top: -24px;
-  left: -24px;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  border-radius: 24px;
-  opacity: 0.4;
-  filter: blur(8px);
-  animation-name: neonRotateClockwiseBlue;
-  animation-duration: 30s;
+.neon-gold {
+  color: #FFD700 !important;
+  border-color: #FFD700 !important;
+  box-shadow: 0 0 10px #FFD700, 0 0 40px #FFD700, 0 0 80px #FFD700 !important;
 }

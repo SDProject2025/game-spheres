@@ -22,7 +22,7 @@ export default function SignInForm({
   }
 
   return (
-    // wrap the fram in neon rings called from globals.css
+    // wrap the frame in neon rings called from globals.css
     <div className="neon-ring">
       <i style={{ "--clr": "#00ffc3" } as React.CSSProperties}></i>
       <i style={{ "--clr": "#00e6b3" } as React.CSSProperties}></i>
@@ -45,8 +45,21 @@ export default function SignInForm({
           label="Password"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <div className="flex justify-center w-full mt-4">
+        <div className="flex justify-center w-full mt-4 flex-col gap-4">
           <NeonButton type="submit">SIGN IN</NeonButton>
+
+          <button
+            type="button"
+            onClick={signInWithGoogle}
+            className="mt-4 flex items-center justify-between gap-4 px-4 py-2 w-full rounded-md bg-gray-300 text-gray-800 shadow hover:bg-gray-500 hover:text-white transition"
+          >
+            <span className="font-medium">Sign in with Google</span>
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google icon"
+              className="h-5 w-5"
+            />
+          </button>
         </div>
       </form>
     </div>

@@ -5,38 +5,69 @@ import TextInput from "../textInput";
 import PasswordInput from "../passwordInput";
 
 type Props = {
-    handleSignUpClick: (username: string, email: string, password: string) => void;
-}
+  handleSignUpClick: (
+    username: string,
+    displayName: string,
+    email: string,
+    password: string
+  ) => void;
+};
 
-export default function SignUpForm({handleSignUpClick}: Props) {
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+export default function SignUpForm({ handleSignUpClick }: Props) {
+  // REQUIRED FIELDS
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-    function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
-        e.preventDefault();
-        handleSignUpClick(username, email, password);
-    }
-    
-      return (
+  // VALIDATION FIELDS
+  const [validEmail, setValidEmail] = useState(true);
+
+  function validateEmail() {
+    if (email === "")
+      return false;
+    const re = new RegExp("^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+    return re.test(email);
+  }
+
+  function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (validEmail)
+      handleSignUpClick(username, displayName, email, password);
+  }
+
+  return (
     <div className="neon-rings-wrapper-blue">
       <div className="neon-ring-blue neon-ring-blue-1"></div>
       <div className="neon-ring-blue neon-ring-blue-2"></div>
       <div className="neon-ring-blue neon-ring-blue-3"></div>
       <form
-        className="relative w-[300px] p-8 bg-[#222]/20 text-white rounded-lg shadow-xl" onSubmit={formSubmitHandler}>
-        <h1 className="text-2xl text-[#3b82f6] tracking-wide mb-6 text-center">Sign Up</h1>
+        className="relative w-[300px] p-8 bg-[#222]/20 text-white rounded-lg shadow-xl"
+        onSubmit={formSubmitHandler}
+      >
+        <h1 className="text-2xl text-[#3b82f6] tracking-wide mb-6 text-center">
+          Sign Up
+        </h1>
         <TextInput
           label="Username:"
           icon={<MdPerson />}
           onChange={(e) => setUsername(e.target.value)}
         />
+        <TextInput label="Display Name:" icon={<MdPerson />} />
         <TextInput
           label="Email:"
           icon={<MdEmail />}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setValidEmail(validateEmail());
+          }}
         />
-        <PasswordInput label="Password:" onChange={(e) => setPassword(e.target.value)} />
+        <p>{validEmail ? "" : "Please enter a valid email address"}</p>
+        <PasswordInput
+          label="Password:"
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         <div className="flex flex-col justify-center items-center pt-5">
           <button

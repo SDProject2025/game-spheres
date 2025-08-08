@@ -55,7 +55,7 @@ export default function Auth() {
 
     }
 
-    async function signUpManual(username: string, email: string, password: string) {
+    async function signUpManual(username: string, displayName: string, email: string, password: string) {
 
     }
 

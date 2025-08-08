@@ -10,7 +10,7 @@ import SignUpForm from "@/components/auth/signUp/signUpForm";
 export default function Auth() {
     const [isSignIn, setIsSignIn] = useState(true);
     const router = useRouter();
-    // boom
+
     async function signInWithProvider() {
         const user = await withProvider(googleProvider);
         if (user) {
@@ -23,7 +23,7 @@ export default function Auth() {
             if (checkData.exists) {
                 router.replace("/");
             } else {
-                const usernameRes = await fetch(`/api/auth/signUp?username=${username}`);
+                const usernameRes = await fetch(`/api/auth/signUp/withProvider?username=${username}`);
                 const usernameData = await usernameRes.json();
 
                 username = usernameData.username; 
@@ -35,7 +35,7 @@ export default function Auth() {
                     email: user.user.email,
                 };
 
-                const response = await fetch("/api/auth/signUp", {
+                const response = await fetch("/api/auth/signUp/withProvider", {
                     method: "POST",
                     body: JSON.stringify(postBody),
                     headers: {

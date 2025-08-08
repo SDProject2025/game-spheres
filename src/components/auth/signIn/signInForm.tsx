@@ -45,13 +45,13 @@ export default function SignInForm({
           label="Password"
           onChange={(e) => setPassword(e.target.value)}
         />
-        <div className="flex justify-center w-full mt-4 flex-col gap-4">
+        <div className="flex flex-col items-center justify-center w-full mt-4 gap-4 max-w-sm mx-auto">
           <NeonButton type="submit">SIGN IN</NeonButton>
 
           <button
             type="button"
             onClick={signInWithGoogle}
-            className="mt-4 flex items-center justify-between gap-4 px-4 py-2 w-full rounded-md bg-gray-300 text-gray-800 shadow hover:bg-gray-500 hover:text-white transition"
+            className="flex items-center justify-center gap-3 px-4 py-2 w-full max-w-xs rounded-md bg-gray-300 text-gray-800 shadow hover:bg-gray-500 hover:text-white transition"
           >
             <span className="font-medium">Sign in with Google</span>
             <img

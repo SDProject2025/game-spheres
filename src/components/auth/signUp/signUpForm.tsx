@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { MdPerson, MdEmail } from "react-icons/md";
 
 import TextInput from "../textInput";
@@ -11,9 +11,13 @@ type Props = {
     email: string,
     password: string
   ) => void;
+  validateUsername: (username: string) => Promise<boolean>;
 };
 
-export default function SignUpForm({ handleSignUpClick }: Props) {
+export default function SignUpForm({
+  handleSignUpClick,
+  validateUsername,
+}: Props) {
   // REQUIRED FIELDS
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -23,17 +27,31 @@ export default function SignUpForm({ handleSignUpClick }: Props) {
 
   // VALIDATION FIELDS
   const [validEmail, setValidEmail] = useState(true);
+  const [validUsername, setValidUsername] = useState(true);
 
   function validateEmail() {
-    if (email === "")
-      return false;
+    if (email === "") return false;
     const re = new RegExp("^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     return re.test(email);
   }
 
-  function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
+  async function handleUsernameChange() {
+    setValidUsername(await validateUsername(username));
+  }
+
+  useEffect(() => {
+    if (!username) return;
+
+    const timeout = setTimeout(() => {
+      handleUsernameChange();
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [username]);
+
+  async function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (validEmail)
+    if (validateEmail() && (await validateUsername(username)))
       handleSignUpClick(username, displayName, email, password);
   }
 
@@ -54,7 +72,12 @@ export default function SignUpForm({ handleSignUpClick }: Props) {
           icon={<MdPerson />}
           onChange={(e) => setUsername(e.target.value)}
         />
-        <TextInput label="Display Name:" icon={<MdPerson />} />
+        <p>{validUsername ? "" : "Username already taken"}</p>
+        <TextInput
+          label="Display Name:"
+          icon={<MdPerson />}
+          onChange={(e) => setDisplayName(e.target.value)}
+        />
         <TextInput
           label="Email:"
           icon={<MdEmail />}
@@ -68,7 +91,6 @@ export default function SignUpForm({ handleSignUpClick }: Props) {
           label="Password:"
           onChange={(e) => setPassword(e.target.value)}
         />
-
         <div className="flex flex-col justify-center items-center pt-5">
           <button
             type="submit"

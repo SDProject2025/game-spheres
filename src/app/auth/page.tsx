@@ -59,6 +59,13 @@ export default function Auth() {
 
     }
 
+    async function validateUsername(username: string) {
+        const res = await fetch(`/api/auth/signUp/manual?username=${username}`);
+        if (res.ok)
+            return true;
+        return false;
+    }
+
     return (
         <div className="relative flex justify-center w-full h-full pt-20">
             <div className={`w-[30%] absolute ${isSignIn ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} transition-opacity duration-700`}>
@@ -67,7 +74,7 @@ export default function Auth() {
             </div>
 
             <div className={`w-[30%] absolute ${isSignIn ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"} transition-opacity duration-700`}>
-                <SignUpForm handleSignUpClick={signUpManual}/>
+                <SignUpForm handleSignUpClick={signUpManual} validateUsername={validateUsername}/>
                 <p onClick={() => setIsSignIn(!isSignIn)} className="hover:text-green-500 hover:underline hover:cursor-pointer">Already have an account?</p>
             </div>
         </div>

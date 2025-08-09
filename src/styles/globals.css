@@ -27,13 +27,21 @@ body {
 /* neon rings for singin part, can change params from here (green rinbgs) */
 /* first ring rotates clockwise */
 @keyframes neonRotateClockwise {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 /* second ring goes other dir */
 @keyframes neonRotateCounterClockwise {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(-360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
 }
 
 .neon-rings-wrapper {
@@ -43,122 +51,61 @@ body {
 }
 
 .neon-ring {
-  position: absolute;
-  top: -12px;
-  left: -12px;
-  width: calc(100% + 24px);
-  height: calc(100% + 24px);
-  border-radius: 16px;
-  pointer-events: none;
-  box-shadow:
-    0 0 10px #00ffc3,
-    0 0 20px #00ffc3,
-    0 0 40px #00ffc3,
-    0 0 80px #00ffc3;
-  border: 2px solid transparent;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  z-index: -1;
-}
-
-.neon-ring-1 {
-  animation-name: neonRotateClockwise;
-  /* how long its rotating 360 deg for */
-  animation-duration: 16s;
-  opacity: 0.6;
-}
-
-.neon-ring-2 {
-  top: -24px;
-  left: -24px;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  border-radius: 24px;
-  opacity: 0.5;
-  filter: blur(8px);
-  animation-name: neonRotateCounterClockwise;
-  animation-duration: 20s;
-}
-.neon-ring-3 {
-  top: -24px;
-  left: -24px;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  border-radius: 24px;
-  opacity: 0.4;
-  filter: blur(8px);
-  animation-name: neonRotateClockwise;
-  animation-duration: 35s;
-}
-
-/* these are blue neon rings for signup form, just experimenting for now*/
-@keyframes neonRotateClockwiseBlue {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes neonRotateCounterClockwiseBlue {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(-360deg); }
-}
-
-.neon-rings-wrapper-blue {
   position: relative;
-  border-radius: 12px;
-  display: inline-block;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.neon-ring-blue {
+.neon-ring i {
   position: absolute;
-  top: -12px;
-  left: -12px;
-  width: calc(100% + 24px);
-  height: calc(100% + 24px);
-  border-radius: 16px;
-  pointer-events: none;
-  box-shadow:
-    0 0 10px #3b82f6,
-    0 0 20px #3b82f6,
-    0 0 40px #3b82f6,
-    0 0 80px #3b82f6;
-  border: 2px solid transparent;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  z-index: -1;
+  inset: 0;
+  border: 2px solid #fff;
+  transition: 0.5s;
 }
 
-.neon-ring-blue-1 {
-  animation-name: neonRotateClockwiseBlue;
-  animation-duration: 16s;
-  opacity: 0.6;
+.neon-ring i:nth-child(1) {
+  border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+  animation: animate 3s linear infinite;
 }
 
-.neon-ring-blue-2 {
-  top: -24px;
-  left: -24px;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  border-radius: 24px;
-  opacity: 0.5;
-  filter: blur(8px);
-  animation-name: neonRotateCounterClockwiseBlue;
-  animation-duration: 20s;
-}
-.neon-ring-blue-3{
-  top: -24px;
-  left: -24px;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  border-radius: 24px;
-  opacity: 0.4;
-  filter: blur(8px);
-  animation-name: neonRotateClockwiseBlue;
-  animation-duration: 30s;
+.neon-ring i:nth-child(2) {
+  border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+  animation: animate 6s linear infinite;
 }
 
+.neon-ring i:nth-child(3) {
+  border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+  animation: animate2 12s linear infinite;
+}
 
+.neon-ring:hover i {
+  border: 6px solid var(--clr);
+  filter: drop-shadow(0 0 20px var(--clr));
+}
 
+@keyframes animate {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
 
+@keyframes animate2 {
+  0% {
+    transform: rotateZ(360deg);
+  }
+  100% {
+    transform: rotateZ(0deg);
+  }
+}
 
-
-
+.neon-gold {
+  color: #FFD700 !important;
+  border-color: #FFD700 !important;
+  box-shadow: 0 0 10px #FFD700, 0 0 40px #FFD700, 0 0 80px #FFD700 !important;
+}

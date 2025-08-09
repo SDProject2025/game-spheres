@@ -55,7 +55,6 @@ export async function POST(request: NextRequest) {
       email,
       followers: [],
       following: [],
-      verified: true,
     });
 
     return NextResponse.json(

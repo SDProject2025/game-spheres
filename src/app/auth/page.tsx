@@ -1,6 +1,7 @@
 'use client'
 import { withProvider } from "@/config/authorisation";
 import { googleProvider, auth } from "@/config/firebaseConfig";
+import { createUserWithEmailAndPassword, sendEmailVerification, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -56,7 +57,37 @@ export default function Auth() {
     }
 
     async function signUpManual(username: string, displayName: string, email: string, password: string) {
+        const user = await createUserWithEmailAndPassword(auth, email, password);
+        if (user) {
+            const uid = user.user.uid;
 
+            const checkRes = await fetch(`/api/auth/checkUser?uid=${uid}`);
+            const checkData = await checkRes.json();
+
+            if (checkData.exists) {
+                router.replace("/");
+            } else {
+                const postBody = {
+                    uid: uid,
+                    username: username,
+                    displayName: displayName,
+                    email: email
+                };
+
+                const response = await fetch("/api/auth/signUp/manual",{
+                    method: "POST",
+                    body: JSON.stringify(postBody),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                await sendEmailVerification(user.user);
+
+                if (response.ok)
+                    router.replace("/");
+            }
+        }
     }
 
     async function validateUsername(username: string) {

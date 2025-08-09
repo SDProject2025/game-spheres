@@ -1,18 +1,15 @@
 'use client';
-
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { onIdTokenChanged } from 'firebase/auth';
-import { auth } from '@/config/firebaseConfig'; // your Firebase client config
+import { auth } from '@/config/firebaseConfig';
 
 export default function UnauthorisedPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Subscribe to token changes
     const unsubscribe = onIdTokenChanged(auth, async (user) => {
       if (user) {
-        // Always refresh user info from Firebase without polling
         await user.reload();
         if (user.emailVerified) {
           router.push('/home');

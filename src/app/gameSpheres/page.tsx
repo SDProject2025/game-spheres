@@ -5,21 +5,21 @@ import React, { useState } from 'react';
 const dummyGameSpheres = [
   {
     id: 1,
-    name: 'Fortnite',
+    name: 'gs-Fortnite',
     description: 'Fast-paced battle royale with building mechanics.',
     profilePic: '🎮',
     followers: ['Player1', 'GamerX', 'NoScope99']
   },
   {
     id: 2,
-    name: 'Elden Ring',
+    name: 'gs-Elden_Ring',
     description: 'Challenging open-world fantasy RPG.',
     profilePic: '⚔️',
     followers: ['Tarnished', 'Mage101', 'Knighty']
   },
   {
     id: 3,
-    name: 'Minecraft',
+    name: 'gs-Minecraft',
     description: 'Blocky sandbox building and adventure.',
     profilePic: '🟩',
     followers: ['Steve', 'BuilderGirl', 'RedstonePro']
@@ -38,7 +38,7 @@ export default function GameSpheres() {
       </div>
 
       {/* Main content */}
-      <div className="flex w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111]">
+      <div className="flex w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] from-[#00ff75] to-[#3700ff] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
         {/* Left column */}
         <div className="w-1/3 bg-[#1a1a1a] p-4 border-r border-cyan-500">
           <h2 className="text-xl font-semibold mb-4 text-cyan-400">GameSpheres</h2>

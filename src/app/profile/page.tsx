@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { HiMiniPlay } from "react-icons/hi2";
 
@@ -17,6 +17,12 @@ export default function ProfilePage() {
       thumbnail: "/holder.jpg"
     })),
   };
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const res = await fetch(`/api/profile?uid=${uid}`)
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#111] text-white flex flex-col items-center py-10">

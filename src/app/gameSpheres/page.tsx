@@ -23,8 +23,58 @@ const dummyGameSpheres = [
     description: 'Blocky sandbox building and adventure.',
     profilePic: '🟩',
     followers: ['Steve', 'BuilderGirl', 'RedstonePro']
+  },
+  {
+    id: 4,
+    name: 'gs-Valheim',
+    description: 'Norse-themed survival and exploration adventure.',
+    profilePic: '🪓',
+    followers: ['VikingVoyager', 'OdinFan', 'ShieldMaiden']
+  },
+  {
+    id: 5,
+    name: 'gs-Overwatch',
+    description: 'Team-based hero shooter with vibrant characters.',
+    profilePic: '🎯',
+    followers: ['TracerMain', 'TankLord', 'SupportHero']
+  },
+  {
+    id: 6,
+    name: 'gs-Stardew_Valley',
+    description: 'Chill farming and life simulation game.',
+    profilePic: '🌾',
+    followers: ['FarmerBob', 'GreenThumb', 'Chickens4Life']
+  },
+  {
+    id: 7,
+    name: 'gs-Apex_Legends',
+    description: 'Battle royale with unique heroes and abilities.',
+    profilePic: '🏹',
+    followers: ['WraithMain', 'OctaneFan', 'SniperPro']
+  },
+  {
+    id: 8,
+    name: 'gs-Cyberpunk_2077',
+    description: 'Open-world RPG set in a neon dystopia.',
+    profilePic: '🤖',
+    followers: ['VFan', 'NetRunner', 'JohnnySilverhand']
+  },
+  {
+    id: 9,
+    name: 'gs-League_of_Legends',
+    description: 'Competitive MOBA with millions of players.',
+    profilePic: '⚡',
+    followers: ['ADC_MVP', 'MidLaneKing', 'JungleBeast']
+  },
+  {
+    id: 10,
+    name: 'gs-Call_of_Duty',
+    description: 'Fast-paced first-person shooter action.',
+    profilePic: '🔫',
+    followers: ['QuickScopePro', 'CODMaster', 'HeadshotKing']
   }
 ];
+
 
 export default function GameSpheres() {
   const [selected, setSelected] = useState(dummyGameSpheres[0]);
@@ -40,7 +90,7 @@ export default function GameSpheres() {
       {/* Main content */}
       <div className="flex w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] from-[#00ff75] to-[#3700ff] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
         {/* Left column */}
-        <div className="w-1/3 bg-[#1a1a1a] p-4 border-r border-cyan-500">
+        <div className="w-1/3 bg-[#1a1a1a] p-4 border-r border-cyan-500 left-column max-h-[400px] overflow-y-auto pr-2 scrollbar-thin">
           <h2 className="text-xl font-semibold mb-4 text-cyan-400">GameSpheres</h2>
           {dummyGameSpheres.map((sphere) => (
             <div

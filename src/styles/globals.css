@@ -157,32 +157,55 @@ body {
 }
 
 /* For the animated sphere on gameSphere page */ 
+/* Neon glowing sphere */
 .ball {
-  animation: float612 2.4s ease-in-out infinite;
+  animation: float612 2.4s ease-in-out infinite, glowPulse 2s ease-in-out infinite;
   height: 80px;
   width: 80px;
   border-radius: 50%;
   position: relative;
-  background: radial-gradient( circle at 75% 30%, white 5px, #DF00FF 8%, #DB9EDF 60%, #DF00FF 100%);
-  box-shadow: inset 0 0 20px #C1AAC6, inset 10px 0 46px #DF00FF, inset 88px 0px 60px #DB9EDF, inset -20px -60px 100px #fde9ea, inset 0 50px 140px #fde9ea, 0 0 90px #fff;
+  background: radial-gradient(circle at 75% 30%, #ffffff 5px, #39ff14 15%, #00ffea 60%, #ff00ff 100%);
+  box-shadow:
+    0 0 20px rgba(57, 255, 20, 0.8),
+    0 0 40px rgba(0, 255, 234, 0.6), 
+    0 0 80px rgba(255, 0, 255, 0.6), 
+    inset 0 0 20px rgba(255, 255, 255, 0.5);
 }
 
+/* Floating animation */
 @keyframes float612 {
   0% {
-    transform: translatey(0px);
+    transform: translateY(0px);
   }
-
   50% {
-    transform: translatey(-50px);
+    transform: translateY(-50px);
   }
-
   100% {
-    transform: translatey(0px);
+    transform: translateY(0px);
   }
 }
 
+/* Glow pulse animation */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(57, 255, 20, 0.8),
+      0 0 40px rgba(0, 255, 234, 0.6),
+      0 0 80px rgba(255, 0, 255, 0.6),
+      inset 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(57, 255, 20, 1),
+      0 0 60px rgba(0, 255, 234, 0.8),
+      0 0 120px rgba(255, 0, 255, 0.8),
+      inset 0 0 30px rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Shadow under the ball */
 .shadow {
-  background: #DB9EDF;
+  background: rgba(0, 255, 234, 0.4);
   width: 80px;
   height: 25px;
   top: 150%;
@@ -192,16 +215,39 @@ body {
 }
 
 @keyframes expand6234 {
-  0%,
-            100% {
+  0%, 100% {
     transform: scale(0.6);
   }
-
   50% {
     transform: scale(0.3);
     filter: blur(5px);
   }
 }
+
+/* Slim modern scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px; /* thin scrollbar */
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent; /* no background */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* light gray thumb */
+  border-radius: 9999px; /* fully rounded */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5); /* darker on hover */
+}
+
+/* For Firefox */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
 
 
 

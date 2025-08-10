@@ -1,5 +1,6 @@
 import { useState, FormEvent, useEffect } from "react";
 import { MdPerson, MdEmail } from "react-icons/md";
+
 import NeonButton from "../../neonButton";
 import TextInput from "../textInput";
 import PasswordInput from "../passwordInput";
@@ -12,17 +13,24 @@ type Props = {
     password: string
   ) => void;
   validateUsername: (username: string) => Promise<boolean>;
+  validatePassword: (password: string) => Promise<boolean>;
 };
 
-export default function SignUpForm({handleSignUpClick,validateUsername,}: Props) {
-    const [username, setUsername] = useState("");
-    const [displayName, setDisplayName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+export default function SignUpForm({
+  handleSignUpClick,
+  validateUsername,
+  validatePassword,
+}: Props) {
+  // REQUIRED FIELDS
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const [validEmail, setValidEmail] = useState(true);
-    const [validUsername, setValidUsername] = useState(true);
+  // VALIDATION FIELDS
+  const [validEmail, setValidEmail] = useState(true);
+  const [validUsername, setValidUsername] = useState(true);
+  const [validPassword, setValidPassword] = useState(true);
 
   function validateEmail() {
     if (email === "") return false;
@@ -32,6 +40,10 @@ export default function SignUpForm({handleSignUpClick,validateUsername,}: Props)
 
   async function handleUsernameChange() {
     setValidUsername(await validateUsername(username));
+  }
+
+  async function handlePasswordValidation() {
+    setValidPassword(await validatePassword(password));
   }
 
   useEffect(() => {
@@ -44,10 +56,22 @@ export default function SignUpForm({handleSignUpClick,validateUsername,}: Props)
     return () => clearTimeout(timeout);
   }, [username]);
 
+  useEffect(() => {
+    if (!password) return;
+
+    const timeout = setTimeout(() => {
+      handlePasswordValidation();
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [password]);
+
   async function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (validateEmail() && (await validateUsername(username))) {
+    if (validateEmail() && (await validateUsername(username)) && (await validatePassword(password))) {
       handleSignUpClick(username, displayName, email, password);
+    } else {
+      
     }
   }
 
@@ -71,7 +95,7 @@ export default function SignUpForm({handleSignUpClick,validateUsername,}: Props)
           icon={<MdPerson />}
           onChange={(e) => setUsername(e.target.value)}
         />
-        <p>{validUsername ? "" : "Username already taken"}</p>
+        {validUsername ? null : <p>Username already taken</p>}
 
         <TextInput
           label="Display Name:"
@@ -87,12 +111,13 @@ export default function SignUpForm({handleSignUpClick,validateUsername,}: Props)
             setValidEmail(validateEmail());
           }}
         />
-        <p>{validEmail ? "" : "Please enter a valid email address"}</p>
+        {validEmail ? null : <p>Invalid email address</p>}
 
         <PasswordInput
           label="Password:"
           onChange={(e) => setPassword(e.target.value)}
         />
+        {validPassword ? null : <p>Password does not meet requirements</p>}
 
         <div className="flex justify-center w-full mt-4">
           <NeonButton type="submit">SIGN UP</NeonButton>

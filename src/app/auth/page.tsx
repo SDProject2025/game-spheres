@@ -5,6 +5,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signInWithEmailAndPassword,
+  validatePassword,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -84,8 +85,6 @@ export default function Auth() {
     email: string,
     password: string
   ) {
-    const router = useRouter();
-
     await toast.promise(
       (async () => {
         const user = await createUserWithEmailAndPassword(
@@ -135,7 +134,7 @@ export default function Auth() {
     );
   }
 
-  async function validateUsername(username: string) {
+  async function isValidUsername(username: string) {
     try {
       const result = await toast.promise(
         async () => {
@@ -155,6 +154,18 @@ export default function Auth() {
       return result; // true if available
     } catch {
       return false; // false if not available
+    }
+  }
+
+  async function isValidPassword(password: string) {
+    try {
+      const status = await validatePassword(auth, password);
+      if (status.isValid) return true;
+      toast.error("Invalid password");
+      return false;
+    } catch (e: any) {
+      toast.error("Password validation failed:", e.message);
+      return false;
     }
   }
 
@@ -188,7 +199,8 @@ export default function Auth() {
       >
         <SignUpForm
           handleSignUpClick={signUpManual}
-          validateUsername={validateUsername}
+          validateUsername={isValidUsername}
+          validatePassword={isValidPassword}
         />
         <p
           onClick={() => setIsSignIn(!isSignIn)}

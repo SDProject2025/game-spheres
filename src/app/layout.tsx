@@ -1,16 +1,18 @@
 import { ReactNode } from "react";
-import "@/styles/globals.css"
+import { UserProvider } from "@/config/userProvider";
+import "@/styles/globals.css";
+
 export const metadata = {
-    title: "GameSpheres",
-    description: "yes",
+  title: "GameSpheres",
+  description: "yes",
 };
 
-export default function RootLayout({children}: {children: ReactNode}) {
-    return(
-        <html>
-            <body>
-                {children}
-            </body>
-        </html>
-    );
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html>
+      <body>
+        <UserProvider>{children}</UserProvider>
+      </body>
+    </html>
+  );
 }

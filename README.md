@@ -5,3 +5,5 @@
   <li>Write your tests</li>
   <li>npm run test</li>
 </ul>
+
+<a href="https://codecov.io/gh/SDProject2025/game-spheres/graphs/icicle.svg?token=HHPB5ZOUBJ"></a>

@@ -20,7 +20,6 @@
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
-    "@babel/preset-react": "^7.27.1",
     "@eslint/eslintrc": "^3",
     "@jest/globals": "^30.0.5",
     "@tailwindcss/postcss": "^4",

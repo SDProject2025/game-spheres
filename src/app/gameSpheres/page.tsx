@@ -25,6 +25,7 @@ import { Toaster, toast } from "react-hot-toast";
 
 export default function GameSpheres() {
   const [search, setSearch] = useState("");
+  const [debounce, setDebounce] = useState(search);
   const [results, setResults] = useState<FullGameSphere[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<FullGameSphere | null>(null);
@@ -122,59 +123,78 @@ export default function GameSpheres() {
     }
   };
 
+  //update debounce search after 250ms delay
   useEffect(() => {
-    if (search.trim() === "") {
+    const handler = setTimeout(() => {
+      setDebounce(search);
+    }, 250); //250ms delay
+
+    // clean up - cancels timeout if search term changes before delay
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search]);
+
+  useEffect(() => {
+    if (debounce.trim() === "") {
       setResults([]);
       setSelected(null);
       return;
     }
 
-    const fetchResults = async () => {
-      setLoading(true);
+    let isCancelled = false;
 
-      try {
-        const gameSpheresRef = collection(
-          db,
-          "gamespheres"
-        ).withConverter<GameSphere>({
-          toFirestore: (data) => data,
-          fromFirestore: (snap: QueryDocumentSnapshot) =>
-            snap.data() as GameSphere,
-        });
+    if (debounce) {
+      const fetchResults = async () => {
+        setLoading(true);
 
-        const gameSpheresSnap = await getDocs(gameSpheresRef);
+        try {
+          const gameSpheresRef = collection(
+            db,
+            "gamespheres"
+          ).withConverter<GameSphere>({
+            toFirestore: (data) => data,
+            fromFirestore: (snap: QueryDocumentSnapshot) =>
+              snap.data() as GameSphere,
+          });
 
-        const games: FullGameSphere[] = gameSpheresSnap.docs
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter((game) =>
-            game.name?.toLowerCase().includes(search.toLowerCase())
-          );
+          const gameSpheresSnap = await getDocs(gameSpheresRef);
 
-        setResults(games);
+          const games: FullGameSphere[] = gameSpheresSnap.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+            .filter((game) =>
+              game.name?.toLowerCase().includes(debounce.toLowerCase())
+            );
 
-        // Auto-select first result if none selected or if it's not in results
-        if (
-          games.length > 0 &&
-          (!selected || !games.find((g) => g.id === selected.id))
-        ) {
-          setSelected(games[0]);
-        } else if (games.length === 0) {
+          if (!isCancelled) setResults(games);
+
+          // Auto-select first result if none selected or if it's not in results
+          if (
+            games.length > 0 &&
+            (!selected || !games.find((g) => g.id === selected.id))
+          ) {
+            setSelected(games[0]);
+          } else if (games.length === 0) {
+            setSelected(null);
+          }
+        } catch (e) {
+          console.error("Error fetching GameSpheres", e);
+          setResults([]);
           setSelected(null);
         }
-      } catch (e) {
-        console.error("Error fetching GameSpheres", e);
-        setResults([]);
-        setSelected(null);
-      }
 
-      setLoading(false);
-    };
+        setLoading(false);
+      };
 
-    fetchResults();
-  }, [search]);
+      fetchResults();
+      return () => {
+        isCancelled = true;
+      };
+    }
+  }, [debounce]);
 
   return (
     <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center">

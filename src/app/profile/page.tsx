@@ -28,6 +28,7 @@ export default function ProfilePage() {
         const data = await res.json();
         console.log(data);
       } else
+        // TODO: change this message later
         console.error("Fucked it")
     }
 

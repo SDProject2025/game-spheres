@@ -7,10 +7,12 @@ import { usePathname } from "next/navigation";
 import { CgMoreVertical } from "react-icons/cg";
 import { useState } from "react";
 import UserMenu from "./UserMenu";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar() {
   const [isMoreClicked, setIsMoreClicked] = useState(false);
 
+  const router = useRouter();
   const pathname = usePathname();
 
   const navItems = [
@@ -50,7 +52,10 @@ export default function Sidebar() {
             className="w-8 h-8 rounded-md overflow-hidden bg-[#222] object-cover"
           />
           <div className={`flex justify-between items-center w-full ml-3`}>
-            <div className="leading-4 pl-2">
+            <div
+              className="leading-4 pl-2 cursor-pointer"
+              onClick={() => router.replace("/profile")}
+            >
               <h4 className="font-semibold">Username</h4>
               <span className="text-xs text-gray-600">user.name@email.com</span>
             </div>

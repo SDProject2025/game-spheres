@@ -16,7 +16,6 @@ export default function Sidebar() {
   const navItems = [
     { name: "Home", href: "/home" },
     { name: "GameSpheres", href: "/gamespheres" },
-    { name: "Profile", href: "/profile" },
   ];
 
   return (

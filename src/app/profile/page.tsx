@@ -1,10 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { HiMiniPlay } from "react-icons/hi2";
 
+import { useUser } from "@/config/userProvider";
+
 export default function ProfilePage() {
-  const [isOwner] = useState(true);
+  const [isOwner, setIsOwner] = useState(true);
 {/* kinda went with tiktok style profile view, we can mess around with it though. */}
   const profile = {
     username: "@cs2isbetterthanval",
@@ -17,6 +19,21 @@ export default function ProfilePage() {
       thumbnail: "/holder.jpg"
     })),
   };
+  const { user, loading } = useUser();
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const res = await fetch(`/api/profile?uid=${user?.uid}`);
+      if (res.ok) {
+        const data = await res.json();
+        console.log(data);
+      } else
+        // TODO: change this message later
+        console.error("Fucked it")
+    }
+
+    fetchUserData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#111] text-white flex flex-col items-center py-10">

@@ -1,4 +1,6 @@
 import { ReactNode } from "react";
+import { UserProvider } from "@/config/userProvider";
+
 import "@/styles/globals.css";
 import Sidebar from "@/components/Sidebar";
 export const metadata = {
@@ -6,6 +8,7 @@ export const metadata = {
   description: "yes",
 };
 
+        
 export default function RootLayout({
   children,
 }: {
@@ -13,6 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <UserProvider>
       <body className="flex">
         {/* Fix sidebar so its unaffected by scroll*/}
         <aside className="fixed left-0 top-0 h-screen w-64 bg-black text-white">
@@ -23,6 +27,7 @@ export default function RootLayout({
           {children}
         </main>
       </body>
+        </UserProvider>
     </html>
   );
 }

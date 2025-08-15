@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CgMoreVertical } from "react-icons/cg";
 import { useState } from "react";
-import UserMenu from "./UserMenu";
+import UserMenu from "../UserMenu";
 import { useRouter } from "next/navigation";
 
 export default function Sidebar() {

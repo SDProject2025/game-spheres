@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
       email,
       followers: [],
       following: [],
+      gsSubs: [],
     });
 
     return NextResponse.json(

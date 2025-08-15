@@ -8,8 +8,15 @@ export default function UserMenu({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   return (
     <div className="absolute bottom-12 right-0 bg-gray-800 rounded-md shadow-lg text-white w-40 z-50">
+      <Link
+        className="block px-4 py-2 hover:bg-gray-700"
+        href={"/profile"}
+        onClick={onClose}
+      >
+        Profile
+      </Link>
       <button
-        className="rounded-md w-full text-left px-4 py-2 hover:bg-gray-700"
+        className="block w-full text-left px-4 py-2 hover:bg-gray-700"
         onClick={() => {
           auth.signOut();
           router.replace("/");

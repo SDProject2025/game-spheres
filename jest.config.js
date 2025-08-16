@@ -8,6 +8,10 @@ module.exports = {
   transform: {
   '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: 'tsconfig.jest.json' }]
   },
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1', //maps @/config/firebaseAdminConfig to src/config/firebaseAdminConfig.ts idk
+  },
+
   collectCoverage: true,
   collectCoverageFrom: [
     '**/*.{ts,tsx}',

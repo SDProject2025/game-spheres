@@ -193,11 +193,11 @@ export default function GameSpheres() {
   }, [debounce]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 flex flex-col items-center">
+    <div className="min-h-screen text-white p-6 flex flex-col items-center">
       {/* Main container */}
       <div className="flex w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
         {/* Left sidebar */}
-        <div className="w-1/3 bg-[#1a1a1a] p-4 border-r border-cyan-500 flex flex-col">
+        <div className="w-1/3 bg-[#111111] p-4 border-r border-cyan-500 flex flex-col">
           <h2 className="text-xl font-semibold mb-4 text-cyan-400">
             Search GameSpheres
           </h2>

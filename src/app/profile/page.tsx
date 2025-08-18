@@ -1,8 +1,6 @@
 "use client";
 import ProfilePage from "@/components/profile/profilePage";
 import { useState, useEffect } from "react";
-import { FiEdit2 } from "react-icons/fi";
-import { HiMiniPlay } from "react-icons/hi2";
 
 import { useUser } from "@/config/userProvider";
 

@@ -1,4 +1,9 @@
-export default function ProfileStat(stat: number, type: string) {
+type Props = {
+  stat: number,
+  type: string,
+}
+
+export default function ProfileStat({stat, type} : Props) {
   return (
     /* follows info idk if we should have likes as well or gamespheres followed */
     <div className="text-center">

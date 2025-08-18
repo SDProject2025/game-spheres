@@ -6,6 +6,7 @@ import { CgMoreVertical } from "react-icons/cg";
 import { useState } from "react";
 import UserMenu from "../UserMenu";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/config/userProvider";
 import { useSidebar } from "@/config/sidebarProvider";
 import {
   ChevronLeft,
@@ -18,6 +19,7 @@ import {
 export default function Sidebar() {
   const [isMoreClicked, setIsMoreClicked] = useState(false);
 
+  const { user, loading } = useUser();
   const { isExpanded, toggleSidebar } = useSidebar();
 
   const router = useRouter();
@@ -95,10 +97,10 @@ export default function Sidebar() {
                 onClick={() => router.replace("/profile")}
               >
                 <h4 className="font-semibold text-white text-sm truncate">
-                  Username
+                  {user?.displayName}
                 </h4>
                 <span className="text-xs text-gray-400 truncate block">
-                  user.name@email.com
+                  {user?.email}
                 </span>
               </div>
 

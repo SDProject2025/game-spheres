@@ -14,9 +14,10 @@ export async function GET(request: NextRequest) {
     const userData = {
         username: data.get("username"),
         displayName: data.get("displayName"),
-        email: data.get("email"),
+        bio: data.get("bio"),
         followers: data.get("followers"),
-        following: data.get("following")
+        following: data.get("following"),
+        posts: data.get("posts"),
     };
 
     return NextResponse.json({userData}, {status: 200});

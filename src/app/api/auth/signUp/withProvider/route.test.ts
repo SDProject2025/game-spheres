@@ -142,6 +142,7 @@ describe("POST /api/users (user creation)", () => {
       email: "new@example.com",
       followers: [],
       following: [],
+      gsSubs: [],
     });
   });
 

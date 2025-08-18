@@ -34,8 +34,8 @@ export default function ProfilePage({
         bio={profile.bio}
       />
       <div className="flex gap-8 mt-4">
-        <ProfileStat stat={profile.following.length} type="Following"/>
-        <ProfileStat stat={profile.followers.length} type="Followers"/>
+        <ProfileStat stat={profile?.following?.length ?? 0} type="Following"/>
+        <ProfileStat stat={profile?.followers?.length ?? 0} type="Followers"/>
       </div>
       <ProfileButton isOwner={true} />
 

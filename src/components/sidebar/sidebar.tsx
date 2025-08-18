@@ -8,10 +8,12 @@ import { CgMoreVertical } from "react-icons/cg";
 import { useState } from "react";
 import UserMenu from "../UserMenu";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/config/userProvider";
 
 export default function Sidebar() {
   const [isMoreClicked, setIsMoreClicked] = useState(false);
 
+  const { user, loading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -56,8 +58,8 @@ export default function Sidebar() {
               className="leading-4 pl-2 cursor-pointer"
               onClick={() => router.replace("/profile")}
             >
-              <h4 className="font-semibold">Username</h4>
-              <span className="text-xs text-gray-600">user.name@email.com</span>
+              <h4 className="font-semibold">{user?.displayName}</h4>
+              <span className="text-xs text-gray-600">{user?.email}</span>
             </div>
             <CgMoreVertical
               onClick={() => setIsMoreClicked((prev) => !prev)}

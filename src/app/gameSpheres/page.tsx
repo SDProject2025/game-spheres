@@ -5,13 +5,9 @@ import { useState, useEffect } from "react";
 import { db } from "@/config/firebaseConfig";
 import {
   collection,
-  query,
-  where,
   doc,
   getDoc,
   getDocs,
-  orderBy,
-  limit,
   writeBatch,
   arrayUnion,
   arrayRemove,
@@ -248,7 +244,7 @@ export default function GameSpheres() {
         </div>
 
         {/* Right detail pane */}
-        <div className="w-2/3 p-6 flex flex-col justify-between relative">
+        <div className="w-2/3 p-6 flex flex-col justify-center relative">
           {selected ? (
             <>
               <div className="flex items-center mb-6">
@@ -284,7 +280,6 @@ export default function GameSpheres() {
                 </p>
               )}
 
-              {/* Subscribe button container -  no functionality just yet*/}
               <div className="mt-auto flex justify-center">
                 <button
                   onClick={() =>
@@ -297,7 +292,7 @@ export default function GameSpheres() {
               </div>
             </>
           ) : (
-            <p className="text-gray-400 self-center mt-20">
+            <p className="text-gray-400 self-center">
               Search and select a game to see details here.
             </p>
           )}

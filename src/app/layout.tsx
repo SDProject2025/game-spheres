@@ -1,4 +1,5 @@
 import { UserProvider } from "@/config/userProvider";
+import { SidebarProvider } from "@/config/sidebarProvider";
 import SidebarWrapper from "@/components/sidebar/sidebarWrapper";
 import "@/styles/globals.css";
 export const metadata = {
@@ -14,15 +15,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <UserProvider>
-        
-        <body className="flex">
-          {/* Fix sidebar so its unaffected by scroll*/}
-          <SidebarWrapper/>
-          {/* main pane of content can scroll */}
-          <main className="ml-64 flex-1 h-screen overflow-y-auto">
-            {children}
-          </main>
-        </body>
+        <SidebarProvider>
+          <body className="flex">
+            <SidebarWrapper />
+            <main
+              className="flex-1 h-screen overflow-y-auto transition-all duration-300 ease-in-out"
+              style={{ marginLeft: "var(--sidebar-width, 0px)" }}
+            >
+              <div className="px-6 py-4">{children}</div>
+            </main>
+          </body>
+        </SidebarProvider>
       </UserProvider>
     </html>
   );

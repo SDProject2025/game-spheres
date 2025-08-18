@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #1d1d1d;
+  --sidebar-width: 64px;
 }
 
 /* @theme inline {
@@ -16,6 +17,7 @@
   :root {
     --background: #1d1d1d;
     --foreground: #ededed;
+    --sidebar-width: 64px;
   }
 }
 
@@ -24,6 +26,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* SIDEBAR STUFF */
+
+/* smooth transitions */
+* {
+  transition-property: margin, width;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* hover effects when collapsed */
+.sidebar-collapsed .sidebar-item {
+  position: relative;
+}
+
+.sidebar-collapsed .sidebar-item:hover::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-left: 8px;
+  pointer-events: none;
+}
+
 /* neon rings for singin part, can change params from here (green rinbgs) */
 /* first ring rotates clockwise */
 @keyframes neonRotateClockwise {
@@ -105,25 +139,29 @@ body {
 }
 
 .neon-gold {
-  color: #FFD700 !important;
-  border-color: #FFD700 !important;
-  box-shadow: 0 0 10px #FFD700, 0 0 40px #FFD700, 0 0 80px #FFD700 !important;
+  color: #ffd700 !important;
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 10px #ffd700, 0 0 40px #ffd700, 0 0 80px #ffd700 !important;
 }
 
-/* For the animated sphere on gameSphere page */ 
+/* For the animated sphere on gameSphere page */
 /* Neon glowing sphere */
 .ball {
-  animation: float612 2.4s ease-in-out infinite, glowPulse 2s ease-in-out infinite;
+  animation: float612 2.4s ease-in-out infinite,
+    glowPulse 2s ease-in-out infinite;
   height: 80px;
   width: 80px;
   border-radius: 50%;
   position: relative;
-  background: radial-gradient(circle at 75% 30%, #ffffff 5px, #39ff14 15%, #00ffea 60%, #ff00ff 100%);
-  box-shadow:
-    0 0 20px rgba(57, 255, 20, 0.8),
-    0 0 40px rgba(0, 255, 234, 0.6), 
-    0 0 80px rgba(255, 0, 255, 0.6), 
-    inset 0 0 20px rgba(255, 255, 255, 0.5);
+  background: radial-gradient(
+    circle at 75% 30%,
+    #ffffff 5px,
+    #39ff14 15%,
+    #00ffea 60%,
+    #ff00ff 100%
+  );
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.8), 0 0 40px rgba(0, 255, 234, 0.6),
+    0 0 80px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
 }
 
 /* Floating animation */
@@ -141,19 +179,14 @@ body {
 
 /* Glow pulse animation */
 @keyframes glowPulse {
-  0%, 100% {
-    box-shadow:
-      0 0 20px rgba(57, 255, 20, 0.8),
-      0 0 40px rgba(0, 255, 234, 0.6),
-      0 0 80px rgba(255, 0, 255, 0.6),
-      inset 0 0 20px rgba(255, 255, 255, 0.5);
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.8), 0 0 40px rgba(0, 255, 234, 0.6),
+      0 0 80px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
   }
   50% {
-    box-shadow:
-      0 0 30px rgba(57, 255, 20, 1),
-      0 0 60px rgba(0, 255, 234, 0.8),
-      0 0 120px rgba(255, 0, 255, 0.8),
-      inset 0 0 30px rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 30px rgba(57, 255, 20, 1), 0 0 60px rgba(0, 255, 234, 0.8),
+      0 0 120px rgba(255, 0, 255, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.7);
   }
 }
 
@@ -169,7 +202,8 @@ body {
 }
 
 @keyframes expand6234 {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.6);
   }
   50% {
@@ -201,12 +235,3 @@ body {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
-
-
-
-
-
-
-
-
-

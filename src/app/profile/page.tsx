@@ -14,12 +14,15 @@ export default function Profile() {
     bio: string;
     following: string[];
     followers: string[];
+    //profile pic
     //posts: { id: number; thumbnail: string }[];
   }>(null);
 
   const { user, loading } = useUser();
 
+  
   useEffect(() => {
+    if (!user?.uid) return;
     async function fetchUserData() {
       const res = await fetch(`/api/profile?uid=${user?.uid}`);
       if (res.ok) {
@@ -32,7 +35,7 @@ export default function Profile() {
     }
 
     fetchUserData();
-  }, []);
+  }, [user]);
 
   return <ProfilePage profile={profile} />;
 }

@@ -4,13 +4,13 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC-tFX8jVZB9RLjjTkexgrbdUgfaGlxags",
-  authDomain: "game-spheres.firebaseapp.com",
-  projectId: "game-spheres",
-  storageBucket: "game-spheres.firebasestorage.app",
-  messagingSenderId: "66611692051",
-  appId: "1:66611692051:web:6734f5c818d6af1cf535e6",
-  measurementId: "G-YPPJCBLSXD"
+  apiKey: process.env.NEXT_PUBLIC_CLIENT_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_CLIENT_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_CLIENT_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_CLIENT_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_CLIENT_MESSAGE_ID,
+  appId: process.env.NEXT_PUBLIC_CLIENT_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_CLIENT_MEASUREMENT_ID
 };
 
 // Initialize Firebase

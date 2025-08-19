@@ -190,7 +190,7 @@ export default function Auth() {
           onClick={() => setIsSignIn(!isSignIn)}
           className="hover:text-green-500 hover:underline hover:cursor-pointer"
         >
-          Don't have an account?
+          Don&apos;t have an account?
         </p>
       </div>
 

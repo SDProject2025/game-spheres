@@ -2,20 +2,22 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1d1d1d;
+  --sidebar-width: 64px;
 }
 
-@theme inline {
+/* @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
+} */
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #1d1d1d;
     --foreground: #ededed;
+    --sidebar-width: 64px;
   }
 }
 
@@ -23,4 +25,213 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* SIDEBAR STUFF */
+
+/* smooth transitions */
+* {
+  transition-property: margin, width;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* hover effects when collapsed */
+.sidebar-collapsed .sidebar-item {
+  position: relative;
+}
+
+.sidebar-collapsed .sidebar-item:hover::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-left: 8px;
+  pointer-events: none;
+}
+
+/* neon rings for singin part, can change params from here (green rinbgs) */
+/* first ring rotates clockwise */
+@keyframes neonRotateClockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+/* second ring goes other dir */
+@keyframes neonRotateCounterClockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+.neon-rings-wrapper {
+  position: relative;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.neon-ring {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.neon-ring i {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #fff;
+  transition: 0.5s;
+}
+
+.neon-ring i:nth-child(1) {
+  border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+  animation: animate 3s linear infinite;
+}
+
+.neon-ring i:nth-child(2) {
+  border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+  animation: animate 6s linear infinite;
+}
+
+.neon-ring i:nth-child(3) {
+  border-radius: 41% 44% 56% 59% / 38% 62% 63% 37%;
+  animation: animate2 12s linear infinite;
+}
+
+.neon-ring:hover i {
+  border: 6px solid var(--clr);
+  filter: drop-shadow(0 0 20px var(--clr));
+}
+
+@keyframes animate {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes animate2 {
+  0% {
+    transform: rotateZ(360deg);
+  }
+  100% {
+    transform: rotateZ(0deg);
+  }
+}
+
+.neon-gold {
+  color: #ffd700 !important;
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 10px #ffd700, 0 0 40px #ffd700, 0 0 80px #ffd700 !important;
+}
+
+/* For the animated sphere on gameSphere page */
+/* Neon glowing sphere */
+.ball {
+  animation: float612 2.4s ease-in-out infinite,
+    glowPulse 2s ease-in-out infinite;
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+  position: relative;
+  background: radial-gradient(
+    circle at 75% 30%,
+    #ffffff 5px,
+    #39ff14 15%,
+    #00ffea 60%,
+    #ff00ff 100%
+  );
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.8), 0 0 40px rgba(0, 255, 234, 0.6),
+    0 0 80px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Floating animation */
+@keyframes float612 {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-50px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Glow pulse animation */
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.8), 0 0 40px rgba(0, 255, 234, 0.6),
+      0 0 80px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(57, 255, 20, 1), 0 0 60px rgba(0, 255, 234, 0.8),
+      0 0 120px rgba(255, 0, 255, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Shadow under the ball */
+.shadow {
+  background: rgba(0, 255, 234, 0.4);
+  width: 80px;
+  height: 25px;
+  top: 150%;
+  animation: expand6234 2.4s ease-in-out infinite;
+  position: absolute;
+  border-radius: 50%;
+}
+
+@keyframes expand6234 {
+  0%,
+  100% {
+    transform: scale(0.6);
+  }
+  50% {
+    transform: scale(0.3);
+    filter: blur(5px);
+  }
+}
+
+/* Slim modern scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px; /* thin scrollbar */
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent; /* no background */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* light gray thumb */
+  border-radius: 9999px; /* fully rounded */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5); /* darker on hover */
+}
+
+/* For Firefox */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }

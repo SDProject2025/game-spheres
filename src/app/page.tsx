@@ -1,22 +1,23 @@
-'use client';
-import { useEffect, useState } from "react";
+"use client";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/config/firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { useUser } from "@/config/userProvider";
 
-export default function Home() {
+export default function Index() {
+  const { user, loading } = useUser();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const authState = onAuthStateChanged(auth, user => {
-      if (!user) router.replace("/auth");
-      else router.replace("/home");
-      setLoading(false);
-    });
-
-    return () => authState();
-  }, []);
-
-  return loading ? <p>Loading</p> : null;
+    if (!loading) {
+      if (!user) {
+        router.replace("/auth");
+      } else if (!user.emailVerified) {
+        router.replace("/unauthorised");
+      } else {
+        router.push("/home");
+      }
+    }
+  }, [user, loading, router]);
+  
+  return loading ? <p>Loading...</p> : null;
 }

@@ -1,23 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@/config/userProvider";
-import { db } from "@/config/firebaseConfig";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  writeBatch,
-  arrayUnion,
-  arrayRemove,
-  updateDoc,
-  DocumentReference,
-  QueryDocumentSnapshot,
-} from "firebase/firestore";
-import { GameSphere, FullGameSphere } from "@/types/GameSphere";
+import { FullGameSphere } from "@/types/GameSphere";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "react-hot-toast";
 import SearchBar from "@/components/searchBar";
+import { responseCookiesToRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export default function GameSpheres() {
   const [selectedGame, setSelectedGame] = useState<FullGameSphere | null>(null);
@@ -37,20 +25,17 @@ export default function GameSpheres() {
     const checkSub = async () => {
       if (!user || !selectedGame) return;
 
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
-
-      if (!snap.exists()) return;
-
-      const data = snap.data();
-
-      const gsRef = doc(db, "gamespheres", selectedGame.id);
-
-      const subscribed = ((data.gsSubs || []) as DocumentReference[]).some(
-        (ref) => ref.path === gsRef.path
-      );
-
-      setIsSubscribed(subscribed);
+      try {
+        const res = await fetch(
+          `/api/gameSpheres/subscriptions?userId=${user.uid}&gameSphereId=${selectedGame.id}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setIsSubscribed(data.isSubscribed);
+        }
+      } catch (error) {
+        console.error("Error Checking Subscription:", error);
+      }
     };
     checkSub();
   }, [selectedGame]);
@@ -59,26 +44,16 @@ export default function GameSpheres() {
   const searchGameSpheres = useCallback(
     async (query: string): Promise<FullGameSphere[]> => {
       try {
-        const gsRef = collection(db, "gamespheres").withConverter<GameSphere>({
-          toFirestore: (data) => data,
-          fromFirestore: (snap: QueryDocumentSnapshot) =>
-            snap.data() as GameSphere,
-        });
+        const res = await fetch(
+          `/api/gameSpheres/search?query=${encodeURIComponent(query)}`
+        );
 
-        const gsSnap = await getDocs(gsRef);
+        if (!res.ok) {
+          throw new Error("Failed to fetch GameSpheres");
+        }
 
-        /**
-         * This is the actual search. It matches the name
-         * of each GameSphere against the search query
-         */
-        return gsSnap.docs
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter((game) =>
-            game.name.toLowerCase().includes(query.toLowerCase())
-          );
+        const data = await res.json();
+        return data.gameSpheres;
       } catch (error) {
         console.error("Error fetching GameSpheres:", error);
         return [];
@@ -94,41 +69,37 @@ export default function GameSpheres() {
       return;
     }
 
-    const gsRef = doc(db, "gamespheres", gameSphere.id);
-    const userRef = doc(db, "users", user.uid);
-
     try {
-      if (!isSubscribed) {
-        // subscribe to gs
-        const batch = writeBatch(db);
+      const action = isSubscribed ? "unsubscribe" : "subscribe";
 
-        batch.update(gsRef, {
-          subscribers: arrayUnion(userRef),
-        });
+      const res = await fetch("/api/gameSpheres/subscriptions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          gameSphereId: gameSphere.id,
+          action,
+        }),
+      });
 
-        batch.update(userRef, {
-          gsSubs: arrayUnion(gsRef),
-        });
-
-        await batch.commit();
-
-        setIsSubscribed(true);
-        toast.success(`Subscribed to GameSphere ${gameSphere.name}`);
-      } else {
-        // unsubscribe
-        await updateDoc(gsRef, {
-          subscribers: arrayRemove(userRef),
-        });
-
-        await updateDoc(userRef, {
-          gsSubs: arrayRemove(gsRef),
-        });
-
-        setIsSubscribed(false);
-        toast.success(`Unsubscribed from GameSphere ${gameSphere.name}`);
+      if (!res.ok) {
+        throw new Error("Error updating subscription");
       }
+
+      const data = await res.json();
+
+      const toastMessage =
+        action === "subscribe"
+          ? `Subscribed to GameSphere: ${gameSphere.name}`
+          : `Unsubscribed from GameSphere: ${gameSphere.name}`;
+
+      setIsSubscribed(data.isSubscribed);
+
+      toast.success(toastMessage);
     } catch (error) {
-      console.error("Error updating document:", error);
+      console.error("Error updating subscription:", error);
       toast.error("Something went wrong :(");
     }
   };

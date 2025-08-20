@@ -17,7 +17,7 @@ import {
 import { GameSphere, FullGameSphere } from "@/types/GameSphere";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "react-hot-toast";
-import SearchBar from "@/components/searchBar";
+import SearchBar from "@/components/search/searchBar";
 
 export default function GameSpheres() {
   const [selectedGame, setSelectedGame] = useState<FullGameSphere | null>(null);

@@ -23,6 +23,18 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.style.setProperty("--sidebar-width", `${width}px`);
   }, [isExpanded, expandedWidth, collapsedWidth]);
 
+  //keyobard shortcut
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "/") {
+        event.preventDefault();
+        toggleSidebar();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleSidebar]);
+
   return (
     <SidebarContext.Provider
       value={{

@@ -1,10 +1,12 @@
 import * as admin from "firebase-admin";
 
-const serviceAccount = require("./game-spheres-firebase-adminsdk-fbsvc-7d1a8bbbc1.json");
-
 if (!admin.apps.length) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert({
+      projectId: process.env.ADMIN_PROJECT_ID,
+      clientEmail: process.env.CLIENT_EMAIL,
+      privateKey: process.env.ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n")
+    })
   });
 }
 

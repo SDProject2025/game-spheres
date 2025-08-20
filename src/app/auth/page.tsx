@@ -163,8 +163,12 @@ export default function Auth() {
       if (status.isValid) return true;
       toast.error("Invalid password");
       return false;
-    } catch (e: any) {
-      toast.error("Password validation failed:", e.message);
+    } catch (e: unknown) {
+      const message =
+        e instanceof Error
+          ? e.message
+          : "Unknown error during password validation";
+      toast.error(`Password validation failed: ${message}`);
       return false;
     }
   }
@@ -186,7 +190,7 @@ export default function Auth() {
           onClick={() => setIsSignIn(!isSignIn)}
           className="hover:text-green-500 hover:underline hover:cursor-pointer"
         >
-          Don't have an account?
+          Don&apos;t have an account?
         </p>
       </div>
 

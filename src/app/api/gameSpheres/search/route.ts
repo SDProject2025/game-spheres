@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/config/firebaseConfig";
-import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
+import { db } from "@/config/firebaseAdminConfig";
 import { GameSphere, FullGameSphere } from "@/types/GameSphere";
 
 export async function GET(request: NextRequest) {
@@ -9,17 +8,12 @@ export async function GET(request: NextRequest) {
 
     const query = searchParams.get("query") || "";
 
-    const gsRef = collection(db, "gamespheres").withConverter<GameSphere>({
-      toFirestore: (data) => data,
-      fromFirestore: (snap: QueryDocumentSnapshot) => snap.data() as GameSphere,
-    });
-
-    const gsSnap = await getDocs(gsRef);
+    const gsSnap = await db.collection("gamespheres").get();
 
     const gameSpheres: FullGameSphere[] = gsSnap.docs
       .map((doc) => ({
         id: doc.id,
-        ...doc.data(),
+        ...(doc.data() as GameSphere),
       }))
       .filter((game) => game.name.toLowerCase().includes(query.toLowerCase()));
 

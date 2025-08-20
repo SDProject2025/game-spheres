@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/config/firebaseConfig";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  writeBatch,
-  arrayUnion,
-  arrayRemove,
-  DocumentReference,
-} from "firebase/firestore";
-import { headers } from "next/headers";
+import { db } from "@/config/firebaseAdminConfig";
+import admin from "firebase-admin";
 
 // Check sub status
 export async function GET(request: NextRequest) {
@@ -22,22 +13,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User Not Found" }, { status: 404 });
     }
 
-    const userRef = doc(db, "users", userId);
-    const gsRef = doc(db, "gamespheres", gameSphereId);
+    const userRef = db.collection("users").doc(userId);
+    const gsRef = db.collection("gamespheres").doc(gameSphereId);
 
-    const userSnap = await getDoc(userRef);
+    const userSnap = await userRef.get();
 
-    if (!userSnap.exists()) {
+    if (!userSnap.exists) {
       return NextResponse.json({ error: "User Not Found" }, { status: 400 });
     }
 
     const userData = userSnap.data();
 
-    const isSubscribed = ((userData.gsSubs || []) as DocumentReference[]).some(
-      (ref) => ref.path === gsRef.path
-    );
-
-    console.log("Is Subscribed:", isSubscribed);
+    const isSubscribed = (
+      (userData?.gsSubs || []) as admin.firestore.DocumentReference[]
+    ).some((ref) => ref.path === gsRef.path);
 
     return NextResponse.json({ isSubscribed });
   } catch (error: unknown) {
@@ -53,13 +42,6 @@ export async function POST(request: NextRequest) {
   try {
     const { userId, gameSphereId, action } = await request.json();
 
-    console.log(
-      "User ID, GameSphere ID, Action:",
-      userId,
-      gameSphereId,
-      action
-    );
-
     if (!userId || !gameSphereId || !action) {
       return NextResponse.json(
         { error: "UserID, GameSphereID, and Action are required" },
@@ -71,18 +53,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid Action" }, { status: 400 });
     }
 
-    const gsRef = doc(db, "gamespheres", gameSphereId);
-    const userRef = doc(db, "users", userId);
+    const gsRef = db.collection("gamespheres").doc(gameSphereId);
+    const userRef = db.collection("users").doc(userId);
 
     if (action === "subscribe") {
-      const batch = writeBatch(db);
+      const batch = db.batch();
 
       batch.update(userRef, {
-        gsSubs: arrayUnion(gsRef),
+        gsSubs: admin.firestore.FieldValue.arrayUnion(gsRef),
       });
 
       batch.update(gsRef, {
-        subscribers: arrayUnion(userRef),
+        subscribers: admin.firestore.FieldValue.arrayUnion(userRef),
       });
 
       await batch.commit();
@@ -94,13 +76,17 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Unsubscribe
-      await updateDoc(gsRef, {
-        subscribers: arrayRemove(userRef),
+      const batch = db.batch();
+
+      batch.update(gsRef, {
+        subscribers: admin.firestore.FieldValue.arrayRemove(userRef),
       });
 
-      await updateDoc(userRef, {
-        gsSubs: arrayRemove(gsRef),
+      batch.update(userRef, {
+        gsSubs: admin.firestore.FieldValue.arrayRemove(gsRef),
       });
+
+      await batch.commit();
 
       return NextResponse.json({
         success: true,

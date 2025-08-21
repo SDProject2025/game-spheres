@@ -51,6 +51,7 @@ export default function SearchBar<T extends SearchItem>({
     if (debounce.trim() === "" || debounce.trim().length < 2) {
       setResults([]);
       setSelected(null);
+      onSelectionChange?.(null);
       return;
     }
 
@@ -64,22 +65,23 @@ export default function SearchBar<T extends SearchItem>({
 
         if (!isCancelled) {
           setResults(searchResults);
-        }
 
-        // Auto select first result from list
-        if (
-          searchResults.length > 0 &&
-          (!selected || !searchResults.find((item) => item.id === selected.id))
-        ) {
-          setSelected(searchResults[0]);
-        } else if (searchResults.length === 0) {
-          setSelected(null);
+          // Auto select first result from list
+          if (searchResults.length > 0) {
+            const firstResult = searchResults[0];
+            setSelected(firstResult);
+            onSelectionChange?.(firstResult);
+          } else {
+            setSelected(null);
+            onSelectionChange?.(null);
+          }
         }
       } catch (error) {
         console.error("Error While Searching:", error);
         if (!isCancelled) {
           setResults([]);
           setSelected(null);
+          onSelectionChange?.(null);
         }
       }
 
@@ -91,7 +93,7 @@ export default function SearchBar<T extends SearchItem>({
     return () => {
       isCancelled = true;
     };
-  }, [debounce, searchFunction, selected]);
+  }, [debounce, searchFunction, onSelectionChange]);
 
   const updateSelection = (item: T | null) => {
     setSelected(item); // update search bar's state

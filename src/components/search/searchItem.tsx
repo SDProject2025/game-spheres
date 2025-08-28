@@ -3,7 +3,7 @@ type Props = {
     searchTitle: string;
 }
 
-export default function SearchItem({imageUrl, searchTitle}: Props) {
+export default function SearchItemContainer({imageUrl, searchTitle}: Props) {
     return (
         <div className="flex items-center space-x-3">
             <img

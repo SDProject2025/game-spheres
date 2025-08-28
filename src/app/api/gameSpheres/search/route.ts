@@ -4,18 +4,12 @@ import { GameSphere, FullGameSphere } from "@/types/GameSphere";
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-
-    const query = searchParams.get("query") || "";
-
     const gsSnap = await db.collection("gamespheres").get();
 
-    const gameSpheres: FullGameSphere[] = gsSnap.docs
-      .map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as GameSphere),
-      }))
-      .filter((game) => game.name.toLowerCase().includes(query.toLowerCase()));
+    const gameSpheres: FullGameSphere[] = gsSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...(doc.data() as GameSphere),
+    }));
 
     return NextResponse.json({ gameSpheres });
   } catch (error: unknown) {

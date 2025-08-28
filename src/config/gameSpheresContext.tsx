@@ -31,18 +31,19 @@ export const GameSpheresProvider = ({
     const cachedGameSpheres = localStorage.getItem(LOCAL_STORAGE_KEY);
 
     if (cachedGameSpheres) {
-      console.log("GameSpheres found in cache");
+      // console.log("GameSpheres found in cache");
       try {
         const parsedGameSpheres: FullGameSphere[] =
           JSON.parse(cachedGameSpheres);
         setGameSpheres(parsedGameSpheres);
+        // console.log("GameSpheres:", parsedGameSpheres);
         return;
       } catch (error) {
         console.error("Failed to fetch cached GameSpheres:", error);
       }
     }
 
-    console.log("No GameSpheres in cache: fetching from API");
+    // console.log("No GameSpheres in cache: fetching from API");
 
     // Fetch from backend API
     fetch("/api/gameSpheres/search")
@@ -54,7 +55,8 @@ export const GameSpheresProvider = ({
           JSON.stringify(data.gameSpheres)
         );
       })
-      .catch((error) => console.log("Error fetching GameSpheres:", error));
+      .catch((error) => console.error("Error fetching GameSpheres:", error));
+    // console.log("reults:", gameSpheres);
   }, []);
 
   return (

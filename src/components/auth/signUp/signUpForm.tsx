@@ -14,12 +14,14 @@ type Props = {
   ) => void;
   validateUsername: (username: string) => Promise<boolean>;
   validatePassword: (password: string) => Promise<boolean>;
+  bottomLink?: React.ReactNode;
 };
 
 export default function SignUpForm({
   handleSignUpClick,
   validateUsername,
   validatePassword,
+  bottomLink,
 }: Props) {
   // REQUIRED FIELDS
   const [username, setUsername] = useState("");
@@ -80,17 +82,17 @@ export default function SignUpForm({
 
   return (
     <div className="flex justify-center">
-      <div className="neon-ring">
+      <div className="neon-ring signup">
         <i style={{ "--clr": "#00ffc3" } as React.CSSProperties}></i>
         <i style={{ "--clr": "#00e6b3" } as React.CSSProperties}></i>
         <i style={{ "--clr": "#00ffdd" } as React.CSSProperties}></i>
 
         <form
-          className="relative w-[300px] p-8 rounded-lg shadow-xl text-white
+          className="relative w-[300px] h-[465px] p-8 rounded-lg shadow-xl text-white
                  bg-black/30 backdrop-blur-md border border-white/10"
           onSubmit={formSubmitHandler}
         >
-          <h1 className="text-2xl text-[#00ffc3] tracking-wide mb-6 text-center">
+          <h1 className="text-xl text-[#00ffc3] tracking-wide mb-6 text-center">
             Sign Up
           </h1>
 
@@ -121,11 +123,16 @@ export default function SignUpForm({
             label="Password:"
             onChange={(e) => setPassword(e.target.value)}
           />
-          {validPassword ? null : <p>Password does not meet requirements</p>}
+          {validPassword ? null : (
+            <p className="text-xs text-red-400 mt-1 text-center">
+              Password requirements not met
+            </p>
+          )}
 
           <div className="flex justify-center w-full mt-4">
             <NeonButton type="submit">SIGN UP</NeonButton>
           </div>
+          {bottomLink && <div className="mt-4 text-center">{bottomLink}</div>}
         </form>
       </div>
     </div>

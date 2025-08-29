@@ -68,61 +68,66 @@ export default function SignUpForm({
 
   async function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (validateEmail() && (await validateUsername(username)) && (await validatePassword(password))) {
+    if (
+      validateEmail() &&
+      (await validateUsername(username)) &&
+      (await validatePassword(password))
+    ) {
       handleSignUpClick(username, displayName, email, password);
     } else {
-      
     }
   }
 
   return (
-    <div className="neon-ring">
-      <i style={{ "--clr": "#00ffc3" } as React.CSSProperties}></i>
-      <i style={{ "--clr": "#00e6b3" } as React.CSSProperties}></i>
-      <i style={{ "--clr": "#00ffdd" } as React.CSSProperties}></i>
+    <div className="flex justify-center">
+      <div className="neon-ring">
+        <i style={{ "--clr": "#00ffc3" } as React.CSSProperties}></i>
+        <i style={{ "--clr": "#00e6b3" } as React.CSSProperties}></i>
+        <i style={{ "--clr": "#00ffdd" } as React.CSSProperties}></i>
 
-      <form
-        className="relative w-[300px] p-8 rounded-lg shadow-xl text-white
+        <form
+          className="relative w-[300px] p-8 rounded-lg shadow-xl text-white
                  bg-black/30 backdrop-blur-md border border-white/10"
-        onSubmit={formSubmitHandler}
-      >
-        <h1 className="text-2xl text-[#00ffc3] tracking-wide mb-6 text-center">
-          Sign Up
-        </h1>
+          onSubmit={formSubmitHandler}
+        >
+          <h1 className="text-2xl text-[#00ffc3] tracking-wide mb-6 text-center">
+            Sign Up
+          </h1>
 
-        <TextInput
-          label="Username:"
-          icon={<MdPerson />}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        {validUsername ? null : <p>Username already taken</p>}
+          <TextInput
+            label="Username:"
+            icon={<MdPerson />}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          {validUsername ? null : <p>Username already taken</p>}
 
-        <TextInput
-          label="Display Name:"
-          icon={<MdPerson />}
-          onChange={(e) => setDisplayName(e.target.value)}
-        />
+          <TextInput
+            label="Display Name:"
+            icon={<MdPerson />}
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
 
-        <TextInput
-          label="Email:"
-          icon={<MdEmail />}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setValidEmail(validateEmail());
-          }}
-        />
-        {validEmail ? null : <p>Invalid email address</p>}
+          <TextInput
+            label="Email:"
+            icon={<MdEmail />}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setValidEmail(validateEmail());
+            }}
+          />
+          {validEmail ? null : <p>Invalid email address</p>}
 
-        <PasswordInput
-          label="Password:"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {validPassword ? null : <p>Password does not meet requirements</p>}
+          <PasswordInput
+            label="Password:"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {validPassword ? null : <p>Password does not meet requirements</p>}
 
-        <div className="flex justify-center w-full mt-4">
-          <NeonButton type="submit">SIGN UP</NeonButton>
-        </div>
-      </form>
+          <div className="flex justify-center w-full mt-4">
+            <NeonButton type="submit">SIGN UP</NeonButton>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export interface SearchItem {
   id: string;
@@ -46,11 +46,12 @@ export default function SearchBar<T extends SearchItem>({
     };
   }, [search]);
 
-  // Only search when debounced value is changed or 2 or more characters
+  // Search effect
   useEffect(() => {
-    if (debounce.trim() === "" || debounce.trim().length < 2) {
+    if (debounce.trim() === "") {
       setResults([]);
       setSelected(null);
+      onSelectionChange?.(null);
       return;
     }
 
@@ -64,22 +65,23 @@ export default function SearchBar<T extends SearchItem>({
 
         if (!isCancelled) {
           setResults(searchResults);
-        }
 
-        // Auto select first result from list
-        if (
-          searchResults.length > 0 &&
-          (!selected || !searchResults.find((item) => item.id === selected.id))
-        ) {
-          setSelected(searchResults[0]);
-        } else if (searchResults.length === 0) {
-          setSelected(null);
+          // Auto select first result from list
+          if (searchResults.length > 0) {
+            const firstResult = searchResults[0];
+            setSelected(firstResult);
+            onSelectionChange?.(firstResult);
+          } else {
+            setSelected(null);
+            onSelectionChange?.(null);
+          }
         }
       } catch (error) {
         console.error("Error While Searching:", error);
         if (!isCancelled) {
           setResults([]);
           setSelected(null);
+          onSelectionChange?.(null);
         }
       }
 
@@ -91,14 +93,17 @@ export default function SearchBar<T extends SearchItem>({
     return () => {
       isCancelled = true;
     };
-  }, [debounce, searchFunction, selected]);
+  }, [debounce]);
 
-  const updateSelection = (item: T | null) => {
-    setSelected(item); // update search bar's state
-    onSelectionChange?.(item); // update parent component (GameSphere, Users etc.)
-  };
+  // Memoized selection handler to prevent re-renders
+  const updateSelection = useCallback(
+    (item: T | null) => {
+      setSelected(item);
+      onSelectionChange?.(item);
+    },
+    [onSelectionChange]
+  );
 
-  // react stuff
   return (
     <div className="min-h-screen text-white p-6 flex flex-col items-center">
       <div className="flex w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">

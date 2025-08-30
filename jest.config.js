@@ -10,7 +10,10 @@ module.exports = {
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1', //maps @/config/firebaseAdminConfig to src/config/firebaseAdminConfig.ts idk
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
+
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
 
   collectCoverage: true,
   collectCoverageFrom: [

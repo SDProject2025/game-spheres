@@ -37,11 +37,13 @@ export default function SignInForm({
           Sign In
         </h1>
         <TextInput
+          id="email"
           label="Email:"
           icon={<MdEmail />}
           onChange={(e) => setEmail(e.target.value)}
         />
         <PasswordInput
+          id="password"
           label="Password"
           onChange={(e) => setPassword(e.target.value)}
         />

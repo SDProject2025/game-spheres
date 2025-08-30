@@ -14,25 +14,45 @@ export default function Profile() {
     bio: string;
     following: string[];
     followers: string[];
+    //profile pic
     //posts: { id: number; thumbnail: string }[];
   }>(null);
 
   const { user, loading } = useUser();
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
+    if (!user?.uid) return;
+
+    const uid = user.uid;
     async function fetchUserData() {
-      const res = await fetch(`/api/profile?uid=${user?.uid}`);
-      if (res.ok) {
-        const data = await res.json();
-        setProfile(data.userData);
-        console.log(data);
+      try {
+        const res = await fetch(`/api/profile?uid=${uid}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data.userData ?? null);
+        } else {
+          console.error("Error fetching profile");
+          setProfile(null);
+        }
+      } catch (err) {
+        console.error(err);
+        setProfile(null);
+      } finally {
+        setLoadingProfile(false);
       }
-      // TODO: change this message later
-      else console.error("Fucked it");
     }
 
     fetchUserData();
-  }, []);
+  }, [user]);
+
+  if (loading || loadingProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-400">
+        Loading profile...
+      </div>
+    );
+  }
 
   return <ProfilePage profile={profile} />;
 }

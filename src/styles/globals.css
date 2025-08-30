@@ -92,6 +92,11 @@ body {
   justify-content: center;
   align-items: center;
 }
+.neon-ring.signup {
+  width: 800px;
+  height: 600px;
+
+}
 
 .neon-ring i {
   position: absolute;

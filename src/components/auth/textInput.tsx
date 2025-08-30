@@ -8,13 +8,14 @@ type Props = {
 
 export default function TextInput({label, icon, id, ...props}: Props) {
     return (
-        <div className="relative mb-6">
+        <div className="relative mb-4">
             <input
                 {...props}
                 id={id}
                 required
                 placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-[#444] text-white pt-5 pb-2 px-8 outline-none focus:border-[#00ffc3] focus:shadow-[0_0_10px_#00ffc3] placeholder-transparent"
+                className="peer w-full bg-transparent border-b-2 border-[#444] text-white text-sm pt-4 pb-1 px-7 outline-none
+                           focus:border-[#00ffc3] focus:shadow-[0_0_8px_#00ffc3] placeholder-transparent"
             />
             <label
                 htmlFor={id}

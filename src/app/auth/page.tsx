@@ -163,8 +163,12 @@ export default function Auth() {
       if (status.isValid) return true;
       toast.error("Invalid password");
       return false;
-    } catch (e: any) {
-      toast.error("Password validation failed:", e.message);
+    } catch (e: unknown) {
+      const message =
+        e instanceof Error
+          ? e.message
+          : "Unknown error during password validation";
+      toast.error(`Password validation failed: ${message}`);
       return false;
     }
   }
@@ -176,18 +180,22 @@ export default function Auth() {
           isSignIn
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        } transition-opacity duration-700`}
+        } transition-opacity duration-700 flex flex-col items-center`}
       >
         <SignInForm
           signInWithGoogle={signInWithProvider}
           handleSignInClick={signInManual}
+          bottomLink={
+            <p
+              onClick={() => setIsSignIn(false)}
+              className="mt-4 text-center text-sm text-[#00ffc3] font-medium
+                 hover:text-[#00ffdd] hover:cursor-pointer
+                 drop-shadow-[0_0_10px_#00ffc3]"
+            >
+              Don&apos;t have an account?
+            </p>
+          }
         />
-        <p
-          onClick={() => setIsSignIn(!isSignIn)}
-          className="hover:text-green-500 hover:underline hover:cursor-pointer"
-        >
-          Don't have an account?
-        </p>
       </div>
 
       <div
@@ -195,20 +203,25 @@ export default function Auth() {
           isSignIn
             ? "opacity-0 pointer-events-none"
             : "opacity-100 pointer-events-auto"
-        } transition-opacity duration-700`}
+        } transition-opacity duration-700 flex flex-col items-center`}
       >
         <SignUpForm
           handleSignUpClick={signUpManual}
           validateUsername={isValidUsername}
           validatePassword={isValidPassword}
+          bottomLink={
+            <p
+              onClick={() => setIsSignIn(!isSignIn)}
+              className="mt-4 text-center text-sm text-[#00ffc3] font-medium
+                 hover:text-[#00ffdd] hover:cursor-pointer
+                 drop-shadow-[0_0_10px_#00ffc3]"
+            >
+              Already have an account?
+            </p>
+          }
         />
-        <p
-          onClick={() => setIsSignIn(!isSignIn)}
-          className="hover:text-green-500 hover:underline hover:cursor-pointer"
-        >
-          Already have an account?
-        </p>
       </div>
+
       <Toaster />
     </div>
   );

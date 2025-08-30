@@ -1,7 +1,7 @@
 "use client";
 import SearchBar, { SearchItem } from "@/components/search/searchBar";
 import SearchItemContainer from "@/components/search/searchItem";
-import ProfilePage from "@/components/profile/profilePage";
+import UserDetail from "@/components/profile/userDetail";
 
 interface User extends SearchItem {
   uid: string;
@@ -32,7 +32,7 @@ const renderSearchItem = (user: User, isSelected: boolean) => (
   <SearchItemContainer searchTitle={user.username} imageUrl={user.profileUrl} />
 );
 
-const renderSearchDetails = (user: User) => <ProfilePage profile={user} />;
+const renderSearchDetails = (user: User) => <UserDetail profile={user} />;
 
 export default function searchUsers() {
   return (

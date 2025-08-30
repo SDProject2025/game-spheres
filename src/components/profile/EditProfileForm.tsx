@@ -3,8 +3,12 @@ import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { MdPerson, MdEdit } from "react-icons/md";
 import NeonButton from "../neonButton";
 import TextInput from "../auth/textInput";
-import { db } from "@/config/firebaseConfig";
+import { db, storage } from "@/config/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+//import { storage } from "firebase-admin";
+import { updateCurrentUser } from "firebase/auth";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { Storage } from "firebase-admin/storage";
 
 
 type Props = {
@@ -36,10 +40,37 @@ export default function EditProfileForm({ userId, onSave }: Props) {
     loadProfile();
   }, [userId]);
 
-  const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setPhotoURL(URL.createObjectURL(e.target.files[0])); // preview only
-    }
+      //setPhotoURL(URL.createObjectURL(e.target.files[0])); // preview only
+
+      //handling uploading of profile photo
+      const file = e.target.files[0]; 
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("userId", userId);
+
+      const res = await fetch("/api/profile/profilePhoto", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      setPhotoURL(data.downloadURL); // update preview & Firestore
+
+      /*
+      // Save to Firestore (using userId)
+      await updateDoc(doc(db, "users", userId), {
+        photoURL: downloadURL,
+      });
+      */
+
+      // Update local state for immediate preview
+      //setPhotoURL(downloadURL);
+      }
+
+
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -51,7 +82,8 @@ export default function EditProfileForm({ userId, onSave }: Props) {
       await updateDoc(doc(db, "users", userId), {
         username,
         displayName,
-        bio,
+        bio
+        //photoURL
       });
 
       if (onSave) onSave();

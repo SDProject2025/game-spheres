@@ -98,6 +98,7 @@ export default function SignUpForm({
 
           <TextInput
             label="Username:"
+            id="username"
             icon={<MdPerson />}
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -105,12 +106,14 @@ export default function SignUpForm({
 
           <TextInput
             label="Display Name:"
+            id="displayname"
             icon={<MdPerson />}
             onChange={(e) => setDisplayName(e.target.value)}
           />
 
           <TextInput
             label="Email:"
+            id="email"
             icon={<MdEmail />}
             onChange={(e) => {
               setEmail(e.target.value);
@@ -121,6 +124,7 @@ export default function SignUpForm({
 
           <PasswordInput
             label="Password:"
+            id="password"
             onChange={(e) => setPassword(e.target.value)}
           />
           {validPassword ? null : (

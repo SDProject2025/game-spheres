@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/config/firebaseConfig";
-import EditProfileForm from "@/components/profile/EditProfileForm";
+import EditProfileForm from "@/components/profile/forms/EditProfileForm";
 import { onAuthStateChanged } from "firebase/auth";
 import { Toaster, toast } from "react-hot-toast";
 

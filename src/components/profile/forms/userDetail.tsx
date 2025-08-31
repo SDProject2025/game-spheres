@@ -17,6 +17,7 @@ export type ProfileType = {
   following: string[];
   followers: string[];
   posts: number;
+  photoURL: string;
   //posts: { id: number; thumbnail: string }[];
 };
 
@@ -98,7 +99,7 @@ export default function UserDetail({
     <div className="min-h-screen bg-[#111] text-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-col gap-8 items-center">
-          <ProfilePicture src="pfp.jpg" />
+          <ProfilePicture src={profile.photoURL} />
 
           <div className="flex-1">
             {/* Name and Button Row */}

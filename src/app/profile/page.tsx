@@ -14,6 +14,7 @@ export default function Profile() {
     bio: string;
     following: string[];
     followers: string[];
+    profilePic: string;
     //profile pic
     //posts: { id: number; thumbnail: string }[];
   }>(null);

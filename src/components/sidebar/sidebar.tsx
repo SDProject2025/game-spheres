@@ -28,6 +28,7 @@ export default function Sidebar() {
   const navItems = [
     { icon: Home, name: "Home", href: "/home" },
     { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
+    { icon: User, name: "Find Friends", href: "/searchUsers" },
   ];
 
   return (

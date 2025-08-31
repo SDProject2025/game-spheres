@@ -1,11 +1,12 @@
-import ProfilePicture from "./profilePicture";
-import FollowButton from "./followButton";
-import ProfileButton from "./profileButton";
-import ProfileStat from "./profileStats";
 import { useUser } from "@/config/userProvider";
 import { useState, useEffect } from "react";
-import { getIdToken } from "firebase/auth";
 import { auth } from "@/config/firebaseConfig";
+import { FiUser } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+
+import ProfilePicture from "../profilePicture";
+import FollowButton from "../followButton";
+import ProfileStat from "../profileStats";
 //import VideoGrid from "./videoGrid";
 
 export type ProfileType = {
@@ -24,6 +25,7 @@ export default function UserDetail({
 }: {
   profile: ProfileType | null;
 }) {
+  const router = useRouter();
   const { user, loading } = useUser();
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -34,6 +36,10 @@ export default function UserDetail({
       setIsFollowing(false);
     }
   }, [isFollowing]);
+
+  function viewUserProfile() {
+    router.push(`/profile/${profile?.uid}`);
+  }
 
   async function sendFollow() {
     if (!profile?.uid) return false;
@@ -70,7 +76,8 @@ export default function UserDetail({
       });
 
       if (res.ok) {
-        if (user?.uid) profile.followers.splice(profile.followers.indexOf(user.uid), 1);
+        if (user?.uid)
+          profile.followers.splice(profile.followers.indexOf(user.uid), 1);
         setIsFollowing(false);
       }
     } catch (error: unknown) {
@@ -122,7 +129,13 @@ export default function UserDetail({
             handleFollowClick={sendFollow}
             handleUnfollowClick={sendUnfollow}
           />
-          <ProfileButton isOwner={false} />
+          <button
+            type="button"
+            onClick={() => viewUserProfile()}
+            className="mt-6 px-6 py-2 rounded-md font-semibold text-[#111] bg-[#00ffc3] shadow-[0_0_15px_#00ffc3] hover:bg-[#00e6b3] transition flex items-center gap-2"
+          >
+            <FiUser /> View Profile
+          </button>
         </div>
       </div>
     </div>

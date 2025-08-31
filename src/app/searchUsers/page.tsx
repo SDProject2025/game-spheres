@@ -1,7 +1,7 @@
 "use client";
 import SearchBar, { SearchItem } from "@/components/search/searchBar";
 import SearchItemContainer from "@/components/search/searchItem";
-import UserDetail from "@/components/profile/userDetail";
+import UserDetail from "@/components/profile/forms/userDetail";
 
 interface User extends SearchItem {
   uid: string;

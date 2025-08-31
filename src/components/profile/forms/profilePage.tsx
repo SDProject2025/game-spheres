@@ -3,7 +3,9 @@ import ProfileButton from "../profileButton";
 import FollowButton from "../followButton";
 import ProfileStat from "../profileStats";
 import VideoGrid from "../videoGrid";
+import { useState, useEffect } from "react";
 import { useUser } from "@/config/userProvider";
+import { auth } from "@/config/firebaseConfig";
 
 export type ProfileType = {
   uid: string;
@@ -15,9 +17,71 @@ export type ProfileType = {
   // posts: { id: number; thumbnail: string }[];
 };
 
-export default function ProfilePage({ profile }: { profile: ProfileType | null }) {
+export default function ProfilePage({
+  profile,
+}: {
+  profile: ProfileType | null;
+}) {
   const { user, loading } = useUser();
 
+  const [isFollowing, setIsFollowing] = useState(false);
+  
+  useEffect(() => {
+    if (profile?.followers.includes(user?.uid ?? "")) {
+      setIsFollowing(true);
+    } else {
+      setIsFollowing(false);
+    }
+  }, [profile, user]);
+  
+  async function sendFollow() {
+    console.log("Clicked");
+    if (!profile?.uid) return false;
+    
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/profile/${profile.uid}/follow`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (res.ok) {
+        if (user?.uid) profile.followers.push(user.uid);
+        setIsFollowing(true);
+      }
+    } catch (error: unknown) {
+      let message = error instanceof Error ? error.message : "Failed to follow";
+      console.log(message);
+    }
+  }
+  
+  async function sendUnfollow() {
+    console.log("Clicked");
+  
+    if (!profile?.uid) return false;
+    
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/profile/${profile.uid}/unfollow`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (res.ok) {
+        if (user?.uid)
+          profile.followers.splice(profile.followers.indexOf(user.uid), 1);
+        setIsFollowing(false);
+      }
+    } catch (error: unknown) {
+      let message = error instanceof Error ? error.message : "Failed to follow";
+      console.log(message);
+    }
+  }
+  
   if (!profile) {
     return (
       <div className="min-h-screen bg-[#111] text-white flex items-center justify-center">
@@ -25,23 +89,14 @@ export default function ProfilePage({ profile }: { profile: ProfileType | null }
       </div>
     );
   }
-
+  
   const isOwner = user?.uid === profile.uid;
-  const isFollowing = profile.followers.includes(user?.uid ?? "");
-
-  const handleFollow = () => {
-    console.log(`Following ${profile.username}`);
-  };
-
-  const handleUnfollow = () => {
-    console.log(`Unfollowing ${profile.username}`);
-  };
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex gap-8 items-start">
-          <ProfilePicture src="pfp.jpg" />
+          <ProfilePicture src="/pfp.jpg" />
 
           <div className="flex-1">
             {/* Name and Button Row */}
@@ -68,8 +123,8 @@ export default function ProfilePage({ profile }: { profile: ProfileType | null }
           ) : (
             <FollowButton
               isFollowing={isFollowing}
-              handleFollowClick={handleFollow}
-              handleUnfollowClick={handleUnfollow}
+              handleFollowClick={sendFollow}
+              handleUnfollowClick={sendUnfollow}
             />
           )}
         </div>

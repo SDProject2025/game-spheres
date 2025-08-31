@@ -57,7 +57,7 @@ export default function ProfilePage({
             <p className="mt-4 max-w-xl">{profile.bio}</p>
           </div>
            {/*TODO: add featured gamesphere/active gamespheres*/}
-          <ProfileButton isOwner={true} />
+          <ProfileButton/>
         </div>
 
  {/*TODO: add tab changing*/}

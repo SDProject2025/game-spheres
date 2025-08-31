@@ -85,7 +85,7 @@ export default function Sidebar() {
           // Expanded view
           <div className="flex p-3 items-center">
             <img
-              src="/pfp.jpg"
+              src={user?.photoURL || "/pfp.jpg"}
               alt="Avatar"
               className="w-8 h-8 rounded-md overflow-hidden bg-[#222] object-cover cursor-pointer"
               onClick={() => router.replace("/profile")}
@@ -122,7 +122,7 @@ export default function Sidebar() {
           <div className="flex justify-center p-3">
             <div className="relative">
               <img
-                src="/pfp.jpg"
+                src={user?.photoURL || "/pfp.jpg"}
                 alt="Avatar"
                 className="w-8 h-8 rounded-md overflow-hidden bg-[#222] object-cover cursor-pointer hover:ring-2 hover:ring-gray-600 transition-all"
                 onClick={() => setIsMoreClicked((p) => !p)}

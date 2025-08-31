@@ -9,6 +9,7 @@ export type ProfileType = {
   bio: string;
   following: string[];
   followers: string[];
+  profilePic: string;
   //posts: { id: number; thumbnail: string }[];
 };
 
@@ -29,7 +30,7 @@ export default function ProfilePage({
     <div className="min-h-screen bg-[#111] text-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex gap-8 items-start">
-          <ProfilePicture src="pfp.jpg" />
+          <ProfilePicture src={profile.profilePic} />
 
           <div className="flex-1">
             {/* Name and Button Row */}

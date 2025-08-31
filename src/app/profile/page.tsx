@@ -1,5 +1,5 @@
 "use client";
-import ProfilePage from "@/components/profile/profilePage";
+import ProfilePage from "@/components/profile/forms/profilePage";
 import { useState, useEffect } from "react";
 
 import { useUser } from "@/config/userProvider";
@@ -9,6 +9,7 @@ export default function Profile() {
     /* kinda went with tiktok style profile view, we can mess around with it though. */
   }
   const [profile, setProfile] = useState<null | {
+    uid: string;
     displayName: string;
     username: string;
     bio: string;
@@ -54,5 +55,5 @@ export default function Profile() {
     );
   }
 
-  return <ProfilePage profile={profile} />;
+  return <ProfilePage profile={profile}/>;
 }

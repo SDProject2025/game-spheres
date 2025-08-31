@@ -14,6 +14,7 @@ export default function ViewProfile() {
     bio: string;
     following: string[];
     followers: string[];
+    photoURL: string;
     //profile pic
     //posts: { id: number; thumbnail: string }[];
   }>(null);
@@ -52,5 +53,5 @@ export default function ViewProfile() {
     );
   }
 
-  return <ProfilePage profile={profile}/>;
+  return <ProfilePage profile={profile} />;
 }

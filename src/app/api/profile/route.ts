@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         bio: data.get("bio"),
         followers: data.get("followers"),
         following: data.get("following"),
-        profilePic: data.get("photoURL"),
+        photoURL: data.get("photoURL"),
         posts: data.get("posts"),
     };
 

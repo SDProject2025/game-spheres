@@ -14,6 +14,7 @@ export type ProfileType = {
   bio: string;
   following: string[];
   followers: string[];
+  photoURL: string;
   // posts: { id: number; thumbnail: string }[];
 };
 
@@ -35,7 +36,6 @@ export default function ProfilePage({
   }, [profile, user]);
   
   async function sendFollow() {
-    console.log("Clicked");
     if (!profile?.uid) return false;
     
     try {
@@ -57,9 +57,7 @@ export default function ProfilePage({
     }
   }
   
-  async function sendUnfollow() {
-    console.log("Clicked");
-  
+  async function sendUnfollow() {  
     if (!profile?.uid) return false;
     
     try {
@@ -96,7 +94,7 @@ export default function ProfilePage({
     <div className="min-h-screen bg-[#111] text-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex gap-8 items-start">
-          <ProfilePicture src="/pfp.jpg" />
+          <ProfilePicture src={profile.photoURL} />
 
           <div className="flex-1">
             {/* Name and Button Row */}

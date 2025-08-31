@@ -6,9 +6,10 @@ import TextInput from "../auth/textInput";
 import { db, storage } from "@/config/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 //import { storage } from "firebase-admin";
-import { updateCurrentUser } from "firebase/auth";
+import { updateCurrentUser, updateProfile } from "firebase/auth";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Storage } from "firebase-admin/storage";
+import { useUser } from "@/config/userProvider";
 
 
 type Props = {
@@ -23,7 +24,8 @@ export default function EditProfileForm({ userId, onSave }: Props) {
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [photoURL, setPhotoURL] = useState(""); // preview only
-  const [loading, setLoading] = useState(false);
+  const [loadings, setLoading] = useState(false);
+  const { user, loading } = useUser();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -54,6 +56,15 @@ export default function EditProfileForm({ userId, onSave }: Props) {
 
       // Get downloadable URL
       const downloadURL = await getDownloadURL(storageRef);
+
+      //update profile pic of user for sidebar
+      if (user){
+        await updateProfile(user, {
+          photoURL: downloadURL
+        });
+      }else{
+        console.log("User not found");
+      }
 
       // Save to Firestore (using userId)
       await updateDoc(doc(db, "users", userId), {

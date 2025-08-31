@@ -12,13 +12,11 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Storage } from "firebase-admin/storage";
 import { useUser } from "@/config/userProvider";
 
-
 type Props = {
   userId: string;
   onSave?: () => void;
 };
 {/* this page redirects back to profile after save/ cancel - will prob change thisbut it works so im keeping it for nowwwww */}
-
 
 export default function EditProfileForm({ userId, onSave }: Props) {
   const [username, setUsername] = useState("");

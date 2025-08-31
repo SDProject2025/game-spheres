@@ -42,7 +42,6 @@ export default function EditProfileForm({ userId, onSave }: Props) {
 
   const handlePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      //setPhotoURL(URL.createObjectURL(e.target.files[0])); // preview only
 
       //handling uploading of profile photo
       const file = e.target.files[0]; 
@@ -64,29 +63,6 @@ export default function EditProfileForm({ userId, onSave }: Props) {
       // Update local state for immediate preview
       setPhotoURL(downloadURL);
       
-      /*
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("userId", userId);
-
-      const res = await fetch("/api/profile/profilePhoto", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      setPhotoURL(data.downloadURL); // update preview & Firestore
-      */
-
-      /*
-      // Save to Firestore (using userId)
-      await updateDoc(doc(db, "users", userId), {
-        photoURL: downloadURL,
-      });
-      */
-
-      // Update local state for immediate preview
-      //setPhotoURL(downloadURL);
       }
 
 

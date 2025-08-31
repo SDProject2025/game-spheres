@@ -46,7 +46,25 @@ export default function EditProfileForm({ userId, onSave }: Props) {
 
       //handling uploading of profile photo
       const file = e.target.files[0]; 
+
+      // Create a reference in Firebase Storage
+      const storageRef = ref(storage, `profilePhotos/${file.name}`);
+
+      // Upload file
+      await uploadBytes(storageRef, file);
+
+      // Get downloadable URL
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Save to Firestore (using userId)
+      await updateDoc(doc(db, "users", userId), {
+        photoURL: downloadURL,
+      });
+
+      // Update local state for immediate preview
+      setPhotoURL(downloadURL);
       
+      /*
       const formData = new FormData();
       formData.append("file", file);
       formData.append("userId", userId);
@@ -58,6 +76,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
 
       const data = await res.json();
       setPhotoURL(data.downloadURL); // update preview & Firestore
+      */
 
       /*
       // Save to Firestore (using userId)

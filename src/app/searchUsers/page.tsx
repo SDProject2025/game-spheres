@@ -5,7 +5,7 @@ import UserDetail from "@/components/profile/forms/userDetail";
 
 interface User extends SearchItem {
   uid: string;
-  profileUrl: string;
+  photoURL: string;
   username: string;
   displayName: string;
   bio: string;
@@ -29,7 +29,7 @@ async function searchWithQuery(query: string) {
 }
 
 const renderSearchItem = (user: User, isSelected: boolean) => (
-  <SearchItemContainer searchTitle={user.username} imageUrl={user.profileUrl} />
+  <SearchItemContainer searchTitle={user.username} imageUrl={user.photoURL} />
 );
 
 const renderSearchDetails = (user: User) => <UserDetail profile={user} />;

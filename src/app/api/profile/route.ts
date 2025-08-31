@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const data = await db.collection(USERS_COLLECTION).doc(uid).get();
     
     const userData = {
+        uid,
         username: data.get("username"),
         displayName: data.get("displayName"),
         bio: data.get("bio"),

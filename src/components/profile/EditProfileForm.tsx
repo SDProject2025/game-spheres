@@ -6,7 +6,6 @@ import TextInput from "../auth/textInput";
 import { db } from "@/config/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-
 type Props = {
   userId: string;
   onSave?: () => void;

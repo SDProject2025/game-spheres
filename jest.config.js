@@ -19,7 +19,10 @@ module.exports = {
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/node_modules/**',
-    '!**/.next/**'
+    '!**/.next/**',
+    '!**/config/**',
+    '!next.config.ts',
+    '!next-env.d.ts'
   ],
   coverageReporters: ['clover', 'json', 'lcov', ['text']],
   coverageThreshold: {

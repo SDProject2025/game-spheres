@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       id: doc.id,
       ...(doc.data() as GameSphere),
     }));
-
+    
     return NextResponse.json({ gameSpheres });
   } catch (error: unknown) {
     console.error("Error fetching GameSpheres:", error);

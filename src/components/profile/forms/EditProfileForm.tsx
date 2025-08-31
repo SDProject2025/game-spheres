@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { MdPerson, MdEdit } from "react-icons/md";
-import NeonButton from "../neonButton";
-import TextInput from "../auth/textInput";
 import { db, storage } from "@/config/firebaseConfig";
+import NeonButton from "../../neonButton";
+import TextInput from "../../auth/textInput";
+
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 //import { storage } from "firebase-admin";
 import { updateCurrentUser, updateProfile } from "firebase/auth";

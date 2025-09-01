@@ -3,10 +3,10 @@ import React from "react";
 import styled from "styled-components";
 
 type NeonButtonProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
-  disabled?: boolean; 
+  disabled?: boolean;
 };
 
 const NeonButton = ({

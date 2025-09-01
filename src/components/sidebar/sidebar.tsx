@@ -3,7 +3,7 @@ import { MdArrowLeft } from "react-icons/md";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CgMoreVertical } from "react-icons/cg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserMenu from "../UserMenu";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/config/userProvider";

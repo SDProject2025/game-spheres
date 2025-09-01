@@ -36,7 +36,7 @@ export default function Auth() {
         }
 
         const usernameRes = await fetch(
-          `/api/auth/signUp/withProvider?username=${username}`
+          `/api/auth/create/withProvider?username=${username}`
         );
         const usernameData = await usernameRes.json();
         username = usernameData.username;
@@ -48,7 +48,7 @@ export default function Auth() {
           email: user.user.email,
         };
 
-        const response = await fetch("/api/auth/signUp/withProvider", {
+        const response = await fetch("/api/auth/create/withProvider", {
           method: "POST",
           body: JSON.stringify(postBody),
           headers: { "Content-Type": "application/json" },
@@ -112,7 +112,7 @@ export default function Auth() {
           email,
         };
 
-        const response = await fetch("/api/auth/signUp/manual", {
+        const response = await fetch("/api/auth/create/manual", {
           method: "POST",
           body: JSON.stringify(postBody),
           headers: {
@@ -139,7 +139,7 @@ export default function Auth() {
       const result = await toast.promise(
         async () => {
           const res = await fetch(
-            `/api/auth/signUp/manual?username=${username}`
+            `/api/auth/create/manual?username=${username}`
           );
           if (!res.ok) throw new Error("Username already taken");
           return true;

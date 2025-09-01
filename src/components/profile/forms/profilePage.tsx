@@ -8,21 +8,12 @@ import { useState, useEffect } from "react";
 import { useUser } from "@/config/userProvider";
 import { auth } from "@/config/firebaseConfig";
 
-export type ProfileType = {
-  uid: string;
-  displayName: string;
-  username: string;
-  bio: string;
-  following: string[];
-  followers: string[];
-  photoURL: string;
-  // posts: { id: number; thumbnail: string }[];
-};
+import type { Profile } from "@/types/Profile";
 
 export default function ProfilePage({
   profile,
 }: {
-  profile: ProfileType | null;
+  profile: Profile | null;
 }) {
   const { user, loading } = useUser();
  const [openType, setOpenType] = useState<null | "followers" | "following">(null);

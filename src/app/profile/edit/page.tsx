@@ -1,29 +1,49 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/config/firebaseConfig";
 import EditProfileForm from "@/components/profile/forms/EditProfileForm";
-import { onAuthStateChanged } from "firebase/auth";
 import { Toaster, toast } from "react-hot-toast";
+import { useUser } from "@/config/userProvider";
 
 export default function EditProfilePage() {
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-        setLoading(false);
-      } else {
-        toast.error("You must be signed in to edit your profile.");
-        router.replace("/auth"); 
-      }
-    });
+    if (user) {
+      setLoading(false);
+    } else {
+      toast.error("You must be signed in to edit your profile.");
+      router.replace("/auth");
+    }
+  }, [router, user]);
 
-    return () => unsubscribe();
-  }, [router]);
+  async function updateProfile(
+    displayName: string,
+    username: string,
+    bio: string,
+    photoURL: string
+  ) {
+    try {
+      const res = await fetch("/api/profile/update", {
+        method: "POST",
+        body: JSON.stringify({
+          uid: user?.uid,
+          displayName,
+          username,
+          bio,
+          photoURL,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (res.ok) router.replace("/profile");
+    } catch (e) {
+      alert("Ya done fucked it");
+    }
+  }
 
   if (loading) {
     return (
@@ -35,15 +55,7 @@ export default function EditProfilePage() {
 
   return (
     <div className="relative flex justify-center w-full h-full pt-20">
-      {userId && (
-        <EditProfileForm
-          userId={userId}
-          onSave={() => {
-            toast.success("Profile updated successfully!");
-            router.push("/profile"); 
-          }}
-        />
-      )}
+      {user?.uid && <EditProfileForm userId={user.uid} onSave={updateProfile} />}
       <Toaster />
     </div>
   );

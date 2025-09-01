@@ -2,29 +2,21 @@ import ProfilePicture from "../profilePicture";
 import ProfileButton from "../profileButton";
 import FollowButton from "../followButton";
 import ProfileStat from "../profileStats";
+import FollowList from "./followList";
 import VideoGrid from "../videoGrid";
 import { useState, useEffect } from "react";
 import { useUser } from "@/config/userProvider";
 import { auth } from "@/config/firebaseConfig";
 
-export type ProfileType = {
-  uid: string;
-  displayName: string;
-  username: string;
-  bio: string;
-  following: string[];
-  followers: string[];
-  photoURL: string;
-  // posts: { id: number; thumbnail: string }[];
-};
+import type { Profile } from "@/types/Profile";
 
 export default function ProfilePage({
   profile,
 }: {
-  profile: ProfileType | null;
+  profile: Profile | null;
 }) {
   const { user, loading } = useUser();
-
+ const [openType, setOpenType] = useState<null | "followers" | "following">(null);
   const [isFollowing, setIsFollowing] = useState(false);
   
   useEffect(() => {
@@ -80,6 +72,20 @@ export default function ProfilePage({
     }
   }
   
+  async function fetchFollowData(type: "followers" | "following") {
+  if (!profile) return [];
+  try {
+    const res = await fetch(`/api/profile/${profile.uid}/${type}`);
+    if (!res.ok) throw new Error("Failed to fetch follow data");
+    const data = await res.json();
+    return data.users; // matches the API response
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-[#111] text-white flex items-center justify-center">
@@ -108,14 +114,22 @@ export default function ProfilePage({
             </div>
 
             <div className="flex gap-8 mt-2">
-              <ProfileStat stat={profile.following.length} type="Following" />
-              <ProfileStat stat={profile.followers.length} type="Followers" />
-            </div>
+  <ProfileStat
+    stat={profile.following.length}
+    type="Following"
+    onClick={() => setOpenType("following")}
+  />
+  <ProfileStat
+    stat={profile.followers.length}
+    type="Followers"
+    onClick={() => setOpenType("followers")}
+  />
+</div>
+
 
             <p className="mt-4 max-w-xl">{profile.bio}</p>
           </div>
 
-          {/* 👇 Conditional: show Edit button if owner, FollowButton otherwise */}
           {isOwner ? (
             <ProfileButton />
           ) : (
@@ -140,6 +154,20 @@ export default function ProfilePage({
           {/* <VideoGrid posts={profile.posts} /> */}
         </div>
       </div>
+
+       {openType && (
+        <FollowList
+          type={openType}
+          count={
+            openType === "followers"
+              ? profile.followers.length
+              : profile.following.length
+          }
+          isOpen={true}
+          onClose={() => setOpenType(null)}
+          onFetchData={fetchFollowData}
+        />
+      )}
     </div>
   );
 }

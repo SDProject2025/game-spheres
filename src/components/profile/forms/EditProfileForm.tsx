@@ -14,7 +14,10 @@ import { useUser } from "@/config/userProvider";
 
 type Props = {
   userId: string;
-  onSave?: () => void;
+  onSave: (displayName: string,
+    username: string,
+    bio: string,
+    photoURL: string) => void;
 };
 {/* this page redirects back to profile after save/ cancel - will prob change thisbut it works so im keeping it for nowwwww */}
 
@@ -74,8 +77,6 @@ export default function EditProfileForm({ userId, onSave }: Props) {
       setPhotoURL(downloadURL);
       
       }
-
-
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -91,7 +92,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
         //photoURL
       });
 
-      if (onSave) onSave();
+      onSave(displayName, username, bio, photoURL);
     } catch (err) {
       console.error("Error updating profile:", err);
     } finally {
@@ -150,8 +151,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
             {loading ? "Saving..." : "Save"}
           </NeonButton>
           <button
-            type="button"
-            onClick={onSave}
+            type="submit"
             className="px-4 py-2 rounded-md bg-gray-500/30 hover:bg-gray-500/50 transition"
           >
             Cancel

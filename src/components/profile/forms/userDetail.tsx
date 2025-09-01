@@ -9,22 +9,12 @@ import FollowButton from "../followButton";
 import ProfileStat from "../profileStats";
 //import VideoGrid from "./videoGrid";
 
-export type ProfileType = {
-  uid: string;
-  displayName: string;
-  username: string;
-  bio: string;
-  following: string[];
-  followers: string[];
-  posts: number;
-  photoURL: string;
-  //posts: { id: number; thumbnail: string }[];
-};
+import type { Profile } from "@/types/Profile";
 
 export default function UserDetail({
   profile,
 }: {
-  profile: ProfileType | null;
+  profile: Profile | null;
 }) {
   const router = useRouter();
   const { user, loading } = useUser();

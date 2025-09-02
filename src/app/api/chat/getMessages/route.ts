@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ messageData }, { status: 200 });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unable to get messages";
+    console.error(message);
     return NextResponse.json({ message }, { status: 500 });
   }
 }

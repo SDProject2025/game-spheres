@@ -6,7 +6,7 @@ export type ConversationInput = {
   conversationId?: string;
   lastMessage: string;
   participants: string[];
-  updatedAt: Timestamp;
+  updatedAt: string;
 };
 
 export type ConversationDoc = {

@@ -14,6 +14,7 @@ import {
   Home,
   User,
   GamepadIcon,
+  MessageCircleMore
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -29,6 +30,7 @@ export default function Sidebar() {
     { icon: Home, name: "Home", href: "/home" },
     { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
     { icon: User, name: "Find Friends", href: "/searchUsers" },
+    { icon: MessageCircleMore, name: "Chat", href: "/chat/JjRM13qbsCI0jZZwPBjR"}
   ];
 
   return (

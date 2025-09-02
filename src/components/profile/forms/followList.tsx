@@ -81,10 +81,12 @@ export default function FollowList({
           ) : (
             <div className="divide-y divide-gray-700">
               {users.map((user) => (
-                <div className="flex items-center justify-between px-4 py-2 hover:bg-[#222] transition-colors">
+                <div
+                  className="flex items-center justify-between px-4 py-2 hover:bg-[#222] transition-colors"
+                  key={user.id}
+                >
                   {/* Left: Profile link */}
                   <Link
-                    key={user.id}
                     href={`/profile/${user.id}`}
                     onClick={onClose}
                     className="flex items-center gap-3"

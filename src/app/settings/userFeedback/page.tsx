@@ -34,7 +34,7 @@ export default function FeedbackForm() {
         onSubmit={handleSubmit}
         className="max-w-2xl mx-auto p-4 border rounded-x1 shadow-md"
       >
-        <h2 className="text-x1 font semibold mb-4">We'd love your feedback!</h2>
+        <h2 className="text-x1 font semibold mb-4">We&apos;d love your feedback!</h2>
         <MessageBody value={message} onChange={setMessage} />
         <NeonButton type="submit">SUBMIT</NeonButton>
       </form>

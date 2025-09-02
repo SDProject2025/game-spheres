@@ -5,8 +5,6 @@ import { db, storage } from "@/config/firebaseConfig";
 import NeonButton from "../../neonButton";
 import TextInput from "../../auth/textInput";
 
-<<<<<<< HEAD:src/components/profile/EditProfileForm.tsx
-=======
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 //import { storage } from "firebase-admin";
 import { updateCurrentUser, updateProfile } from "firebase/auth";
@@ -14,7 +12,6 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Storage } from "firebase-admin/storage";
 import { useUser } from "@/config/userProvider";
 
->>>>>>> 3225b849111a622af9698257515c0183c299e868:src/components/profile/forms/EditProfileForm.tsx
 type Props = {
   userId: string;
   onSave: (displayName: string,

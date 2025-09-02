@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
         followers: data.get("followers"),
         following: data.get("following"),
         photoURL: data.get("photoURL"),
+        conversations: data.get("conversations") ?? []
         //posts: data.get("posts"),
     };
 

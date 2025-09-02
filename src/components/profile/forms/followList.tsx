@@ -81,12 +81,13 @@ export default function FollowList({
           ) : (
             <div className="divide-y divide-gray-700">
               {users.map((user) => (
-                <div className="flex">
+                <div className="flex items-center justify-between px-4 py-2 hover:bg-[#222] transition-colors">
+                  {/* Left: Profile link */}
                   <Link
                     key={user.id}
-                    href={`/profile/${user.id}`} // adjust route if needed
-                    onClick={onClose} // close modal on click
-                    className="p-4 flex items-center gap-3 hover:bg-[#222] transition-colors"
+                    href={`/profile/${user.id}`}
+                    onClick={onClose}
+                    className="flex items-center gap-3"
                   >
                     <div className="w-10 h-10 rounded-full bg-[#333] overflow-hidden">
                       {user.avatar ? (
@@ -104,12 +105,20 @@ export default function FollowList({
                       )}
                     </div>
                     <div>
-                      <p className="text-white font-medium">{user.displayName}</p>
+                      <p className="text-white font-medium">
+                        {user.displayName}
+                      </p>
                       <p className="text-gray-400 text-sm">@{user.username}</p>
                     </div>
                   </Link>
-                  {renderButton && renderButton(user)}
-                  </div>
+
+                  {/* Right: Action button */}
+                  {renderButton && (
+                    <div className="ml-4 flex-shrink-0">
+                      {renderButton(user)}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}

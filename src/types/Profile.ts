@@ -7,4 +7,5 @@ export type Profile = {
   followers: string[];
   photoURL: string;
   conversations: string[];
+  messages: string[];
 };

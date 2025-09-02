@@ -49,7 +49,7 @@ export default function UserDetail({
         setIsFollowing(true);
       }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message = error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }
@@ -72,7 +72,7 @@ export default function UserDetail({
         setIsFollowing(false);
       }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message = error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }

@@ -18,14 +18,13 @@ export default function Chat() {
       );
       const data = await res.json();
 
-      const newMessages = data.messageData.filter(
-        (msg: MessageInput) =>
-          !messages.some((m) => m.messageId === msg.messageId)
-      );
-
-      if (newMessages.length > 0) {
-        setMessages((prev) => [...prev, ...newMessages]);
-      }
+      setMessages((prev) => {
+        const newMessages = data.messageData.filter(
+          (msg: MessageInput) =>
+            !prev.some((m) => m.messageId === msg.messageId)
+        );
+        return newMessages.length > 0 ? [...prev, ...newMessages] : prev;
+      });
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Failed";
       console.error(message);

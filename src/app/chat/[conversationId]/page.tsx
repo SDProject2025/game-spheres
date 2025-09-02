@@ -11,8 +11,6 @@ import {
   collection,
   query,
   orderBy,
-  addDoc,
-  serverTimestamp,
 } from "firebase/firestore";
 
 export default function Chat() {
@@ -67,17 +65,17 @@ export default function Chat() {
     setMessages((prev) => [...prev, msg]);
 
     try {
-      await addDoc(
-        collection(db, "conversations", conversationId, "messages"),
-        {
-          content,
-          conversationId,
-          senderId: user.uid,
-          createdAt: serverTimestamp(),
-        }
-      );
+      const res = await fetch("/api/chat/create/message", {
+        method: "POST",
+        body: JSON.stringify(msg),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
     } catch (e) {
-      console.error(e instanceof Error ? e.message : "Failed to send message");
+      console.error(e instanceof Error ? e.message : "Failed");
       setMessages((prev) => prev.filter((m) => m.messageId !== tempId));
     }
   }

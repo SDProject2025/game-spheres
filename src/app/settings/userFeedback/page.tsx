@@ -12,7 +12,7 @@ export default function FeedbackForm() {
     e.preventDefault();
 
     await toast.promise(
-      fetch("../../api/settings/feedback", {
+      fetch("/api/settings/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),

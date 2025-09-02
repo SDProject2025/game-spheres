@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
 
     batch.set(messageRef, {
       content: message.content,
-      conversationId: conversationRef,
-      senderId: senderRef,
+      conversationId: message.conversationId,
+      senderId: message.senderId,
       createdAt: Timestamp.now(),
     });
 

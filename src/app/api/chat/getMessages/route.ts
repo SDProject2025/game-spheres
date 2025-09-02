@@ -4,6 +4,7 @@ import {
   MESSAGES_COLLECTION,
   CONVERSATIONS_COLLECTION,
 } from "../../collections";
+import { MessageInput } from "@/types/Message";
 
 export async function GET(request: NextRequest) {
   const conversationId = request.nextUrl.searchParams.get("conversationId");
@@ -14,13 +15,21 @@ export async function GET(request: NextRequest) {
     );
 
   try {
-    const convRef = db.collection(CONVERSATIONS_COLLECTION).doc(conversationId);
     const snapshot = await db
       .collection(MESSAGES_COLLECTION)
-      .where("conversationId", "==", convRef)
+      .where("conversationId", "==", conversationId)
       .orderBy("createdAt", "asc")
       .get();
-    const messageData = snapshot.docs.map((doc) => doc.data());
+
+    const messageData = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        messageId: doc.id,
+        ...data,
+        createdAt: data.createdAt.toDate().toISOString(),
+      };
+    });
+
     return NextResponse.json({ messageData }, { status: 200 });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unable to get messages";

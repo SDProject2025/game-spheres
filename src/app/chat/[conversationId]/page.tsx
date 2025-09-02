@@ -1,72 +1,84 @@
 "use client";
+
 import ChatPage from "@/components/chat/chatPage";
 import { useUser } from "@/config/userProvider";
 import { MessageInput } from "@/types/Message";
 import { useParams } from "next/navigation";
-import { Timestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { db } from "@/config/firebaseConfig";
+import {
+  onSnapshot,
+  collection,
+  query,
+  orderBy,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
 export default function Chat() {
   const { user } = useUser();
   const params = useParams();
   const conversationId = params.conversationId as string;
+
   const [messages, setMessages] = useState<MessageInput[]>([]);
 
-  async function getMessages() {
-    try {
-      const res = await fetch(
-        `/api/chat/getMessages?conversationId=${conversationId}`
-      );
-      const data = await res.json();
-
-      setMessages((prev) => {
-        const newMessages = data.messageData.filter(
-          (msg: MessageInput) =>
-            !prev.some((m) => m.messageId === msg.messageId)
-        );
-        return newMessages.length > 0 ? [...prev, ...newMessages] : prev;
-      });
-    } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : "Failed";
-      console.error(message);
-    }
-  }
-
   useEffect(() => {
-    getMessages();
+    if (!conversationId) return;
 
-    const interval = setInterval(() => {
-      getMessages();
-    }, 3000);
+    const q = query(
+      collection(db, "conversations", conversationId, "messages"),
+      orderBy("createdAt", "asc")
+    );
 
-    return () => clearInterval(interval);
+    const unsub = onSnapshot(q, (snapshot) => {
+      const msgs: MessageInput[] = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          messageId: doc.id,
+          content: data.content ?? "",
+          conversationId: data.conversationId ?? conversationId,
+          senderId: data.senderId ?? "unknown",
+          createdAt:
+            data.createdAt?.toDate?.()?.toISOString?.() ||
+            (typeof data.createdAt === "string"
+              ? data.createdAt
+              : new Date().toISOString()),
+        };
+      });
+
+      setMessages(msgs);
+    });
+
+    return () => unsub();
   }, [conversationId]);
 
-  async function sendMessage(message: string) {
+  async function sendMessage(content: string) {
     if (!user) return;
-    try {
-      const msg: MessageInput = {
-        content: message,
-        conversationId,
-        createdAt: Timestamp.now().toDate().toISOString(),
-        senderId: user.uid,
-      };
-      const res = await fetch(`/api/chat/create/message`, {
-        method: "POST",
-        body: JSON.stringify(msg),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (res.ok) {
-        setMessages([
-          ...messages,
-          { ...msg, messageId: msg.messageId || crypto.randomUUID() },
-        ]);
-      }
-    } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : "Failed";
-      console.error(message);
+    const tempId = crypto.randomUUID();
+    const msg: MessageInput = {
+      messageId: tempId,
+      content,
+      conversationId,
+      createdAt: new Date().toISOString(),
+      senderId: user.uid,
+    };
+
+    setMessages((prev) => [...prev, msg]);
+
+    try {
+      await addDoc(
+        collection(db, "conversations", conversationId, "messages"),
+        {
+          content,
+          conversationId,
+          senderId: user.uid,
+          createdAt: serverTimestamp(),
+        }
+      );
+    } catch (e) {
+      console.error(e instanceof Error ? e.message : "Failed to send message");
+      setMessages((prev) => prev.filter((m) => m.messageId !== tempId));
     }
   }
 

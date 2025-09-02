@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-interface User {
+export interface User {
   id: string;
   username: string;
   displayName: string;
@@ -15,6 +15,7 @@ interface FollowListProps {
   isOpen: boolean;
   onClose: () => void;
   onFetchData: (type: "followers" | "following") => Promise<User[]>;
+  renderButton?: (user: User) => React.ReactNode; // new
 }
 
 export default function FollowList({
@@ -23,6 +24,7 @@ export default function FollowList({
   isOpen,
   onClose,
   onFetchData,
+  renderButton,
 }: FollowListProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -60,7 +62,10 @@ export default function FollowList({
           <h3 className="text-white text-lg font-semibold">
             {title} ({count})
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white text-2xl"
+          >
             ×
           </button>
         </div>
@@ -76,32 +81,35 @@ export default function FollowList({
           ) : (
             <div className="divide-y divide-gray-700">
               {users.map((user) => (
-                <Link
-                  key={user.id}
-                  href={`/profile/${user.id}`} // adjust route if needed
-                  onClick={onClose} // close modal on click
-                  className="block p-4 flex items-center gap-3 hover:bg-[#222] transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-full bg-[#333] overflow-hidden">
-                    {user.avatar ? (
-                      <Image
-                        src={user.avatar}
-                        alt={user.displayName}
-                        width={40}
-                        height={40}
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        👤
-                      </div>
-                    )}
+                <div className="flex">
+                  <Link
+                    key={user.id}
+                    href={`/profile/${user.id}`} // adjust route if needed
+                    onClick={onClose} // close modal on click
+                    className="p-4 flex items-center gap-3 hover:bg-[#222] transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-[#333] overflow-hidden">
+                      {user.avatar ? (
+                        <Image
+                          src={user.avatar}
+                          alt={user.displayName}
+                          width={40}
+                          height={40}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          👤
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{user.displayName}</p>
+                      <p className="text-gray-400 text-sm">@{user.username}</p>
+                    </div>
+                  </Link>
+                  {renderButton && renderButton(user)}
                   </div>
-                  <div>
-                    <p className="text-white font-medium">{user.displayName}</p>
-                    <p className="text-gray-400 text-sm">@{user.username}</p>
-                  </div>
-                </Link>
               ))}
             </div>
           )}

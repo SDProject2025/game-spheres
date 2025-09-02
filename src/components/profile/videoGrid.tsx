@@ -12,7 +12,7 @@ export default function VideoGrid({ posts }: { posts: {id: number; thumbnail: st
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center transition">
-                        <HiMiniPlay className="w-8 h-8" />
+                        <HiMiniPlay className="w-8 h-8" data-testid="video-play-icon" />
                     </div>
                 </div>
             ))}

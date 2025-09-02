@@ -1,23 +1,21 @@
 "use client";
 import ProfilePage from "@/components/profile/forms/profilePage";
 import { useState, useEffect } from "react";
-import { useUser } from "@/config/userProvider";
+import { useParams } from "next/navigation";
 
 import type { Profile } from "@/types/Profile";
 
-export default function MyProfile() {
+export default function ViewProfile() {
   {
     /* kinda went with tiktok style profile view, we can mess around with it though. */
   }
   const [profile, setProfile] = useState<null | Profile>(null);
 
-  const { user, loading } = useUser();
+  const params = useParams();
+  const uid = params.uid as string;
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   useEffect(() => {
-    if (!user?.uid) return;
-
-    const uid = user.uid;
     async function fetchUserData() {
       try {
         const res = await fetch(`/api/profile?uid=${uid}`);
@@ -37,9 +35,9 @@ export default function MyProfile() {
     }
 
     fetchUserData();
-  }, [user]);
+  }, []);
 
-  if (loading || loadingProfile) {
+  if (loadingProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-400">
         Loading profile...
@@ -47,5 +45,5 @@ export default function MyProfile() {
     );
   }
 
-  return <ProfilePage profile={profile}/>;
+  return <ProfilePage profile={profile} />;
 }

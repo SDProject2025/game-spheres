@@ -5,7 +5,8 @@ import { useUser } from "@/config/userProvider";
 import { FullGameSphere } from "@/types/GameSphere";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "react-hot-toast";
-import SearchBar from "@/components/searchBar";
+
+import SearchBar from "@/components/search/searchBar";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
 
 const fuseOptions = { keys: ["name"], threshold: 0.3 }; //0.0 - exact match required

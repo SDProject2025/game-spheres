@@ -1,14 +1,17 @@
 type Props = {
-  stat: number,
-  type: string,
-}
+  stat: number;
+  type: string;
+  onClick?: () => void;
+};
 
-export default function ProfileStat({stat, type} : Props) {
+export default function ProfileStat({ stat, type, onClick }: Props) {
   return (
-    /* follows info idk if we should have likes as well or gamespheres followed */
-    <div className="text-center">
-        <p className="font-bold text-lg">{stat}</p>
-        <p className="text-gray-400 text-sm">{type}</p>
+    <div 
+      className={`text-center ${onClick ? 'cursor-pointer hover:text-[#00ffc3] transition-colors' : ''}`}
+      onClick={onClick}
+    >
+      <p className="font-bold text-lg">{stat}</p>
+      <p className="text-gray-400 text-sm">{type}</p>
     </div>
   );
 }

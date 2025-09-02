@@ -42,7 +42,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
         setIsFollowing(true);
       }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message = error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }
@@ -65,7 +65,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
         setIsFollowing(false);
       }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message = error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }

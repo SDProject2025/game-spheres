@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       updatedAt: Timestamp.now(),
     });
 
-    for (let uid of conversation.participants) {
+    for (const uid of conversation.participants) {
       const participantRef = db.collection(USERS_COLLECTION).doc(uid);
       batch.update(participantRef, {
         conversations: FieldValue.arrayUnion(conversationRef.id), // store doc ID instead of reference

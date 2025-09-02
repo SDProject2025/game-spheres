@@ -1,25 +1,33 @@
 "use client";
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { MdPerson, MdEdit } from "react-icons/md";
-import NeonButton from "../neonButton";
-import TextInput from "../auth/textInput";
-import { db } from "@/config/firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db, storage } from "@/config/firebaseConfig";
+import NeonButton from "../../neonButton";
+import TextInput from "../../auth/textInput";
 
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+//import { storage } from "firebase-admin";
+import { updateCurrentUser, updateProfile } from "firebase/auth";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { Storage } from "firebase-admin/storage";
+import { useUser } from "@/config/userProvider";
 
 type Props = {
   userId: string;
-  onSave?: () => void;
+  onSave: (displayName: string,
+    username: string,
+    bio: string,
+    photoURL: string) => void;
 };
 {/* this page redirects back to profile after save/ cancel - will prob change thisbut it works so im keeping it for nowwwww */}
-
 
 export default function EditProfileForm({ userId, onSave }: Props) {
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [photoURL, setPhotoURL] = useState(""); // preview only
-  const [loading, setLoading] = useState(false);
+  const [loadings, setLoading] = useState(false);
+  const { user, loading } = useUser();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -36,10 +44,39 @@ export default function EditProfileForm({ userId, onSave }: Props) {
     loadProfile();
   }, [userId]);
 
-  const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setPhotoURL(URL.createObjectURL(e.target.files[0])); // preview only
-    }
+
+      //handling uploading of profile photo
+      const file = e.target.files[0]; 
+
+      // Create a reference in Firebase Storage
+      const storageRef = ref(storage, `profilePhotos/${file.name}`);
+
+      // Upload file
+      await uploadBytes(storageRef, file);
+
+      // Get downloadable URL
+      const downloadURL = await getDownloadURL(storageRef);
+
+      //update profile pic of user for sidebar
+      if (user){
+        await updateProfile(user, {
+          photoURL: downloadURL
+        });
+      }else{
+        console.log("User not found");
+      }
+
+      // Save to Firestore (using userId)
+      await updateDoc(doc(db, "users", userId), {
+        photoURL: downloadURL,
+      });
+
+      // Update local state for immediate preview
+      setPhotoURL(downloadURL);
+      
+      }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -51,10 +88,11 @@ export default function EditProfileForm({ userId, onSave }: Props) {
       await updateDoc(doc(db, "users", userId), {
         username,
         displayName,
-        bio,
+        bio
+        //photoURL
       });
 
-      if (onSave) onSave();
+      onSave(displayName, username, bio, photoURL);
     } catch (err) {
       console.error("Error updating profile:", err);
     } finally {
@@ -113,8 +151,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
             {loading ? "Saving..." : "Save"}
           </NeonButton>
           <button
-            type="button"
-            onClick={onSave}
+            type="submit"
             className="px-4 py-2 rounded-md bg-gray-500/30 hover:bg-gray-500/50 transition"
           >
             Cancel

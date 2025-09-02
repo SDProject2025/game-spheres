@@ -14,7 +14,7 @@ export default function SidebarWrapper() {
     }
   }, [user]);
 
-  if (!user) return null;
+  if (!user || !user.emailVerified) return null;
 
   return (
     <aside

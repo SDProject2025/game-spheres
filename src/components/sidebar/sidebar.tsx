@@ -3,7 +3,7 @@ import { MdArrowLeft } from "react-icons/md";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CgMoreVertical } from "react-icons/cg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserMenu from "../UserMenu";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/config/userProvider";
@@ -14,6 +14,8 @@ import {
   Home,
   User,
   GamepadIcon,
+  MessageCircleMore,
+  Settings,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -28,6 +30,9 @@ export default function Sidebar() {
   const navItems = [
     { icon: Home, name: "Home", href: "/home" },
     { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
+    { icon: User, name: "Find Friends", href: "/searchUsers" },
+    { icon: MessageCircleMore, name: "Chat", href: "/chat" },
+    { icon: Settings, name: "Settings", href: "/settings/userFeedback" },
   ];
 
   return (
@@ -85,7 +90,7 @@ export default function Sidebar() {
           // Expanded view
           <div className="flex p-3 items-center">
             <img
-              src="/pfp.jpg"
+              src={user?.photoURL || "/pfp.jpg"}
               alt="Avatar"
               className="w-8 h-8 rounded-md overflow-hidden bg-[#222] object-cover cursor-pointer"
               onClick={() => router.replace("/profile")}
@@ -122,7 +127,7 @@ export default function Sidebar() {
           <div className="flex justify-center p-3">
             <div className="relative">
               <img
-                src="/pfp.jpg"
+                src={user?.photoURL || "/pfp.jpg"}
                 alt="Avatar"
                 className="w-8 h-8 rounded-md overflow-hidden bg-[#222] object-cover cursor-pointer hover:ring-2 hover:ring-gray-600 transition-all"
                 onClick={() => setIsMoreClicked((p) => !p)}

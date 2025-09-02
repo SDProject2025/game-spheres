@@ -1,22 +1,15 @@
 "use client";
-import ProfilePage from "@/components/profile/profilePage";
+import ProfilePage from "@/components/profile/forms/profilePage";
 import { useState, useEffect } from "react";
-
 import { useUser } from "@/config/userProvider";
 
-export default function Profile() {
+import type { Profile } from "@/types/Profile";
+
+export default function MyProfile() {
   {
     /* kinda went with tiktok style profile view, we can mess around with it though. */
   }
-  const [profile, setProfile] = useState<null | {
-    displayName: string;
-    username: string;
-    bio: string;
-    following: string[];
-    followers: string[];
-    //profile pic
-    //posts: { id: number; thumbnail: string }[];
-  }>(null);
+  const [profile, setProfile] = useState<null | Profile>(null);
 
   const { user, loading } = useUser();
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -54,5 +47,5 @@ export default function Profile() {
     );
   }
 
-  return <ProfilePage profile={profile} />;
+  return <ProfilePage profile={profile}/>;
 }

@@ -10,22 +10,29 @@ export default function PasswordInput({label, ...props}: Props) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div className="relative mb-6">
+        <div className="relative mb-4"> 
             <input
                 {...props}
                 type={showPassword ? 'text' : 'password'}
                 required
                 placeholder=" "
-                className="peer w-full bg-transparent border-b-2 border-[#444] text-white pt-5 pb-2 px-8 outline-none focus:border-[#00ffc3] focus:shadow-[0_0_10px_#00ffc3] placeholder-transparent"
+                className="peer w-full bg-transparent border-b-2 border-[#444] text-white text-sm pt-4 pb-1 px-7 outline-none
+                           focus:border-[#00ffc3] focus:shadow-[0_0_8px_#00ffc3] placeholder-transparent"
             />
-            <label className="absolute left-8 top-2 text-[#888] text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-[#888] peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#00ffc3]">
+            <label
+                className="absolute left-7 top-1.5 text-[#888] text-xs transition-all
+                           peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-[#888]
+                           peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#00ffc3]"
+            >
                 {label}
             </label>
-            <MdLock className="absolute left-2 top-3 text-[#00ffc3]" />
+
+            <MdLock className="absolute left-1.5 top-2.5 text-[#00ffc3] text-lg" />
+
             <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-3 text-[#00ffc3] hover:text-white"
+                className="absolute right-2 top-2.5 text-[#00ffc3] text-lg hover:text-white"
                 tabIndex={-1}
             >
                 {showPassword ? <MdVisibility /> : <MdVisibilityOff />}

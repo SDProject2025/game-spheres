@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebaseAdminConfig";
 import {
   USERS_COLLECTION,
-  MESSAGES_COLLECTION,
   CONVERSATIONS_COLLECTION,
 } from "@/app/api/collections";
 import { MessageInput } from "@/types/Message";
 import {
   Timestamp,
   DocumentReference,
-  FieldValue,
   WriteBatch,
+  FieldValue,
 } from "firebase-admin/firestore";
 import { Profile } from "@/types/Profile";
 
@@ -25,23 +24,28 @@ export async function POST(request: NextRequest) {
     const conversationRef = db
       .collection(CONVERSATIONS_COLLECTION)
       .doc(message.conversationId);
+
     const senderRef = db
       .collection(USERS_COLLECTION)
       .doc(message.senderId) as DocumentReference<Profile>;
 
-    const messageRef = db.collection(MESSAGES_COLLECTION).doc();
+    const messageRef = conversationRef.collection("messages").doc();
 
     const batch: WriteBatch = db.batch();
 
     batch.set(messageRef, {
       content: message.content,
-      conversationId: message.conversationId,
       senderId: message.senderId,
       createdAt: Timestamp.now(),
     });
 
     batch.update(conversationRef, {
-      lastMessage: messageRef,
+      lastMessage: {
+        id: messageRef.id,
+        content: message.content,
+        senderId: message.senderId,
+        createdAt: Timestamp.now(),
+      },
       updatedAt: Timestamp.now(),
     });
 
@@ -51,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     await batch.commit();
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, messageId: messageRef.id });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Failed to post message";
     console.error(message);

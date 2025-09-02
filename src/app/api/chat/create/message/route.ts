@@ -29,33 +29,50 @@ export async function POST(request: NextRequest) {
       .collection(USERS_COLLECTION)
       .doc(message.senderId) as DocumentReference<Profile>;
 
-    const messageRef = conversationRef.collection("messages").doc();
-
     const batch: WriteBatch = db.batch();
+    const now = Timestamp.now();
 
+    const messageRef = conversationRef.collection("messages").doc();
     batch.set(messageRef, {
       content: message.content,
       senderId: message.senderId,
-      createdAt: Timestamp.now(),
+      createdAt: now,
     });
 
-    batch.update(conversationRef, {
-      lastMessage: {
-        id: messageRef.id,
-        content: message.content,
-        senderId: message.senderId,
-        createdAt: Timestamp.now(),
+    batch.set(
+      conversationRef,
+      {
+        lastMessage: {
+          id: messageRef.id,
+          content: message.content,
+          senderId: message.senderId,
+          createdAt: now,
+        },
+        updatedAt: now,
       },
-      updatedAt: Timestamp.now(),
-    });
+      { merge: true }
+    );
 
-    batch.update(senderRef, {
-      messages: FieldValue.arrayUnion(messageRef),
-    });
+    batch.set(
+      senderRef,
+      {
+        messages: FieldValue.arrayUnion(messageRef.id),
+      },
+      { merge: true }
+    );
 
     await batch.commit();
 
-    return NextResponse.json({ success: true, messageId: messageRef.id });
+    const conversationSnap = await conversationRef.get();
+    const conversationData = conversationSnap.exists
+      ? conversationSnap.data()
+      : null;
+
+    return NextResponse.json({
+      success: true,
+      messageId: messageRef.id,
+      conversation: conversationData,
+    });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Failed to post message";
     console.error(message);

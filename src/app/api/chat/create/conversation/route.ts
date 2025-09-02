@@ -31,13 +31,14 @@ export async function POST(request: NextRequest) {
     const batch: WriteBatch = db.batch();
 
     batch.set(conversationRef, {
-      participants: participantRefs,
+      participants: conversation.participants, // just the array of UIDs
       updatedAt: Timestamp.now(),
     });
 
-    for (let participant of participantRefs) {
-      batch.update(participant, {
-        conversations: FieldValue.arrayUnion(conversationRef),
+    for (let uid of conversation.participants) {
+      const participantRef = db.collection(USERS_COLLECTION).doc(uid);
+      batch.update(participantRef, {
+        conversations: FieldValue.arrayUnion(conversationRef.id), // store doc ID instead of reference
       });
     }
 

@@ -10,15 +10,13 @@ import { auth } from "@/config/firebaseConfig";
 
 import type { Profile } from "@/types/Profile";
 
-export default function ProfilePage({
-  profile,
-}: {
-  profile: Profile | null;
-}) {
+export default function ProfilePage({ profile }: { profile: Profile | null }) {
   const { user, loading } = useUser();
- const [openType, setOpenType] = useState<null | "followers" | "following">(null);
+  const [openType, setOpenType] = useState<null | "followers" | "following">(
+    null
+  );
   const [isFollowing, setIsFollowing] = useState(false);
-  
+
   useEffect(() => {
     if (profile?.followers.includes(user?.uid ?? "")) {
       setIsFollowing(true);
@@ -26,10 +24,10 @@ export default function ProfilePage({
       setIsFollowing(false);
     }
   }, [profile, user]);
-  
+
   async function sendFollow() {
     if (!profile?.uid) return false;
-    
+
     try {
       const token = await auth.currentUser?.getIdToken();
       const res = await fetch(`/api/profile/${profile.uid}/follow`, {
@@ -38,7 +36,7 @@ export default function ProfilePage({
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (res.ok) {
         if (user?.uid) profile.followers.push(user.uid);
         setIsFollowing(true);
@@ -48,10 +46,10 @@ export default function ProfilePage({
       console.log(message);
     }
   }
-  
-  async function sendUnfollow() {  
+
+  async function sendUnfollow() {
     if (!profile?.uid) return false;
-    
+
     try {
       const token = await auth.currentUser?.getIdToken();
       const res = await fetch(`/api/profile/${profile.uid}/unfollow`, {
@@ -60,7 +58,7 @@ export default function ProfilePage({
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (res.ok) {
         if (user?.uid)
           profile.followers.splice(profile.followers.indexOf(user.uid), 1);
@@ -71,20 +69,19 @@ export default function ProfilePage({
       console.log(message);
     }
   }
-  
-  async function fetchFollowData(type: "followers" | "following") {
-  if (!profile) return [];
-  try {
-    const res = await fetch(`/api/profile/${profile.uid}/${type}`);
-    if (!res.ok) throw new Error("Failed to fetch follow data");
-    const data = await res.json();
-    return data.users; // matches the API response
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-}
 
+  async function fetchFollowData(type: "followers" | "following") {
+    if (!profile) return [];
+    try {
+      const res = await fetch(`/api/profile/${profile.uid}/${type}`);
+      if (!res.ok) throw new Error("Failed to fetch follow data");
+      const data = await res.json();
+      return data.users; // matches the API response
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
 
   if (!profile) {
     return (
@@ -93,7 +90,7 @@ export default function ProfilePage({
       </div>
     );
   }
-  
+
   const isOwner = user?.uid === profile.uid;
 
   return (
@@ -114,18 +111,17 @@ export default function ProfilePage({
             </div>
 
             <div className="flex gap-8 mt-2">
-  <ProfileStat
-    stat={profile.following.length}
-    type="Following"
-    onClick={() => setOpenType("following")}
-  />
-  <ProfileStat
-    stat={profile.followers.length}
-    type="Followers"
-    onClick={() => setOpenType("followers")}
-  />
-</div>
-
+              <ProfileStat
+                stat={profile.following.length}
+                type="Following"
+                onClick={() => setOpenType("following")}
+              />
+              <ProfileStat
+                stat={profile.followers.length}
+                type="Followers"
+                onClick={() => setOpenType("followers")}
+              />
+            </div>
 
             <p className="mt-4 max-w-xl">{profile.bio}</p>
           </div>
@@ -155,7 +151,7 @@ export default function ProfilePage({
         </div>
       </div>
 
-       {openType && (
+      {openType && (
         <FollowList
           type={openType}
           count={

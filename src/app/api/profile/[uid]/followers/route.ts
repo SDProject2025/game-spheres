@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+// app/api/profile/[uid]/followers/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebaseConfig";
 import {
   doc,
@@ -10,10 +11,10 @@ import {
 } from "firebase/firestore";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { uid: string } } // <-- params object
+  request: NextRequest,
+  context: { params: { uid: string } }
 ) {
-  const { uid } = params;
+  const uid = context.params.uid;
   if (!uid) return NextResponse.json({ users: [] });
 
   try {

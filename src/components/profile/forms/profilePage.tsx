@@ -30,7 +30,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/follow`, {
+      const res = await fetch(`/api/profile/${profile.uid}/update/follow`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -52,7 +52,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/unfollow`, {
+      const res = await fetch(`/api/profile/${profile.uid}/update/unfollow`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

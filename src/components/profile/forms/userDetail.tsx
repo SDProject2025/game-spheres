@@ -9,22 +9,12 @@ import FollowButton from "../followButton";
 import ProfileStat from "../profileStats";
 //import VideoGrid from "./videoGrid";
 
-export type ProfileType = {
-  uid: string;
-  displayName: string;
-  username: string;
-  bio: string;
-  following: string[];
-  followers: string[];
-  posts: number;
-  photoURL: string;
-  //posts: { id: number; thumbnail: string }[];
-};
+import type { Profile } from "@/types/Profile";
 
 export default function UserDetail({
   profile,
 }: {
-  profile: ProfileType | null;
+  profile: Profile | null;
 }) {
   const router = useRouter();
   const { user, loading } = useUser();
@@ -47,7 +37,7 @@ export default function UserDetail({
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/follow`, {
+      const res = await fetch(`/api/profile/${profile.uid}/update/follow`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -59,7 +49,7 @@ export default function UserDetail({
         setIsFollowing(true);
       }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message = error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }
@@ -69,7 +59,7 @@ export default function UserDetail({
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/unfollow`, {
+      const res = await fetch(`/api/profile/${profile.uid}/update/unfollow`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -82,7 +72,7 @@ export default function UserDetail({
         setIsFollowing(false);
       }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message = error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }

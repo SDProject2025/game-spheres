@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 export interface SearchItem {
   id: string;
   name: string;
-  [key: string]: any; // allow for item to have additional properties
+  [key: string]: unknown; // allow for item to have additional properties
 }
 
 export interface SearchBarProps<T extends SearchItem> {

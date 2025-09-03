@@ -3,21 +3,13 @@ import ProfilePage from "@/components/profile/forms/profilePage";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 
+import type { Profile } from "@/types/Profile";
+
 export default function ViewProfile() {
   {
     /* kinda went with tiktok style profile view, we can mess around with it though. */
   }
-  const [profile, setProfile] = useState<null | {
-    uid: string;
-    displayName: string;
-    username: string;
-    bio: string;
-    following: string[];
-    followers: string[];
-    photoURL: string;
-    //profile pic
-    //posts: { id: number; thumbnail: string }[];
-  }>(null);
+  const [profile, setProfile] = useState<null | Profile>(null);
 
   const params = useParams();
   const uid = params.uid as string;

@@ -1,6 +1,7 @@
+import { SearchItem } from "@/components/search/searchBar";
 import { Timestamp } from "firebase-admin/firestore";
 
-export interface GameSphere {
+export interface GameSphere extends SearchItem {
   name: string;
   storyline?: string;
   genres?: string[];

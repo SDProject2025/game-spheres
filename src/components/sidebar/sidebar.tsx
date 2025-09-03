@@ -3,7 +3,7 @@ import { MdArrowLeft } from "react-icons/md";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CgMoreVertical } from "react-icons/cg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import UserMenu from "../UserMenu";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/config/userProvider";
@@ -14,6 +14,8 @@ import {
   Home,
   User,
   GamepadIcon,
+  MessageCircleMore,
+  Settings,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -29,6 +31,8 @@ export default function Sidebar() {
     { icon: Home, name: "Home", href: "/home" },
     { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
     { icon: User, name: "Find Friends", href: "/searchUsers" },
+    { icon: MessageCircleMore, name: "Chat", href: "/chat" },
+    { icon: Settings, name: "Settings", href: "/settings/userFeedback" },
   ];
 
   return (

@@ -1,4 +1,3 @@
-// app/api/profile/[uid]/following/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/config/firebaseConfig";
 import {
@@ -10,9 +9,11 @@ import {
   getDocs,
 } from "firebase/firestore";
 
-export async function GET(request: Request) {
-  const uid = request.headers.get("x-user-uid");
-
+export async function GET(
+  request: Request,
+  { params }: { params: { uid: string } } // <-- params object
+) {
+  const { uid } = params;
   if (!uid) return NextResponse.json({ users: [] });
 
   try {
@@ -20,14 +21,14 @@ export async function GET(request: Request) {
     if (!userSnap.exists()) return NextResponse.json({ users: [] });
 
     const data = userSnap.data();
-    const followingIds: string[] = data.following || [];
+    const followerIds: string[] = data.followers || [];
 
-    if (followingIds.length === 0) return NextResponse.json({ users: [] });
+    if (followerIds.length === 0) return NextResponse.json({ users: [] });
 
-    // Batch Firestore reads
+    // Batch Firestore reads using the same efficient approach as your following route
     const chunks: string[][] = [];
-    for (let i = 0; i < followingIds.length; i += 10) {
-      chunks.push(followingIds.slice(i, i + 10));
+    for (let i = 0; i < followerIds.length; i += 10) {
+      chunks.push(followerIds.slice(i, i + 10));
     }
 
     const users: {

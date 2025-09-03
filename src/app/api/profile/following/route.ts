@@ -1,15 +1,18 @@
 // app/api/profile/[uid]/following/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/config/firebaseConfig";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ uid: string }> } // params is now a Promise
-) {
-  // Await the params before destructuring
-  const { uid } = await params;
-  
+export async function GET(request: Request) {
+  const uid = request.headers.get("x-user-uid");
+
   if (!uid) return NextResponse.json({ users: [] });
 
   try {
@@ -27,7 +30,12 @@ export async function GET(
       chunks.push(followingIds.slice(i, i + 10));
     }
 
-    const users: { id: string; username: string; displayName: string; avatar?: string }[] = [];
+    const users: {
+      id: string;
+      username: string;
+      displayName: string;
+      avatar?: string;
+    }[] = [];
 
     for (const chunk of chunks) {
       const q = query(collection(db, "users"), where("__name__", "in", chunk));

@@ -5,10 +5,14 @@ const MUTATING_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
 
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
+  const path = url.pathname;
 
+  // Enforce auth if either:
+  // 1. The route is a mutating request under /api, or
+  // 2. The route is under /api/chat (any method)
   if (
-    url.pathname.startsWith("/api/") &&
-    MUTATING_METHODS.includes(request.method)
+    (path.startsWith("/api/") && MUTATING_METHODS.includes(request.method)) ||
+    path.startsWith("/api/chat/")
   ) {
     const authHeader = request.headers.get("Authorization");
     const token = authHeader?.split("Bearer ")[1];
@@ -19,10 +23,10 @@ export async function middleware(request: NextRequest) {
 
     try {
       const decoded = await auth.verifyIdToken(token);
-      // Add the verified UID to request headers for downstream handlers
       request.headers.set("x-user-uid", decoded.uid);
     } catch (err) {
-      return NextResponse.json({ message: "Invalid token" }, { status: 403 });
+      const message = err instanceof Error ? err.message : "Invalid token";
+      return NextResponse.json({ message }, { status: 403 });
     }
   }
 
@@ -30,5 +34,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*", "api/chat/:path"],
+  matcher: ["/api/:path*"], // matches all API routes
 };

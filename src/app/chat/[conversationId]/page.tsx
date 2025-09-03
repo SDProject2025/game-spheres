@@ -1,6 +1,6 @@
 "use client";
 
-import ChatPage from "@/components/chat/chatPage";
+import ChatPage from "@/components/chat/forms/chatPage";
 import { useUser } from "@/config/userProvider";
 import { MessageInput } from "@/types/Message";
 import { useParams } from "next/navigation";

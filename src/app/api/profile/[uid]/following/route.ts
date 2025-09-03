@@ -11,10 +11,12 @@ import {
 } from "firebase/firestore";
 
 export async function GET(
-  request: NextRequest,
-  context: { params: { uid: string } }
+  request: Request,
+  { params }: { params: Promise<{ uid: string }> }
 ) {
-  const uid = context.params.uid;
+  // Await the params before destructuring
+  const { uid } = await params;
+
   if (!uid) return NextResponse.json({ users: [] });
 
   try {

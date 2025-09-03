@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "error-check": "tsc --noEmit"
+    "error-check": "next lint && tsc --noEmit"
   },
   "dependencies": {
     "dotenv": "^17.2.1",

@@ -9,7 +9,6 @@ import { useUser } from "@/config/userProvider";
 import { auth } from "@/config/firebaseConfig";
 
 import type { Profile } from "@/types/Profile";
-import { authFetch } from "@/config/authorisation";
 
 export default function ProfilePage({ profile }: { profile: Profile | null }) {
   const { user, loading } = useUser();
@@ -30,8 +29,12 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
     if (!profile?.uid) return false;
 
     try {
-      const res = await authFetch(`/api/profile/${profile.uid}/update/follow`, {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/profile/${profile.uid}/update/follow`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (res.ok) {
@@ -48,9 +51,12 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
     if (!profile?.uid) return false;
 
     try {
-      const res = await authFetch(`/api/profile/${profile.uid}/update/unfollow`, {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch(`/api/profile/${profile.uid}/update/unfollow`, {
         method: "POST",
-
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (res.ok) {

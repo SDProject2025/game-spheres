@@ -40,8 +40,7 @@ export async function GET(request: NextRequest) {
 // (Un)Subscribe
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get("x-user-uid");
-    const { gameSphereId, action } = await request.json();
+    const { userId, gameSphereId, action } = await request.json();
 
     if (!userId || !gameSphereId || !action) {
       return NextResponse.json(

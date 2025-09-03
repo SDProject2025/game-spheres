@@ -10,6 +10,7 @@ import ProfileStat from "../profileStats";
 //import VideoGrid from "./videoGrid";
 
 import type { Profile } from "@/types/Profile";
+import { authFetch } from "@/config/authorisation";
 
 export default function UserDetail({
   profile,
@@ -36,12 +37,8 @@ export default function UserDetail({
     if (!profile?.uid) return false;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/update/follow`, {
+      const res = await authFetch(`/api/profile/${profile.uid}/update/follow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (res.ok) {
@@ -58,12 +55,8 @@ export default function UserDetail({
     if (!profile?.uid) return false;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/update/unfollow`, {
+      const res = await authFetch(`/api/profile/${profile.uid}/update/unfollow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (res.ok) {

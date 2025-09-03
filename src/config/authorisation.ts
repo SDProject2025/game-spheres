@@ -10,6 +10,18 @@ export async function withProvider(provider: GoogleAuthProvider) {
     }
 }
 
-export async function createUser(email: string, password: string) {
-    
+export async function authFetch(path: string, options: RequestInit = {}) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    throw new Error("User is not authenticated");
+  }
+
+  const token = await currentUser.getIdToken();
+
+  const headers = {
+    ...options.headers,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return fetch(path, { ...options, headers });
 }

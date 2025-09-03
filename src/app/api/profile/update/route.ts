@@ -4,13 +4,14 @@ import type { Profile } from "@/types/Profile";
 import { USERS_COLLECTION } from "../../collections";
 
 export async function POST(request: NextRequest) {
+  const uid = request.headers.get("x-user-uid");
   const body = await request.json();
-  if (!body)
+  if (!body || !uid)
     return NextResponse.json({ message: "Missing post body" }, { status: 400 });
   const profile: Profile = body;
-  console.log(profile.uid);
+  console.log(uid);
   try {
-    await db.collection(USERS_COLLECTION).doc(profile.uid).update({
+    await db.collection(USERS_COLLECTION).doc(uid).update({
       displayName: profile.displayName,
       username: profile.username,
       bio: profile.bio,

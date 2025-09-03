@@ -3,6 +3,7 @@ import { SidebarProvider } from "@/config/sidebarProvider";
 import { GameSpheresProvider } from "@/config/gameSpheresContext";
 import SidebarWrapper from "@/components/sidebar/sidebarWrapper";
 import "@/styles/globals.css";
+import AuthGuard from "@/config/authGuard";
 export const metadata = {
   title: "GameSpheres",
   description: "yes",
@@ -24,7 +25,9 @@ export default function RootLayout({
                 className="flex-1 h-screen overflow-y-auto transition-all duration-300 ease-in-out"
                 style={{ marginLeft: "var(--sidebar-width, 0px)" }}
               >
-                <div className="px-6 py-4">{children}</div>
+                <AuthGuard>
+                  <div className="px-6 py-4">{children}</div>
+                </AuthGuard>
               </main>
             </body>
           </GameSpheresProvider>

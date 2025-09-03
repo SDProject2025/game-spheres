@@ -12,6 +12,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
+import { authFetch } from "@/config/authorisation";
 
 export default function Chat() {
   const { user } = useUser();
@@ -65,7 +66,7 @@ export default function Chat() {
     setMessages((prev) => [...prev, msg]);
 
     try {
-      const res = await fetch("/api/chat/create/message", {
+      const res = await authFetch("/api/chat/create/message", {
         method: "POST",
         body: JSON.stringify(msg),
         headers: { "Content-Type": "application/json" },

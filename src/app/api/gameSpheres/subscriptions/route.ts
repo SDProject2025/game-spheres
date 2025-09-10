@@ -46,7 +46,12 @@ export async function GET(request: NextRequest) {
 // (Un)Subscribe
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get("x-user-uid");
+    const authHeader = request.headers.get("Authorization");
+    const userId = await decodeToken(authHeader);
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     const { gameSphereId, action } = await request.json();
 
     if (!userId || !gameSphereId || !action) {

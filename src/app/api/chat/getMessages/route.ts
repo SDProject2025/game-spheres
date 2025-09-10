@@ -4,9 +4,16 @@ import {
   MESSAGES_COLLECTION,
   CONVERSATIONS_COLLECTION,
 } from "../../collections";
-import { MessageInput } from "@/types/Message";
+import { decodeToken } from "../../decodeToken";
 
 export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get("Authorization");
+  const uid = await decodeToken(authHeader);
+
+  if (!uid) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  
   const conversationId = request.nextUrl.searchParams.get("conversationId");
   if (!conversationId)
     return NextResponse.json(

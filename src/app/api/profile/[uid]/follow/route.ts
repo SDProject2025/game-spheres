@@ -1,12 +1,18 @@
-import { db, auth as adminAuth } from "@/config/firebaseAdminConfig";
+import { db } from "@/config/firebaseAdminConfig";
 import { NextRequest, NextResponse } from "next/server";
 import admin from "firebase-admin";
+import { decodeToken } from "@/app/api/decodeToken";
 
 const USERS_COLLECTION = "users";
 
 export async function POST(request: NextRequest) {
   try {
-    const followerUid = request.headers.get("x-user-uid");
+    const authHeader = request.headers.get("Authorization");
+    const followerUid = await decodeToken(authHeader);
+
+    if (!followerUid) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     const followeeUid = request.nextUrl.pathname.split("/")[3];
 
     if (!followerUid)

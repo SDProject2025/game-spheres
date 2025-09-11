@@ -3,7 +3,8 @@ import ProfileButton from "../profileButton";
 import FollowButton from "../followButton";
 import ProfileStat from "../profileStats";
 import FollowList from "./followList";
-import VideoGrid from "../videoGrid";
+import GameSphereFilter from "@/components/clips/gameSphereFilter";
+import ClipGrid from "@/components/clips/ClipGrid";
 import { useState, useEffect } from "react";
 import { useUser } from "@/config/userProvider";
 import { auth } from "@/config/firebaseConfig";
@@ -16,6 +17,8 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
     null
   );
   const [isFollowing, setIsFollowing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"videos" | "saved">("videos");
+  const [selectedGameSphere, setSelectedGameSphere] = useState("");
 
   useEffect(() => {
     if (profile?.followers.includes(user?.uid ?? "")) {
@@ -42,7 +45,8 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
         setIsFollowing(true);
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to follow";
+      const message =
+        error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }
@@ -65,7 +69,8 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
         setIsFollowing(false);
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to follow";
+      const message =
+        error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }
@@ -76,7 +81,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
       const res = await fetch(`/api/profile/${profile.uid}/${type}`);
       if (!res.ok) throw new Error("Failed to fetch follow data");
       const data = await res.json();
-      return data.users; // matches the API response
+      return data.users;
     } catch (err) {
       console.error(err);
       return [];
@@ -100,7 +105,6 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
           <ProfilePicture src={profile.photoURL} />
 
           <div className="flex-1">
-            {/* Name and Button Row */}
             <div className="flex items-end gap-4">
               <div>
                 <h1 className="text-3xl font-bold leading-tight">
@@ -137,17 +141,71 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
           )}
         </div>
 
-        {/* TODO: add tab changing */}
+        {/* Tabs */}
         <div className="flex border-b border-gray-700 mt-8">
-          <button className="px-4 py-3 font-medium border-b-2 border-white">
-            Videos
+          <button
+            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
+              activeTab === "videos"
+                ? "border-white text-white"
+                : "border-transparent text-gray-400 hover:text-gray-300"
+            }`}
+            onClick={() => setActiveTab("videos")}
+          >
+            Clips
           </button>
-          <button className="px-4 py-3 font-medium text-gray-400">Saved</button>
+          <button
+            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
+              activeTab === "saved"
+                ? "border-white text-white"
+                : "border-transparent text-gray-400 hover:text-gray-300"
+            }`}
+            onClick={() => setActiveTab("saved")}
+          >
+            Saved
+          </button>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-4">
-          No Videos Posted
-          {/* <VideoGrid posts={profile.posts} /> */}
+        {/* Content */}
+        <div className="mt-6">
+          {activeTab === "videos" && (
+            <>
+              {/* Filter Controls */}
+              <div className="mb-6 flex justify-between items-center">
+                <div className="flex items-center space-x-4">
+                  {selectedGameSphere && (
+                    <button
+                      onClick={() => setSelectedGameSphere("")}
+                      className="text-sm text-blue-400 hover:text-blue-300"
+                    >
+                      Clear filter
+                    </button>
+                  )}
+                </div>
+                <div className="max-w-xs">
+                  <GameSphereFilter
+                    selectedGameSphere={selectedGameSphere}
+                    onGameSphereChange={setSelectedGameSphere}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* Use ClipsGrid with user filter */}
+              <ClipGrid
+                userFilter={profile.uid}
+                gameSphereFilter={selectedGameSphere}
+                key={`${profile.uid}-${selectedGameSphere}`}
+              />
+            </>
+          )}
+
+          {activeTab === "saved" && (
+            <div className="text-center py-12">
+              <p className="text-gray-400 text-lg">
+                Saved clips feature coming soon
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

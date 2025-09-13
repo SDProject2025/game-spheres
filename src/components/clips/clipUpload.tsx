@@ -81,15 +81,26 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
             // Get download URL
             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
 
-            // save clip metadata to firestore
-            await addDoc(collection(db, "clips"), {
-              caption,
-              videoUrl: downloadUrl,
-              gameSphereId: selectedGameSphere,
-              uploadedBy: user?.uid,
-              uploadedAt: new Date(),
-              fileSize: file.size,
+            // create clip API call
+            const response = await fetch("/api/clips/create", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                caption,
+                videoUrl: downloadUrl,
+                gameSphereId: selectedGameSphere,
+                uploadedBy: user?.uid,
+                fileSize: file.size,
+              }),
             });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+              throw new Error(result.error || "Failed to save clip metadata");
+            }
 
             // Reset form values
             setCaption("");

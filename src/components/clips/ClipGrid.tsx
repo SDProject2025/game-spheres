@@ -34,7 +34,11 @@ export default function ClipGrid({
       setLoading(true);
 
       // Build query conditions
-      const conditions = [where("uploadedBy", "==", userFilter)];
+      const conditions = [];
+
+      if (userFilter) {
+        conditions.push(where("uploadedBy", "==", userFilter));
+      }
 
       if (gameSphereFilter) {
         conditions.push(where("gameSphereId", "==", gameSphereFilter));

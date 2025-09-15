@@ -15,7 +15,7 @@ export default function VideoPlayer({
   className = "",
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<ReturnType<typeof videojs> | null>(null);
 
   useEffect(() => {
     // Make sure Video.js player is only initialized once

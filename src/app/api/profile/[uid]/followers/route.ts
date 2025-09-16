@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebaseConfig";
 import {
   doc,
@@ -10,10 +10,11 @@ import {
 } from "firebase/firestore";
 
 export async function GET(
-  request: Request,
-  { params }: { params: { uid: string } } // <-- params object
+  request: NextRequest,
+  context: { params: Promise<{ uid: string }> }
 ) {
-  const { uid } = params;
+  const { uid } = await context.params;
+
   if (!uid) return NextResponse.json({ users: [] });
 
   try {

@@ -21,6 +21,10 @@ export default function UserDetail({
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
+     if (user?.uid === profile?.uid) {
+      setIsFollowing(false);
+      return;
+    }
     if (profile?.followers.includes(user?.uid ? user.uid : "")) {
       setIsFollowing(true);
     } else {
@@ -114,12 +118,13 @@ export default function UserDetail({
               />
             </div>
           </div>
-          {/*TODO: add featured gamesphere/active gamespheres*/}
-          <FollowButton
-            isFollowing={isFollowing}
-            handleFollowClick={sendFollow}
-            handleUnfollowClick={sendUnfollow}
-          />
+         {user?.uid !== profile.uid && (
+            <FollowButton
+              isFollowing={isFollowing}
+              handleFollowClick={sendFollow}
+              handleUnfollowClick={sendUnfollow}
+            />
+          )}
           <button
             type="button"
             onClick={() => viewUserProfile()}

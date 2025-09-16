@@ -60,14 +60,6 @@ export async function POST(request: NextRequest) {
       { merge: true }
     );
 
-    batch.set(
-      senderRef,
-      {
-        messages: FieldValue.arrayUnion(messageRef.id),
-      },
-      { merge: true }
-    );
-
     await batch.commit();
 
     const conversationSnap = await conversationRef.get();

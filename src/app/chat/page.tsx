@@ -176,7 +176,10 @@ export default function ConversationsPage() {
                     : ""}
                 </span>
               </div>
-              <p className="text-gray-300 text-sm mt-1">
+              <p
+                className="text-gray-300 text-sm mt-1 truncate"
+                style={{ overflowWrap: "anywhere" }}
+              >
                 {conv.lastMessage || "No messages yet."}
               </p>
             </Link>

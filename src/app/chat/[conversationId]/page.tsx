@@ -11,6 +11,8 @@ import {
   collection,
   query,
   orderBy,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 
 export default function Chat() {
@@ -19,6 +21,31 @@ export default function Chat() {
   const conversationId = params.conversationId as string;
 
   const [messages, setMessages] = useState<MessageInput[]>([]);
+  const [otherUsername, setOtherUsername] = useState<string>("Chat");
+
+  // 🔹 fetch the conversation + other user's name
+  useEffect(() => {
+    if (!conversationId || !user?.uid) return;
+
+    async function fetchConversationInfo() {
+      const convSnap = await getDoc(doc(db, "conversations", conversationId));
+      if (convSnap.exists()) {
+        const participants: string[] = convSnap.data().participants || [];
+        const otherId = participants.find((id) => id !== user!.uid);
+
+        if (otherId) {
+          const userSnap = await getDoc(doc(db, "users", otherId));
+          if (userSnap.exists()) {
+            setOtherUsername(userSnap.data().username || otherId);
+          } else {
+            setOtherUsername(otherId);
+          }
+        }
+      }
+    }
+
+    fetchConversationInfo();
+  }, [conversationId, user]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -81,10 +108,13 @@ export default function Chat() {
   }
 
   return (
-    <ChatPage
-      messages={messages}
-      currentUserId={user?.uid}
-      onSendMessage={sendMessage}
-    />
+    <div className="h-full flex flex-col">
+      <ChatPage
+        messages={messages}
+        currentUserId={user?.uid}
+        onSendMessage={sendMessage}
+        title={otherUsername}
+      />
+    </div>
   );
 }

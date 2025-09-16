@@ -62,7 +62,12 @@ export default function ClipGrid({
         } as Clip);
       });
 
-      setClips(clipsData);
+      // Filter out non-ready clips
+      const readyClips = clipsData.filter(
+        (clip) => clip.processingStatus === "ready"
+      );
+
+      setClips(readyClips);
     } catch (error) {
       console.error("Error loading clips:", error);
     } finally {
@@ -106,7 +111,7 @@ export default function ClipGrid({
   return (
     <>
       {/* Grid Container */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         {clips.map((clip) => (
           <ClipCard
             key={clip.id}

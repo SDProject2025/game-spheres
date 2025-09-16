@@ -120,7 +120,7 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
 
         {/* GameSphere name */}
         <div className="flex items-center mb-2">
-          <span className="text-[#00ffd5] text-xs font-medium hover:text-blue-400 cursor-pointer">
+          <span className="text-[#00ffd5] text-xs font-medium">
             {getGameSphereName(clip.gameSphereId)}
           </span>
         </div>

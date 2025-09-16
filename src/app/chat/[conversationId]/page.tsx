@@ -3,8 +3,8 @@
 import ChatPage from "@/components/chat/forms/chatPage";
 import { useUser } from "@/config/userProvider";
 import { MessageInput } from "@/types/Message";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { db } from "@/config/firebaseConfig";
 import {
   onSnapshot,
@@ -18,6 +18,7 @@ import {
 export default function Chat() {
   const { user } = useUser();
   const params = useParams();
+  const router = useRouter();
   const conversationId = params.conversationId as string;
 
   const [messages, setMessages] = useState<MessageInput[]>([]);
@@ -114,6 +115,7 @@ export default function Chat() {
         currentUserId={user?.uid}
         onSendMessage={sendMessage}
         title={otherUsername}
+        onBack={() => router.push("/chat")}
       />
     </div>
   );

@@ -31,10 +31,6 @@ export async function POST(request: NextRequest) {
       .collection(CONVERSATIONS_COLLECTION)
       .doc(message.conversationId);
 
-    const senderRef = db
-      .collection(USERS_COLLECTION)
-      .doc(message.senderId) as DocumentReference<Profile>;
-
     const batch: WriteBatch = db.batch();
     const now = Timestamp.now();
 

@@ -1,3 +1,4 @@
+import { decodeToken } from "@/app/api/decodeToken";
 import { db } from "@/config/firebaseAdminConfig";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -28,7 +29,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { uid, username, displayName, email } = await request.json();
+  const authHeader = request.headers.get("Authorization");
+  const uid = await decodeToken(authHeader);
+
+  if (!uid) {
+    return NextResponse.json({ message: "Unauthorized" }, {status: 401});
+  }
+
 
   if (!uid || !username || !displayName || !email)
     return NextResponse.json(

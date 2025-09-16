@@ -40,7 +40,7 @@ export default function GameSpheres() {
       if (!user || !selectedGame) return;
 
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `/api/gameSpheres/subscriptions?userId=${user.uid}&gameSphereId=${selectedGame.id}`
         );
         if (res.ok) {

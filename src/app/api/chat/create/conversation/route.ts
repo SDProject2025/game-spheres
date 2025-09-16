@@ -11,9 +11,17 @@ import {
   WriteBatch,
 } from "firebase-admin/firestore";
 import { Profile } from "@/types/Profile";
-import { ConversationDoc, ConversationInput } from "@/types/Conversation";
+import { ConversationInput } from "@/types/Conversation";
+import { decodeToken } from "@/app/api/decodeToken";
 
 export async function POST(request: NextRequest) {
+  const authHeader = request.headers.get("Authorization");
+  const uid = await decodeToken(authHeader);
+
+  if (!uid) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  
   const body = await request.json();
   if (!body)
     return NextResponse.json({ message: "Missing post body" }, { status: 400 });

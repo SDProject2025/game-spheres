@@ -4,12 +4,10 @@ import { db } from "@/config/firebaseConfig";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ uid: string }> } // params is now a Promise
+  request: NextRequest,
+  context: { params: Promise<{ uid: string }> }
 ) {
-  // Await the params before destructuring
-  const { uid } = await params;
-  
+  const { uid } = await context.params;
   if (!uid) return NextResponse.json({ users: [] });
 
   try {

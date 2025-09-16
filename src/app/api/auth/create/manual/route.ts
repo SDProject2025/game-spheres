@@ -6,6 +6,7 @@ const USERS_COLLECTION = "users";
 async function checkUsernameAvailable(username: string) {
   const snapshot = await db
     .collection(USERS_COLLECTION)
+    .select()
     .where("username", "==", username)
     .get();
 
@@ -15,38 +16,28 @@ async function checkUsernameAvailable(username: string) {
 export async function GET(request: NextRequest) {
   const username = request.nextUrl.searchParams.get("username");
 
-  if (!username) {
+  if (!username)
     return NextResponse.json({ message: "Missing username" }, { status: 400 });
-  }
 
-  if (await checkUsernameAvailable(username)) {
+  if (await checkUsernameAvailable(username))
     return NextResponse.json(
       { message: "Username available" },
       { status: 200 }
     );
-  } else {
-    return NextResponse.json({ message: "Username taken" }, { status: 409 });
-  }
+  else return NextResponse.json({ message: "Username taken" }, { status: 409 });
 }
 
 export async function POST(request: NextRequest) {
-  const uid = request.headers.get("x-user-uid");
-  if (!uid) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
+  const { uid, username, displayName, email } = await request.json();
 
-  const { username, displayName, email } = await request.json();
-
-  if (!username || !displayName || !email) {
+  if (!uid || !username || !displayName || !email)
     return NextResponse.json(
       { message: "Missing required fields" },
       { status: 400 }
     );
-  }
 
-  if (!(await checkUsernameAvailable(username))) {
+  if (!(await checkUsernameAvailable(username)))
     return NextResponse.json({ message: "Username is taken" }, { status: 409 });
-  }
 
   try {
     await db.collection(USERS_COLLECTION).doc(uid).set({
@@ -56,8 +47,7 @@ export async function POST(request: NextRequest) {
       followers: [],
       following: [],
       gsSubs: [],
-      photoURL:
-        "https://firebasestorage.googleapis.com/v0/b/game-spheres.firebasestorage.app/o/profilePhotos%2Fdefault_avatar.png?alt=media&token=e9eb0302-6064-4757-9c81-227a32f45b54",
+      photoURL: "https://firebasestorage.googleapis.com/v0/b/game-spheres.firebasestorage.app/o/profilePhotos%2Fdefault_avatar.png?alt=media&token=e9eb0302-6064-4757-9c81-227a32f45b54"
     });
 
     return NextResponse.json(
@@ -66,7 +56,11 @@ export async function POST(request: NextRequest) {
     );
   } catch (e: unknown) {
     console.error("Sign up error:", e);
+
     const message = e instanceof Error ? e.message : "Internal server error";
-    return NextResponse.json({ message }, { status: 500 });
+    return NextResponse.json(
+      { message },
+      { status: 500 }
+    );
   }
 }

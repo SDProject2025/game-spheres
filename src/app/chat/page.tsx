@@ -19,7 +19,6 @@ import type { ConversationInput } from "@/types/Conversation";
 import type { Profile } from "@/types/Profile";
 import { User } from "@/components/profile/forms/followList";
 import FollowList from "@/components/profile/forms/followList";
-import { authFetch } from "@/config/authorisation";
 
 export default function ConversationsPage() {
   const { user } = useUser();
@@ -120,7 +119,7 @@ export default function ConversationsPage() {
     if (!user) return;
 
     try {
-      const res = await authFetch("/api/chat/create/conversation", {
+      const res = await fetch("/api/chat/create/conversation", {
         method: "POST",
         body: JSON.stringify({ participants: [user.uid, otherUser.id] }),
         headers: { "Content-Type": "application/json" },
@@ -177,7 +176,10 @@ export default function ConversationsPage() {
                     : ""}
                 </span>
               </div>
-              <p className="text-gray-300 text-sm mt-1">
+              <p
+                className="text-gray-300 text-sm mt-1 truncate"
+                style={{ overflowWrap: "anywhere" }}
+              >
                 {conv.lastMessage || "No messages yet."}
               </p>
             </Link>

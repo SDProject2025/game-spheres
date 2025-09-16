@@ -30,7 +30,7 @@ export default function ChatInput({ onSendMessage }: Props) {
       <button
         type="submit"
         disabled={!newMessage.trim()}
-        className="px-4 py-2 bg-teal-300 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Send
       </button>

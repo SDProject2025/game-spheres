@@ -1,5 +1,5 @@
 "use client";
-import { authFetch, withProvider } from "@/config/authorisation";
+import { withProvider } from "@/config/authorisation";
 import { googleProvider, auth } from "@/config/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
@@ -48,12 +48,10 @@ export default function Auth() {
           email: user.user.email,
         };
 
-        const response = await authFetch("/api/auth/create/withProvider", {
+        const response = await fetch("/api/auth/create/withProvider", {
           method: "POST",
           body: JSON.stringify(postBody),
-          headers: { 
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         });
 
         if (!response.ok) throw new Error("Failed to save user");
@@ -114,14 +112,13 @@ export default function Auth() {
           email,
         };
 
-        const response = await authFetch("/api/auth/create/manual", {
+        const response = await fetch("/api/auth/create/manual", {
           method: "POST",
           body: JSON.stringify(postBody),
           headers: {
             "Content-Type": "application/json",
           },
         });
-        
         if (!response.ok) throw new Error("Failed to save user profile");
 
         await sendEmailVerification(user.user);

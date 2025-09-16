@@ -11,14 +11,13 @@ export async function POST(request: NextRequest) {
   if (!uid) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
-
   const body = await request.json();
   if (!body)
     return NextResponse.json({ message: "Missing post body" }, { status: 400 });
   const profile: Profile = body;
-  console.log(uid);
+  console.log(profile.uid);
   try {
-    await db.collection(USERS_COLLECTION).doc(uid).update({
+    await db.collection(USERS_COLLECTION).doc(profile.uid).update({
       displayName: profile.displayName,
       username: profile.username,
       bio: profile.bio,

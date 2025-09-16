@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   const { username, displayName, email } = await request.json();
+
   console.log("Received: ", { uid, username, displayName, email });
 
   if (!uid || !username || !displayName || !email)
@@ -63,8 +64,7 @@ export async function POST(request: NextRequest) {
       followers: [],
       following: [],
       gsSubs: [],
-      photoURL:
-        "https://firebasestorage.googleapis.com/v0/b/game-spheres.firebasestorage.app/o/profilePhotos%2Fdefault_avatar.png?alt=media&token=e9eb0302-6064-4757-9c81-227a32f45b54",
+      photoURL: "https://firebasestorage.googleapis.com/v0/b/game-spheres.firebasestorage.app/o/profilePhotos%2Fdefault_avatar.png?alt=media&token=e9eb0302-6064-4757-9c81-227a32f45b54"
     });
 
     return NextResponse.json(
@@ -74,6 +74,9 @@ export async function POST(request: NextRequest) {
   } catch (e: unknown) {
     console.error("Sign up error:", e);
     const message = e instanceof Error ? e.message : "Internal server error";
-    return NextResponse.json({ message }, { status: 500 });
+    return NextResponse.json(
+      { message },
+      { status: 500 }
+    );
   }
 }

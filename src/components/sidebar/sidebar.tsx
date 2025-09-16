@@ -16,6 +16,7 @@ import {
   GamepadIcon,
   MessageCircleMore,
   Settings,
+  SquarePlus,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -30,6 +31,7 @@ export default function Sidebar() {
   const navItems = [
     { icon: Home, name: "Home", href: "/home" },
     { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
+    { icon: SquarePlus, name: "Upload Clip", href: "/uploadClip" },
     { icon: User, name: "Find Friends", href: "/searchUsers" },
     { icon: MessageCircleMore, name: "Chat", href: "/chat" },
     { icon: Settings, name: "Settings", href: "/settings/userFeedback" },

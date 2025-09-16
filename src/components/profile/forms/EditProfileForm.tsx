@@ -51,7 +51,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
       const file = e.target.files[0]; 
 
       // Create a reference in Firebase Storage
-      const storageRef = ref(storage, `profilePhotos/${userId}`);
+      const storageRef = ref(storage, `profilePhotos/${userId}`); //use userId for profile photo overwrite
 
       // Upload file
       await uploadBytes(storageRef, file);

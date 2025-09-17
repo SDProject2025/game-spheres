@@ -20,10 +20,32 @@ export default function MessageBubble({ msg, isSent }: Props) {
         {msg.content}
       </div>
       <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-        {new Intl.DateTimeFormat("en", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }).format(new Date(msg.createdAt))}
+        {(() => {
+          const createdDate = new Date(msg.createdAt);
+          const now = new Date();
+          const isToday =
+            createdDate.getDate() === now.getDate() &&
+            createdDate.getMonth() === now.getMonth() &&
+            createdDate.getFullYear() === now.getFullYear();
+
+            const isYesterday =
+            createdDate.getDate() === now.getDate() - 1 &&
+            createdDate.getMonth() === now.getMonth() &&
+            createdDate.getFullYear() === now.getFullYear();
+
+          if (isToday) {
+            return `Today, ${createdDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`; 
+          } else if (isYesterday) {
+            return `Yesterday, ${createdDate.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`
+          } else {
+            return createdDate.toLocaleString("en", {
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          }
+        })()}
       </span>
     </div>
   );

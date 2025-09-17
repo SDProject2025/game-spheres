@@ -192,19 +192,19 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
 
               {/* Use ClipsGrid with user filter */}
               <ClipGrid
-                userFilter={profile.uid}
                 gameSphereFilter={selectedGameSphere}
+                profileFilter={profile.uid}
                 key={`${profile.uid}-${selectedGameSphere}`}
               />
             </>
           )}
 
           {activeTab === "saved" && (
-            <div className="text-center py-12">
-              <p className="text-gray-400 text-lg">
-                Saved clips feature coming soon
-              </p>
-            </div>
+            <ClipGrid
+              savedClips={true}
+              profileFilter={profile.uid}
+              key={`${profile.uid}`}
+            />
           )}
         </div>
       </div>

@@ -72,7 +72,6 @@ export default function SignUpForm({
     e.preventDefault();
     if (
       validateEmail() &&
-      (await validateUsername(username)) &&
       (await validatePassword(password))
     ) {
       handleSignUpClick(username, displayName, email, password);
@@ -112,6 +111,7 @@ export default function SignUpForm({
           <TextInput
             label="Email:"
             icon={<MdEmail />}
+            type="email"
             onChange={(e) => {
               setEmail(e.target.value);
               setValidEmail(validateEmail());

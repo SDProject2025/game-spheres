@@ -9,7 +9,6 @@ import {
   Timestamp,
   DocumentReference,
   WriteBatch,
-  FieldValue,
 } from "firebase-admin/firestore";
 import { Profile } from "@/types/Profile";
 import { decodeToken } from "@/app/api/decodeToken";
@@ -32,10 +31,6 @@ export async function POST(request: NextRequest) {
       .collection(CONVERSATIONS_COLLECTION)
       .doc(message.conversationId);
 
-    const senderRef = db
-      .collection(USERS_COLLECTION)
-      .doc(message.senderId) as DocumentReference<Profile>;
-
     const batch: WriteBatch = db.batch();
     const now = Timestamp.now();
 
@@ -56,14 +51,6 @@ export async function POST(request: NextRequest) {
           createdAt: now,
         },
         updatedAt: now,
-      },
-      { merge: true }
-    );
-
-    batch.set(
-      senderRef,
-      {
-        messages: FieldValue.arrayUnion(messageRef.id),
       },
       { merge: true }
     );

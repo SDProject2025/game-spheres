@@ -15,7 +15,7 @@ interface FollowListProps {
   isOpen: boolean;
   onClose: () => void;
   onFetchData: (type: "followers" | "following") => Promise<User[]>;
-  renderButton?: (user: User) => React.ReactNode; // new
+  renderButton?: (user: User) => React.ReactNode;
 }
 
 export default function FollowList({
@@ -57,7 +57,7 @@ export default function FollowList({
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div className="bg-[#1a1a1a] rounded-lg w-full max-w-md max-h-96 overflow-hidden">
-        {/* Header */}
+        
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h3 className="text-white text-lg font-semibold">
             {title} ({count})
@@ -70,7 +70,6 @@ export default function FollowList({
           </button>
         </div>
 
-        {/* Content */}
         <div className="overflow-y-auto max-h-80">
           {loading ? (
             <div className="p-4 text-center text-gray-400">Loading...</div>
@@ -85,20 +84,18 @@ export default function FollowList({
                   className="flex items-center justify-between px-4 py-2 hover:bg-[#222] transition-colors"
                   key={user.id}
                 >
-                  {/* Left: Profile link */}
+                 
                   <Link
                     href={`/profile/${user.id}`}
                     onClick={onClose}
                     className="flex items-center gap-3"
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#333] overflow-hidden">
+                    <div className="w-10 h-10 rounded-full bg-[#333] overflow-hidden flex items-center justify-center">
                       {user.avatar ? (
-                        <Image
+                        <img
                           src={user.avatar}
                           alt={user.displayName}
-                          width={40}
-                          height={40}
-                          className="object-cover"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -114,7 +111,6 @@ export default function FollowList({
                     </div>
                   </Link>
 
-                  {/* Right: Action button */}
                   {renderButton && (
                     <div className="ml-4 flex-shrink-0">
                       {renderButton(user)}

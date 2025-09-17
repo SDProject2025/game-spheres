@@ -10,20 +10,20 @@ export default function FeedbackForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    await toast.promise(
-      fetch("/api/settings/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      }),
-      {
-        loading: "Sending feedback...",
-        success: "Feedback sent! Thank you 😊",
-        error: "Failed to send feedback. Please try again.",
-      }
-    );
-
+    if (message) {
+      await toast.promise(
+        fetch("/api/settings/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        }),
+        {
+          loading: "Sending feedback...",
+          success: "Feedback sent! Thank you 😊",
+          error: "Failed to send feedback. Please try again.",
+        }
+      );
+    }
     setMessage("");
   };
 
@@ -34,7 +34,9 @@ export default function FeedbackForm() {
         onSubmit={handleSubmit}
         className="max-w-2xl mx-auto p-4 border rounded-x1 shadow-md"
       >
-        <h2 className="text-x1 font semibold mb-4">We&apos;d love your feedback!</h2>
+        <h2 className="text-x1 font semibold mb-4">
+          We&apos;d love your feedback!
+        </h2>
         <MessageBody value={message} onChange={setMessage} />
         <NeonButton type="submit">SUBMIT</NeonButton>
       </form>

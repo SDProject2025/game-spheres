@@ -71,7 +71,6 @@ export default function SignUpForm({
   async function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (
-      validateEmail() &&
       (await validateUsername(username)) &&
       (await validatePassword(password))
     ) {
@@ -112,6 +111,7 @@ export default function SignUpForm({
           <TextInput
             label="Email:"
             icon={<MdEmail />}
+            type="email"
             onChange={(e) => {
               setEmail(e.target.value);
               setValidEmail(validateEmail());

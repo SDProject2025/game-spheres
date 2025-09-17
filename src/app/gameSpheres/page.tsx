@@ -8,6 +8,7 @@ import { Toaster, toast } from "react-hot-toast";
 
 import SearchBar from "@/components/search/searchBar";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
+import { authFetch } from "@/config/authorisation";
 
 const fuseOptions = { keys: ["name"], threshold: 0.3 }; //0.0 - exact match required
 
@@ -40,7 +41,7 @@ export default function GameSpheres() {
       if (!user || !selectedGame) return;
 
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `/api/gameSpheres/subscriptions?userId=${user.uid}&gameSphereId=${selectedGame.id}`
         );
         if (res.ok) {

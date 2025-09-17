@@ -1,24 +1,53 @@
 "use client";
 
-import ChatPage from "@/components/chat/chatPage";
+import ChatPage from "@/components/chat/forms/chatPage";
 import { useUser } from "@/config/userProvider";
 import { MessageInput } from "@/types/Message";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { db } from "@/config/firebaseConfig";
 import {
   onSnapshot,
   collection,
   query,
   orderBy,
+  doc,
+  getDoc,
 } from "firebase/firestore";
+import { authFetch } from "@/config/authorisation";
 
 export default function Chat() {
   const { user } = useUser();
   const params = useParams();
+  const router = useRouter();
   const conversationId = params.conversationId as string;
 
   const [messages, setMessages] = useState<MessageInput[]>([]);
+  const [otherUsername, setOtherUsername] = useState<string>("Chat");
+
+  // 🔹 fetch the conversation + other user's name
+  useEffect(() => {
+    if (!conversationId || !user?.uid) return;
+
+    async function fetchConversationInfo() {
+      const convSnap = await getDoc(doc(db, "conversations", conversationId));
+      if (convSnap.exists()) {
+        const participants: string[] = convSnap.data().participants || [];
+        const otherId = participants.find((id) => id !== user!.uid);
+
+        if (otherId) {
+          const userSnap = await getDoc(doc(db, "users", otherId));
+          if (userSnap.exists()) {
+            setOtherUsername(userSnap.data().username || otherId);
+          } else {
+            setOtherUsername(otherId);
+          }
+        }
+      }
+    }
+
+    fetchConversationInfo();
+  }, [conversationId, user]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -65,7 +94,7 @@ export default function Chat() {
     setMessages((prev) => [...prev, msg]);
 
     try {
-      const res = await fetch("/api/chat/create/message", {
+      const res = await authFetch("/api/chat/create/message", {
         method: "POST",
         body: JSON.stringify(msg),
         headers: { "Content-Type": "application/json" },
@@ -81,10 +110,14 @@ export default function Chat() {
   }
 
   return (
-    <ChatPage
-      messages={messages}
-      currentUserId={user?.uid}
-      onSendMessage={sendMessage}
-    />
+    <div className="h-full flex flex-col">
+      <ChatPage
+        messages={messages}
+        currentUserId={user?.uid}
+        onSendMessage={sendMessage}
+        title={otherUsername}
+        onBack={() => router.push("/chat")}
+      />
+    </div>
   );
 }

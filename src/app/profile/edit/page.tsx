@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import EditProfileForm from "@/components/profile/forms/EditProfileForm";
 import { Toaster, toast } from "react-hot-toast";
 import { useUser } from "@/config/userProvider";
+import { authFetch } from "@/config/authorisation";
 
 export default function EditProfilePage() {
   const { user } = useUser();
@@ -26,7 +27,7 @@ export default function EditProfilePage() {
     photoURL: string
   ) {
     try {
-      const res = await fetch("/api/profile/update", {
+      const res = await authFetch("/api/profile/update", {
         method: "POST",
         body: JSON.stringify({
           uid: user?.uid,

@@ -111,6 +111,7 @@ export default function SignUpForm({
           <TextInput
             label="Email:"
             icon={<MdEmail />}
+            type="email"
             onChange={(e) => {
               setEmail(e.target.value);
               setValidEmail(validateEmail());

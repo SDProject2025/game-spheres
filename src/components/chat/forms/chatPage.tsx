@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
+import { MdArrowBack } from "react-icons/md";
 import type { MessageInput } from "@/types/Message";
 import MessageBubble from "../messageBubble";
 import ChatInput from "../chatInput";
@@ -39,7 +40,7 @@ export default function ChatPage({
               onClick={onBack}
               className="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
             >
-              ←
+              <MdArrowBack/>
             </button>
           )}
           <div className="flex-1 text-center">{title}</div>

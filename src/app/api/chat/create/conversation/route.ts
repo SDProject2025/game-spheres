@@ -29,6 +29,31 @@ export async function POST(request: NextRequest) {
   const conversation = body as ConversationInput;
 
   try {
+    if (conversation.participants.length === 2) {
+      const [uidA, uidB] = conversation.participants;
+
+      const snapshot = await db.collection(CONVERSATIONS_COLLECTION).where("participants", "array-contains", uidA).get();
+
+      const existing = snapshot.docs.find((doc) => {
+        const data = doc.data();
+        const participants = data.participants as string[];
+        return (
+          participants.length === 2 &&
+          participants.includes(uidA) &&
+          participants.includes(uidB)
+        );
+      });
+
+      if (existing) {
+        // Return existing conversation instead of creating new one
+        return NextResponse.json({
+          success: true,
+          conversationId: existing.id,
+          existing: true,
+        });
+      }
+    }
+    
     const participantRefs = conversation.participants.map(
       (uid) =>
         db.collection(USERS_COLLECTION).doc(uid) as DocumentReference<Profile>

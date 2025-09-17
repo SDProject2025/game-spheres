@@ -89,7 +89,7 @@ export default function SignUpForm({
 
         <form
           className="relative w-[300px] h-[465px] p-8 rounded-lg shadow-xl text-white
-                 bg-black/30 backdrop-blur-md border border-white/10"
+                      bg-black/30 backdrop-blur-md border border-white/10"
           onSubmit={formSubmitHandler}
         >
           <h1 className="text-xl text-[#00ffc3] tracking-wide mb-6 text-center">
@@ -100,8 +100,8 @@ export default function SignUpForm({
             label="Username:"
             icon={<MdPerson />}
             onChange={(e) => setUsername(e.target.value)}
+            isInvalid={!validUsername}
           />
-          {validUsername ? null : <p>Username already taken</p>}
 
           <TextInput
             label="Display Name:"
@@ -117,7 +117,11 @@ export default function SignUpForm({
               setValidEmail(validateEmail());
             }}
           />
-          {validEmail ? null : <p>Invalid email address</p>}
+          {validEmail ? null : (
+            <p className="text-xs text-red-400 mt-1 text-center">
+              Invalid email address
+            </p>
+          )}
 
           <PasswordInput
             label="Password:"

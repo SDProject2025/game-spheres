@@ -18,6 +18,7 @@ import Link from "next/link";
 import type { ConversationInput } from "@/types/Conversation";
 import type { Profile } from "@/types/Profile";
 import { User } from "@/components/profile/forms/followList";
+import { authFetch } from "@/config/authorisation";
 import FollowList from "@/components/profile/forms/followList";
 
 export default function ConversationsPage() {
@@ -105,7 +106,7 @@ export default function ConversationsPage() {
   async function fetchFollowData() {
     if (!user) return [];
     try {
-      const res = await fetch(`/api/profile/${user.uid}/following`);
+      const res = await authFetch(`/api/profile/${user.uid}/following`);
       if (!res.ok) throw new Error("Failed to fetch follow data");
       const data = await res.json();
       return data.users; // matches the API response
@@ -119,7 +120,7 @@ export default function ConversationsPage() {
     if (!user) return;
 
     try {
-      const res = await fetch("/api/chat/create/conversation", {
+      const res = await authFetch("/api/chat/create/conversation", {
         method: "POST",
         body: JSON.stringify({ participants: [user.uid, otherUser.id] }),
         headers: { "Content-Type": "application/json" },

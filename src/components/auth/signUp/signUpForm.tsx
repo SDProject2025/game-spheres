@@ -71,7 +71,7 @@ export default function SignUpForm({
   async function formSubmitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (
-      validateEmail() &&
+      (await validateUsername(username)) &&
       (await validatePassword(password))
     ) {
       handleSignUpClick(username, displayName, email, password);

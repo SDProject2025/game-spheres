@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, {status: 401});
   }
 
+  const { username, displayName, email } = await request.json();
 
   if (!uid || !username || !displayName || !email)
     return NextResponse.json(

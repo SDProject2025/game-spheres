@@ -10,7 +10,6 @@ import {
   DocumentReference,
   WriteBatch,
 } from "firebase-admin/firestore";
-import { Profile } from "@/types/Profile";
 import { decodeToken } from "@/app/api/decodeToken";
 
 export async function POST(request: NextRequest) {
@@ -20,6 +19,7 @@ export async function POST(request: NextRequest) {
   if (!uid) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
   const body = await request.json();
   if (!body)
     return NextResponse.json({ message: "Missing post body" }, { status: 400 });

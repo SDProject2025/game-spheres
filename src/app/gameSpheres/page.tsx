@@ -75,13 +75,12 @@ export default function GameSpheres() {
       try {
         const action = isSubscribed ? "unsubscribe" : "subscribe";
 
-        const res = await fetch("/api/gameSpheres/subscriptions", {
+        const res = await authFetch("/api/gameSpheres/subscriptions", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: user.uid,
             gameSphereId: gameSphere.id,
             action,
           }),

@@ -59,6 +59,10 @@ export default function ClipGrid({
         conditions.push(where("uploadedBy", "==", profileFilter));
       }
 
+      if (gameSphereFilter) {
+        conditions.push(where("gameSphereId", "==", gameSphereFilter));
+      }
+
       const q = query(
         collection(db, "clips"),
         ...conditions,

@@ -52,9 +52,12 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
     if (!profile?.uid) return false;
 
     try {
-      const res = await authFetch(`/api/profile/${profile.uid}/update/unfollow`, {
-        method: "POST",
-      });
+      const res = await authFetch(
+        `/api/profile/${profile.uid}/update/unfollow`,
+        {
+          method: "POST",
+        }
+      );
 
       if (res.ok) {
         if (user?.uid)
@@ -93,7 +96,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="w-full max-w-5xl mx-auto py-8 ml-64">
         <div className="flex gap-8 items-start">
           <ProfilePicture src={profile.photoURL} />
 
@@ -183,7 +186,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
                 </div>
               </div>
 
-              {/* Use ClipsGrid with user filter */}
+              {/* Use ClipsGrid with filter options */}
               <ClipGrid
                 gameSphereFilter={selectedGameSphere}
                 profileFilter={profile.uid}

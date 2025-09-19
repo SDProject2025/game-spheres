@@ -13,7 +13,7 @@ import { db } from "@/config/firebaseConfig";
 import { Clip } from "@/types/Clip";
 import ClipCard from "./clipCard";
 import VideoModal from "./videoModal";
-import { MdNoStroller } from "react-icons/md";
+import { DocumentReference } from "firebase-admin/firestore";
 
 interface ClipGridProps {
   gameSphereFilter?: string;
@@ -47,6 +47,15 @@ export default function ClipGrid({
       if (savedClips && profileFilter) {
         console.log(`Fetching user ${profileFilter}'s saved clips`);
         await loadSavedClips(profileFilter);
+        return;
+      }
+
+      // If on the home page
+      if (userFilter) {
+        console.log(
+          `Fetching clips from user ${userFilter}'s following list and GameSpheres`
+        );
+        await loadHomeClips(userFilter);
         return;
       }
 
@@ -108,6 +117,8 @@ export default function ClipGrid({
       const userData = userDoc.data();
       const savedClipIds: string[] = userData.savedClips || [];
 
+      console.log(`Saved Clip IDs: ${savedClipIds}`);
+
       if (savedClipIds.length === 0) {
         setClips([]);
         return;
@@ -153,6 +164,140 @@ export default function ClipGrid({
       setClips([]);
     }
   };
+
+  const loadHomeClips = async (userId: string) => {
+    try {
+      const userRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        console.error("User not found");
+        setClips([]);
+        return;
+      }
+
+      const userData = userDoc.data();
+
+      console.log(`User Doc Data: ${userData.gsSubs}`);
+
+      const gsSubs: DocumentReference[] = userData.gsSubs || [];
+      const userFollowing: string[] = userData.following || [];
+
+      // resolve id from GameSphere ref
+      const userSubs: string[] = gsSubs.map((doc) => doc.id);
+
+      console.log(
+        `User Subs: ${userSubs} |||| user Following: ${userFollowing}`
+      );
+
+      if (userSubs.length === 0 && userFollowing.length === 0) {
+        setClips([]);
+        return;
+      }
+
+      const allClips: Clip[] = [];
+
+      // batch fetches
+      for (let i = 0; i < userSubs.length; i += 10) {
+        const gsBatchIds = userSubs.slice(i, i + 10);
+        const conditions = [where("gameSphereId", "in", gsBatchIds)];
+
+        if (gameSphereFilter) {
+          conditions.push(where("gameSphereId", "==", gameSphereFilter));
+        }
+
+        const q = query(collection(db, "clips"), ...conditions);
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+          const clipData = doc.data();
+          allClips.push({
+            id: doc.id,
+            ...clipData,
+            uploadedAt: clipData.uploadedAt.toDate(),
+          } as Clip);
+        });
+      }
+
+      for (let i = 0; i < userFollowing.length; i += 10) {
+        const followingBatchIds = userFollowing.slice(i, i + 10);
+        const conditions = [where("uploadedBy", "in", followingBatchIds)];
+
+        if (gameSphereFilter) {
+          conditions.push(where("gameSphereId", "==", gameSphereFilter));
+        }
+
+        const q = query(collection(db, "clips"), ...conditions);
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+          const clipData = doc.data();
+          allClips.push({
+            id: doc.id,
+            ...clipData,
+            uploadedAt: clipData.uploadedAt.toDate(),
+          } as Clip);
+        });
+      }
+
+      // for (const gsBatchIds of gsBatches) {
+      //   const conditions = [where("__name__", "in", gsBatchIds)];
+
+      //   if (gameSphereFilter) {
+      //     conditions.push(where("gameSphereId", "==", gameSphereFilter));
+      //   }
+
+      //   const q = query(collection(db, "clip"), ...conditions);
+
+      //   const querySnapshot = await getDocs(q);
+
+      //   querySnapshot.forEach((doc) => {
+      //     const clipData = doc.data();
+      //     allClips.push({
+      //       id: doc.id,
+      //       ...clipData,
+      //       uploadedAt: clipData.uploadedAt.toDate(),
+      //     } as Clip);
+      //   });
+      // }
+
+      const readyClips = allClips.filter(
+        (clip) =>
+          clip.processingStatus === "ready" && clip.uploadedBy !== userId
+      );
+
+      shuffleArray(readyClips);
+
+      allClips.forEach((clip) => {
+        console.log(clip.uploadedBy);
+      });
+
+      setClips(readyClips);
+    } catch (error) {
+      console.error("Error loading home page clips");
+      setClips([]);
+    }
+  };
+
+  function shuffleArray<T>(array: T[]): T[] {
+    let currentIndex = array.length;
+    let randomIndex: number;
+
+    // While there remain elements to shuffle.
+    while (currentIndex !== 0) {
+      // Pick a remaining element.
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
+  }
 
   const handlePlayClip = (clip: Clip) => {
     setSelectedClip(clip);

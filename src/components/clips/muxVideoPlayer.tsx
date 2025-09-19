@@ -27,6 +27,7 @@ export default function MuxVideoPlayer({
             "--controls-loading-indicator-color": "#00ffd5",
             "--controls-button-hover-background": "#00ffd520",
             "--controls-button-active-background": "#00ffd520",
+            aspectRatio: "16 / 9",
           } as React.CSSProperties
         }
       />

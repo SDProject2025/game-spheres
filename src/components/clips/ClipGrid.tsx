@@ -45,16 +45,12 @@ export default function ClipGrid({
 
       // Check to see if we're accessing a user's saved clips
       if (savedClips && profileFilter) {
-        console.log(`Fetching user ${profileFilter}'s saved clips`);
         await loadSavedClips(profileFilter);
         return;
       }
 
       // If on the home page
       if (userFilter) {
-        console.log(
-          `Fetching clips from user ${userFilter}'s following list and GameSpheres`
-        );
         await loadHomeClips(userFilter);
         return;
       }
@@ -117,8 +113,6 @@ export default function ClipGrid({
       const userData = userDoc.data();
       const savedClipIds: string[] = userData.savedClips || [];
 
-      console.log(`Saved Clip IDs: ${savedClipIds}`);
-
       if (savedClipIds.length === 0) {
         setClips([]);
         return;
@@ -178,17 +172,11 @@ export default function ClipGrid({
 
       const userData = userDoc.data();
 
-      console.log(`User Doc Data: ${userData.gsSubs}`);
-
       const gsSubs: DocumentReference[] = userData.gsSubs || [];
       const userFollowing: string[] = userData.following || [];
 
       // resolve id from GameSphere ref
       const userSubs: string[] = gsSubs.map((doc) => doc.id);
-
-      console.log(
-        `User Subs: ${userSubs} |||| user Following: ${userFollowing}`
-      );
 
       if (userSubs.length === 0 && userFollowing.length === 0) {
         setClips([]);
@@ -240,37 +228,17 @@ export default function ClipGrid({
         });
       }
 
-      // for (const gsBatchIds of gsBatches) {
-      //   const conditions = [where("__name__", "in", gsBatchIds)];
-
-      //   if (gameSphereFilter) {
-      //     conditions.push(where("gameSphereId", "==", gameSphereFilter));
-      //   }
-
-      //   const q = query(collection(db, "clip"), ...conditions);
-
-      //   const querySnapshot = await getDocs(q);
-
-      //   querySnapshot.forEach((doc) => {
-      //     const clipData = doc.data();
-      //     allClips.push({
-      //       id: doc.id,
-      //       ...clipData,
-      //       uploadedAt: clipData.uploadedAt.toDate(),
-      //     } as Clip);
-      //   });
-      // }
-
       const readyClips = allClips.filter(
         (clip) =>
           clip.processingStatus === "ready" && clip.uploadedBy !== userId
       );
 
-      shuffleArray(readyClips);
-
-      allClips.forEach((clip) => {
-        console.log(clip.uploadedBy);
-      });
+      // Newest clips first
+      // Ideally we would order clips by some form of popularity metric
+      readyClips.sort(
+        (clip1: Clip, clip2: Clip) =>
+          clip2.uploadedAt.getTime() - clip1.uploadedAt.getTime()
+      );
 
       setClips(readyClips);
     } catch (error) {
@@ -278,26 +246,6 @@ export default function ClipGrid({
       setClips([]);
     }
   };
-
-  function shuffleArray<T>(array: T[]): T[] {
-    let currentIndex = array.length;
-    let randomIndex: number;
-
-    // While there remain elements to shuffle.
-    while (currentIndex !== 0) {
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
-    }
-
-    return array;
-  }
 
   const handlePlayClip = (clip: Clip) => {
     setSelectedClip(clip);

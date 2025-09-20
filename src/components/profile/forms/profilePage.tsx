@@ -10,6 +10,7 @@ import { useUser } from "@/config/userProvider";
 import { auth } from "@/config/firebaseConfig";
 
 import type { Profile } from "@/types/Profile";
+import { authFetch } from "@/config/authorisation";
 
 export default function ProfilePage({ profile }: { profile: Profile | null }) {
   const { user, loading } = useUser();
@@ -32,12 +33,8 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
     if (!profile?.uid) return false;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/update/follow`, {
+      const res = await authFetch(`/api/profile/${profile.uid}/update/follow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (res.ok) {
@@ -55,13 +52,12 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
     if (!profile?.uid) return false;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/update/unfollow`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await authFetch(
+        `/api/profile/${profile.uid}/update/unfollow`,
+        {
+          method: "POST",
+        }
+      );
 
       if (res.ok) {
         if (user?.uid)
@@ -100,7 +96,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
 
   return (
     <div className="min-h-screen bg-[#111] text-white">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="w-full max-w-5xl mx-auto py-8 ml-64">
         <div className="flex gap-8 items-start">
           <ProfilePicture src={profile.photoURL} />
 
@@ -190,21 +186,21 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
                 </div>
               </div>
 
-              {/* Use ClipsGrid with user filter */}
+              {/* Use ClipsGrid with filter options */}
               <ClipGrid
-                userFilter={profile.uid}
                 gameSphereFilter={selectedGameSphere}
+                profileFilter={profile.uid}
                 key={`${profile.uid}-${selectedGameSphere}`}
               />
             </>
           )}
 
           {activeTab === "saved" && (
-            <div className="text-center py-12">
-              <p className="text-gray-400 text-lg">
-                Saved clips feature coming soon
-              </p>
-            </div>
+            <ClipGrid
+              savedClips={true}
+              profileFilter={profile.uid}
+              key={`${profile.uid}`}
+            />
           )}
         </div>
       </div>

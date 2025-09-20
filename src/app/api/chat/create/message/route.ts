@@ -9,11 +9,17 @@ import {
   Timestamp,
   DocumentReference,
   WriteBatch,
-  FieldValue,
 } from "firebase-admin/firestore";
-import { Profile } from "@/types/Profile";
+import { decodeToken } from "@/app/api/decodeToken";
 
 export async function POST(request: NextRequest) {
+  const authHeader = request.headers.get("Authorization");
+  const uid = await decodeToken(authHeader);
+
+  if (!uid) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json();
   if (!body)
     return NextResponse.json({ message: "Missing post body" }, { status: 400 });
@@ -24,10 +30,6 @@ export async function POST(request: NextRequest) {
     const conversationRef = db
       .collection(CONVERSATIONS_COLLECTION)
       .doc(message.conversationId);
-
-    const senderRef = db
-      .collection(USERS_COLLECTION)
-      .doc(message.senderId) as DocumentReference<Profile>;
 
     const batch: WriteBatch = db.batch();
     const now = Timestamp.now();
@@ -49,14 +51,6 @@ export async function POST(request: NextRequest) {
           createdAt: now,
         },
         updatedAt: now,
-      },
-      { merge: true }
-    );
-
-    batch.set(
-      senderRef,
-      {
-        messages: FieldValue.arrayUnion(messageRef.id),
       },
       { merge: true }
     );

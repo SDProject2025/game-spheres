@@ -47,5 +47,5 @@ export default function MyProfile() {
     );
   }
 
-  return <ProfilePage profile={profile}/>;
+  return <ProfilePage profile={profile} />;
 }

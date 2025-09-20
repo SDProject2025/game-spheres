@@ -9,25 +9,43 @@ export default function MessageBubble({ msg, isSent }: Props) {
   return (
     <div
       key={msg.messageId}
-      className={`flex flex-col max-w-[70%] ${
-        isSent ? "ml-auto items-end" : "mr-auto items-start"
-      }`}
+      className={`flex flex-col max-w-[70%] ${isSent ? "ml-auto items-end" : "mr-auto items-start"}`}
     >
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin">
-        <div
-          className={`px-3 py-2 ${
-            isSent ? "bg-green-700 text-white" : "bg-gray-600 text-white"
-          } rounded-2xl`}
-        >
-          {msg.content}
-        </div>
+      <div
+        style={{ overflowWrap: "anywhere" }} // strongest fallback for very long tokens
+        className={`px-3 py-2 whitespace-pre-wrap break-words break-all ${
+          isSent ? "bg-green-700 text-white" : "bg-gray-600 text-white"
+        } rounded-2xl`}
+      >
+        {msg.content}
       </div>
       <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-        {new Intl.DateTimeFormat("en", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }).format(new Date(msg.createdAt))}
+        {(() => {
+          const createdDate = new Date(msg.createdAt);
+          const now = new Date();
+          const isToday =
+            createdDate.getDate() === now.getDate() &&
+            createdDate.getMonth() === now.getMonth() &&
+            createdDate.getFullYear() === now.getFullYear();
+
+            const isYesterday =
+            createdDate.getDate() === now.getDate() - 1 &&
+            createdDate.getMonth() === now.getMonth() &&
+            createdDate.getFullYear() === now.getFullYear();
+
+          if (isToday) {
+            return `Today, ${createdDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`; 
+          } else if (isYesterday) {
+            return `Yesterday, ${createdDate.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`
+          } else {
+            return createdDate.toLocaleString("en", {
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          }
+        })()}
       </span>
     </div>
   );

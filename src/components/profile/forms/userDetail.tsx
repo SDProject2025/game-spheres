@@ -10,6 +10,7 @@ import ProfileStat from "../profileStats";
 //import VideoGrid from "./videoGrid";
 
 import type { Profile } from "@/types/Profile";
+import { authFetch } from "@/config/authorisation";
 
 export default function UserDetail({
   profile,
@@ -21,6 +22,10 @@ export default function UserDetail({
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
+     if (user?.uid === profile?.uid) {
+      setIsFollowing(false);
+      return;
+    }
     if (profile?.followers.includes(user?.uid ? user.uid : "")) {
       setIsFollowing(true);
     } else {
@@ -37,11 +42,8 @@ export default function UserDetail({
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/update/follow`, {
+      const res = await authFetch(`/api/profile/${profile.uid}/update/follow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (res.ok) {
@@ -58,12 +60,8 @@ export default function UserDetail({
     if (!profile?.uid) return false;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/update/unfollow`, {
+      const res = await authFetch(`/api/profile/${profile.uid}/update/unfollow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (res.ok) {
@@ -114,12 +112,13 @@ export default function UserDetail({
               />
             </div>
           </div>
-          {/*TODO: add featured gamesphere/active gamespheres*/}
-          <FollowButton
-            isFollowing={isFollowing}
-            handleFollowClick={sendFollow}
-            handleUnfollowClick={sendUnfollow}
-          />
+         {user?.uid !== profile.uid && (
+            <FollowButton
+              isFollowing={isFollowing}
+              handleFollowClick={sendFollow}
+              handleUnfollowClick={sendUnfollow}
+            />
+          )}
           <button
             type="button"
             onClick={() => viewUserProfile()}

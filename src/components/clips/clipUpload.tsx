@@ -44,7 +44,7 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
     setError("");
   };
 
-  const handleUpload = (e: React.FormEvent) => {
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!file || !caption || !selectedGameSphere) {
@@ -54,84 +54,107 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
 
     setUploading(true);
     setError("");
+    setUpProgress(0);
 
     try {
-      // Unique filename
-      const timestamp = Date.now();
-      const fileName = `${file.name}_${timestamp}`;
-      const storageRef = ref(storage, `clips/${fileName}`);
+      // Get upload URL from Mux
+      const uploadUrlResponse = await fetch("/api/clips/create/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          gameSphereId: selectedGameSphere,
+          uploadedBy: user?.uid,
+        }),
+      });
 
-      // Upload file
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      const { uploadId, uploadUrl } = await uploadUrlResponse.json();
 
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUpProgress(progress);
-        },
-        (error) => {
-          console.error("Upload Error:", error);
-          setError("Upload failed, try again later");
-          setUploading(false);
-        },
-        async () => {
-          try {
-            // Get download URL
-            const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+      // Upload directly to Mux
+      await uploadWithProgress(uploadUrl, file, (progress) => {
+        setUpProgress(progress);
+      });
 
-            // create clip API call
-            const response = await fetch("/api/clips/create", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                caption,
-                videoUrl: downloadUrl,
-                gameSphereId: selectedGameSphere,
-                uploadedBy: user?.uid,
-                fileSize: file.size,
-              }),
-            });
+      // Finalize and save metadata
+      const finalizeResponse = await fetch("/api/clips/create/finalize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uploadId,
+          caption,
+        }),
+      });
 
-            const result = await response.json();
+      const result = await finalizeResponse.json();
 
-            if (!response.ok) {
-              throw new Error(result.error || "Failed to save clip metadata");
-            }
+      if (!finalizeResponse.ok) {
+        throw new Error(result.error || "Failed to save clip");
+      }
 
-            // Reset form values
-            setCaption("");
-            setSelectedGameSphere("");
-            setFile(null);
-            setUpProgress(0);
+      // Reset form
+      setCaption("");
+      setSelectedGameSphere("");
+      setFile(null);
 
-            if (fileInputRef.current) {
-              fileInputRef.current.value = "";
-            }
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
 
-            onUploadComplete?.();
-            alert("Clip Uploaded Successfully!");
-          } catch (error) {
-            console.error("Error Saving Clip Data:", error);
-            setError("Error Saving Data");
-          } finally {
-            setUploading(false);
-          }
-        }
-      );
+      onUploadComplete?.();
+      alert("Clip uploaded successfully! Processing will be done shortly.");
     } catch (error) {
       console.error("Error Uploading File:", error);
       setError("Error UPloading File");
+    } finally {
       setUploading(false);
     }
   };
 
+  // Function to track upload progress - await fetch() doesn't allow that
+  // Have to use XMLHttpRequest
+  const uploadWithProgress = (
+    url: string,
+    file: File,
+    onProgress: (progress: number) => void
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          onProgress(progress);
+        }
+      });
+
+      // Handle completion
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}`));
+        }
+      });
+
+      // Handle errors
+      xhr.addEventListener("error", () => {
+        reject(new Error("Upload failed"));
+      });
+
+      // Configure and send request
+      xhr.open("PUT", url);
+      xhr.setRequestHeader("Content-Type", file.type || "video/mp4");
+      xhr.send(file);
+    });
+  };
+
   return (
     <div className="max-w-md mx-auto p-6 bg-[#111] rounded-lg shadow-md">
-      <h2 className="text-2xl text-white font-bold mb-4">Upload Gaming Clip</h2>
+      <h2 className="text-2xl text-white font-bold mb-1">Upload Gaming Clip</h2>
+      <h4 className="text-sm text-gray-500 mb-4">
+        Fields marked by * are required
+      </h4>
 
       <form onSubmit={handleUpload}>
         <div className="mb-4">
@@ -208,12 +231,16 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
           <div className="mb-4">
             <div className="bg-gray-800 rounded-full h-2">
               <div
-                className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                className={`bg-green-500 h-2 rounded-full ${
+                  upProgress === 0 ? "" : "transition-all duration-300"
+                }`}
                 style={{ width: `${upProgress}%` }}
               />
             </div>
             <p className="text-sm text-gray-400 mt-1">
-              Uploading... {Math.round(upProgress)}%
+              {upProgress === 0
+                ? "Preparing upload..."
+                : `Uploading... ${Math.round(upProgress)}%`}
             </p>
           </div>
         )}

@@ -1,13 +1,16 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { X } from "lucide-react";
 import { Clip } from "@/types/Clip";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
-import VideoPlayer from "./videoPlayer";
+import MuxVideoPlayer from "./muxVideoPlayer";
+import { Bookmark, BookmarkCheck } from "lucide-react";
+import { useUser } from "@/config/userProvider";
+import toast from "react-hot-toast";
 
 interface VideoModalProps {
   clip: Clip;
   onClose: () => void;
+  clipSaved?: boolean;
 }
 
 interface UserInfo {
@@ -17,10 +20,17 @@ interface UserInfo {
   photoURL?: string;
 }
 
-export default function VideoModal({ clip, onClose }: VideoModalProps) {
+export default function VideoModal({
+  clip,
+  onClose,
+  clipSaved,
+}: VideoModalProps) {
   const [uploader, setUploader] = useState<UserInfo | null>(null);
+  const [saved, setSaved] = useState(clipSaved);
   const modalRef = useRef<HTMLDivElement>(null);
   const { gameSpheres } = useGameSpheresContext();
+
+  const { user } = useUser();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -75,29 +85,108 @@ export default function VideoModal({ clip, onClose }: VideoModalProps) {
     }
   };
 
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const checkSavedStatus = async () => {
+      try {
+        const res = await fetch(
+          `/api/clips/savedClips?userId=${user?.uid}&clipId=${clip.id}`
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          setSaved(data.isSaved);
+        }
+      } catch (error) {
+        console.error("Error checking saved status:", error);
+      }
+    };
+    checkSavedStatus();
+  }, [user?.uid, clip.id]);
+
+  const handleSaveClipClick = async (action: string) => {
+    try {
+      if (!clip || !user) {
+        console.error("Clip and User fields are required");
+        return;
+      }
+
+      const res = await fetch(`/api/clips/savedClips`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          clipId: clip.id,
+          action: action,
+        }),
+      });
+
+      setSaved(action === "save");
+
+      if (!res.ok) {
+        throw new Error("Error saving clip");
+      }
+    } catch (error) {
+      console.error("Error saving clip:", error);
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
     >
+      {/* TODO: attach pane to right side of modal for comments */}
       <div
         ref={modalRef}
         className="bg-[#111] rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto"
       >
         {/* Video Player */}
-        <div className="aspect-video bg-black">
-          <VideoPlayer src={clip.videoUrl} className="w-full h-full" />
+        <div className="aspect-video bg-black min-h-[400px]">
+          {clip.processingStatus === "ready" && clip.muxPlaybackId ? (
+            <MuxVideoPlayer
+              playbackId={clip.muxPlaybackId}
+              className="w-full h-full"
+              poster={clip.thumbnailUrl}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-900 text-white">
+              {/* This is pretty redundant because I already filter out non-ready videos, but I've added it in as a failsafe */}
+              {clip.processingStatus === "preparing" &&
+                "Video is still processing..."}
+              {clip.processingStatus === "errored" && "Error processing video"}
+              {clip.processingStatus === "uploading" && "Upload in progress..."}
+            </div>
+          )}
         </div>
 
         {/* Video Info */}
         <div className="p-6">
-          {/* Caption and Game Info */}
+          {/* Caption and GameSphere Info */}
+          {/* TODO: ADD "SAVE CLIP TO FAVORITES" OPTION IN THIS DIV, IN-LINE WITH CAPTION, RIGHT-ALIGNED */}
           <div className="mb-4">
-            <h1 className="text-2xl font-bold text-white mb-2">
-              {clip.caption}
-            </h1>
+            <div className="grid grid-cols-2">
+              <h1 className="text-2xl font-bold text-white mb-2">
+                {clip.caption}
+              </h1>
+              {saved && (
+                <BookmarkCheck
+                  className="ml-auto cursor-pointer"
+                  onClick={() => handleSaveClipClick("unsave")}
+                ></BookmarkCheck>
+              )}
+              {!saved && (
+                <Bookmark
+                  className="ml-auto cursor-pointer"
+                  onClick={() => handleSaveClipClick("save")}
+                ></Bookmark>
+              )}
+            </div>
             <div className="flex items-center text-gray-400">
-              <span className="text-blue-500 font-medium">
+              <span className="text-[#00ffd5] font-medium">
                 {getGameSphereName(clip.gameSphereId)}
               </span>
               <span className="mx-2">•</span>
@@ -106,6 +195,7 @@ export default function VideoModal({ clip, onClose }: VideoModalProps) {
           </div>
 
           {/* User Info */}
+          {/* TODO: make username clickable -> takes you to their profile ?? */}
           <div className="flex items-center mb-4 pb-4 border-b border-gray-700">
             {uploader?.photoURL && (
               <img

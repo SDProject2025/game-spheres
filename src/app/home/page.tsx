@@ -10,7 +10,7 @@ export default function Home() {
   const [selectedGameSphere, setSelectedGameSphere] = useState("");
   const router = useRouter();
   const { user } = useUser();
-  console.log(`User: ${user?.uid}`);
+
   return (
     <div className="w-full max-w-6xl mx-auto py-8 ml-50">
       <h1 className="text-4xl">GameSpheres</h1>

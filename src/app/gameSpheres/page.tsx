@@ -5,7 +5,6 @@ import { useUser } from "@/config/userProvider";
 import { FullGameSphere } from "@/types/GameSphere";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "react-hot-toast";
-
 import SearchBar from "@/components/search/searchBar";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
 import { authFetch } from "@/config/authorisation";

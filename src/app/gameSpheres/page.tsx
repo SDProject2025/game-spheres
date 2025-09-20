@@ -110,13 +110,13 @@ export default function GameSpheres() {
   // Render item for GameSphere items in the list returned after searching - memoized
   const renderGameItem = useCallback(
     (game: FullGameSphere, isSelected: boolean) => (
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 max-w-full">
         <img
           src={game.coverUrl}
           alt={game.name}
-          className="w-12 h-12 object-cover rounded"
+          className="w-12 h-12 sm:w-14 sm:h-14 ms:w-16 md:h-16 object-cover rounded flex-shrink-0"
         />
-        <span>{game.name}</span>
+        <span className="text-sm sm:text-base truncate">{game.name}</span>
       </div>
     ),
     []
@@ -126,27 +126,27 @@ export default function GameSpheres() {
   const renderGameDetails = useCallback(
     (game: FullGameSphere) => (
       <>
-        <div className="flex items-center mb-6">
+        <div className="flex flex-col md:flex-row items-center md:items-start mb-6 text-center md:text-left">
           <img
             src={game.coverUrl}
             alt={game.name}
-            className="w-20 h-20 rounded-full object-cover mr-5 flex-shrink-0"
+            className="w-20 h-20 rounded-full object-cover mb-4 md:mb-0 md:mr-5 flex-shrink-0"
           />
-          <h2 className="text-3xl font-semibold text-cyan-300">{game.name}</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-300">{game.name}</h2>
         </div>
 
         {game.releaseDate && (
-          <p className="text-gray-400 mb-2">
+          <p className="text-gray-400 mb-2 text-sm sm:text-base">
             <strong>Released:</strong> {game.releaseDate}
           </p>
         )}
 
         {game.storyline && (
-          <p className="text-gray-300 mb-4">{game.storyline}</p>
+          <p className="text-gray-300 mb-4 text-sm sm:text-base leading-relaxed">{game.storyline}</p>
         )}
 
         {game.genres && game.genres.length > 0 && (
-          <p className="mb-4">
+          <p className="mb-4 text-sm sm:text-base">
             <strong>Genres:</strong> {game.genres.join(", ")}
           </p>
         )}

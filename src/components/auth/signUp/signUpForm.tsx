@@ -114,7 +114,6 @@ export default function SignUpForm({
             label="Email:"
             type="email"
             icon={<MdEmail />}
-            type="email"
             onChange={(e) => {
               setEmail(e.target.value);
               setValidEmail(validateEmail());

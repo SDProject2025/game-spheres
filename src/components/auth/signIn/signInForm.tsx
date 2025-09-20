@@ -3,6 +3,7 @@ import { MdEmail } from "react-icons/md";
 import NeonButton from "../../neonButton";
 import TextInput from "../textInput";
 import PasswordInput from "../passwordInput";
+import { validatePassword } from "firebase/auth";
 
 type Props = {
   signInWithGoogle: () => void;
@@ -48,19 +49,10 @@ export default function SignInForm({
             onChange={(e) => setPassword(e.target.value)}
           />
           <div className="flex flex-col sm:flex-row items-center justify-center w-full mt-4 gap-4 max-w-sm mx-auto">
-            <NeonButton type="submit">SIGN IN</NeonButton>
-            <button
-              type="button"
-              onClick={signInWithGoogle}
-              className="flex items-center justify-center gap-3 px-3 sm:px-4 py-2 w-full sm:w-auto max-w-xs rounded-md bg-black-300 text-gray-800 hover:text-white transition"
-            >
-              <span className="font-medium">Sign in with Google</span>
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                alt="Google icon"
-                className="h-5 w-5"
-              />
-            </button>
+            <NeonButton type="submit" variant="outline">SIGN IN</NeonButton>
+            <NeonButton onClick={signInWithGoogle} src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" variant="filled">
+              SIGN IN WITH GOOGLE
+            </NeonButton>
           </div>
             {bottomLink && (
     <div className="mt-6 text-center text-sm sm:text-base text-[#00ffc3] font-medium drop-shadow-[0_0_10px_#00ffc3]">

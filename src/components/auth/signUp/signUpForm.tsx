@@ -14,10 +14,12 @@ type Props = {
   ) => void;
   validateUsername: (username: string) => Promise<boolean>;
   validatePassword: (password: string) => Promise<boolean>;
+  signInWithGoogle: () => void;
   bottomLink?: React.ReactNode;
 };
 
 export default function SignUpForm({
+  signInWithGoogle,
   handleSignUpClick,
   validateUsername,
   validatePassword,
@@ -82,14 +84,14 @@ export default function SignUpForm({
 
   return (
     <div className="flex justify-center">
-      <div className="neon-ring signup">
+      <div className="neon-ring">
         <i style={{ "--clr": "#00ffc3" } as React.CSSProperties}></i>
         <i style={{ "--clr": "#00e6b3" } as React.CSSProperties}></i>
         <i style={{ "--clr": "#00ffdd" } as React.CSSProperties}></i>
 
         <form
-          className="relative w-[300px] h-[465px] p-8 rounded-lg shadow-xl text-white
-                      bg-black/30 backdrop-blur-md border border-white/10"
+          className="relative w-full max-w-sm sm:max-w-md md:max-w-lg p-6 sm:p-8 rounded-lg shadow-xl text-white
+                     bg-black/30 backdrop-blur-md border border-white/10"
           onSubmit={formSubmitHandler}
         >
           <h1 className="text-xl text-[#00ffc3] tracking-wide mb-6 text-center">
@@ -111,21 +113,19 @@ export default function SignUpForm({
 
           <TextInput
             label="Email:"
+            type="email"
             icon={<MdEmail />}
             onChange={(e) => {
               setEmail(e.target.value);
               setValidEmail(validateEmail());
             }}
+            isInvalid={!validateEmail()}
           />
-          {validEmail ? null : (
-            <p className="text-xs text-red-400 mt-1 text-center">
-              Invalid email address
-            </p>
-          )}
 
           <PasswordInput
             label="Password:"
             onChange={(e) => setPassword(e.target.value)}
+            isInvalid={!validPassword}
           />
           {validPassword ? null : (
             <p className="text-xs text-red-400 mt-1 text-center">
@@ -133,9 +133,12 @@ export default function SignUpForm({
             </p>
           )}
 
-          <div className="flex justify-center w-full mt-4">
-            <NeonButton type="submit">SIGN UP</NeonButton>
-          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center w-full mt-4 gap-4 max-w-sm mx-auto">
+            <NeonButton type="submit" variant="outline">SIGN UP</NeonButton>
+            <NeonButton onClick={signInWithGoogle} src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" variant="filled">
+              SIGN UP WITH GOOGLE
+            </NeonButton>
+            </div>
           {bottomLink && <div className="mt-4 text-center">{bottomLink}</div>}
         </form>
       </div>

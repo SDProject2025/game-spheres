@@ -19,7 +19,7 @@ export default function GameSphereFilter({
       <select
         value={selectedGameSphere}
         onChange={(e) => onGameSphereChange(e.target.value)}
-        className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:ring-blue-500 focus:border-blue-500 text-sm"
+        className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:ring-blue-500 focus:border-blue-500 text-sm "
       >
         <option value="">All Games</option>
         {gameSpheres.map((sphere) => (

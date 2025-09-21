@@ -142,10 +142,10 @@ export default function VideoModal({
       {/* TODO: attach pane to right side of modal for comments */}
       <div
         ref={modalRef}
-        className="bg-[#111] rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#111] rounded-lg overflow-hidden w-full max-h-[90vh] overflow-y-auto sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
       >
         {/* Video Player */}
-        <div className="aspect-video bg-black min-h-[400px]">
+        <div className="aspect-video bg-black min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[500px]">
           {clip.processingStatus === "ready" && clip.muxPlaybackId ? (
             <MuxVideoPlayer
               playbackId={clip.muxPlaybackId}

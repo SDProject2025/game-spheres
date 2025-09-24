@@ -39,6 +39,28 @@ export default function ClipGrid({
     loadClips();
   }, [gameSphereFilter, userFilter, savedClips, profileFilter]);
 
+  // Utility to dedupe clips by id and warn if duplicates are found
+  const dedupeClips = (clips: Clip[]) => {
+    const seen = new Set<string>();
+    const unique: Clip[] = [];
+    const duplicates: string[] = [];
+
+    clips.forEach((clip) => {
+      if (seen.has(clip.id)) {
+        duplicates.push(clip.id);
+      } else {
+        seen.add(clip.id);
+        unique.push(clip);
+      }
+    });
+
+    if (duplicates.length > 0) {
+      console.warn("Duplicate clip IDs found and removed:", duplicates);
+    }
+
+    return unique;
+  };
+
   const loadClips = async () => {
     try {
       setLoading(true);
@@ -91,7 +113,7 @@ export default function ClipGrid({
         (clip) => clip.processingStatus === "ready"
       );
 
-      setClips(readyClips);
+      setClips(dedupeClips(readyClips));
     } catch (error) {
       console.error("Error loading clips:", error);
     } finally {
@@ -152,7 +174,7 @@ export default function ClipGrid({
         (clip) => clip.processingStatus === "ready"
       );
 
-      setClips(readyClips);
+      setClips(dedupeClips(readyClips));
     } catch (error) {
       console.error("Error loading saved clips:", error);
       setClips([]);
@@ -240,7 +262,7 @@ export default function ClipGrid({
           clip2.uploadedAt.getTime() - clip1.uploadedAt.getTime()
       );
 
-      setClips(readyClips);
+      setClips(dedupeClips(readyClips));
     } catch (error) {
       console.error("Error loading home page clips");
       setClips([]);

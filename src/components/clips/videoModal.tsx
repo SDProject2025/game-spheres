@@ -33,7 +33,8 @@ export default function VideoModal({ clip, onClose, clipSaved }: VideoModalProps
   // Hooks for logic
   const { likesCount, isLiked, toggleLike, isLiking } = useClipLikes(clip.id, user?.uid);
   const { saved, toggleSave } = useSaveStatus(clip.id, user, clipSaved);
-  const { comments, addComment, deleteComment } = useComments(clip.id, user, clip.uploadedBy);
+ const { comments, add, remove } = useComments(clip.id, user, clip.uploadedBy);
+
 
  const [uploader, setUploader] = useState<Profile | null>(null);
 
@@ -145,20 +146,20 @@ setUploader(data.userData as Profile);
 
           {/* Comments list */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[calc(90vh-100px)]">
-            <CommentsList
-  comments={comments as Comment[]}
+           <CommentsList
+  comments={comments}
   userId={user?.uid}
   uploaderId={clip.uploadedBy}
-  onDelete={deleteComment}
+  onDelete={remove}
 />
           </div>
 
           {/* Input */}
           <CommentInput
-            onAdd={(text) => {
-              addComment(text);
-            }}
-          />
+  onAdd={(text) => {
+    add(text);
+  }}
+/>
         </div>
       </div>
     </div>

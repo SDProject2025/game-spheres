@@ -2,6 +2,7 @@ import { db } from "@/config/firebaseAdminConfig";
 import { NextRequest, NextResponse } from "next/server";
 import admin from "firebase-admin";
 
+
 export async function POST(request: NextRequest) {
   try {
     const { userId, clipId, action } = await request.json();
@@ -20,19 +21,25 @@ export async function POST(request: NextRequest) {
     const clipRef = db.collection("clips").doc(clipId);
     const likeRef = clipRef.collection("likes").doc(userId);
 
-    if (action === "like") {
-      await likeRef.set({ likedAt: admin.firestore.FieldValue.serverTimestamp() });
-      await clipRef.update({
-        likesCount: admin.firestore.FieldValue.increment(1),
-      });
-    }
+    await db.runTransaction(async (transaction) => {
+      const likeSnap = await transaction.get(likeRef);
 
-    if (action === "unlike") {
-      await likeRef.delete();
-      await clipRef.update({
-        likesCount: admin.firestore.FieldValue.increment(-1),
-      });
-    }
+      if (action === "like" && !likeSnap.exists) {
+        transaction.set(likeRef, {
+          likedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        transaction.update(clipRef, {
+          likesCount: admin.firestore.FieldValue.increment(1),
+        });
+      }
+
+      if (action === "unlike" && likeSnap.exists) {
+        transaction.delete(likeRef);
+        transaction.update(clipRef, {
+          likesCount: admin.firestore.FieldValue.increment(-1),
+        });
+      }
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -43,6 +50,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -57,7 +65,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const likeRef = db.collection("clips").doc(clipId).collection("likes").doc(userId);
+    const likeRef = db
+      .collection("clips")
+      .doc(clipId)
+      .collection("likes")
+      .doc(userId);
     const likeSnap = await likeRef.get();
 
     const isLiked = likeSnap.exists;

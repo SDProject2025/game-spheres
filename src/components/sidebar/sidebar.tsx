@@ -15,6 +15,7 @@ import {
   User,
   GamepadIcon,
   MessageCircleMore,
+  Mail,
   Settings,
   SquarePlus,
 } from "lucide-react";
@@ -34,6 +35,7 @@ export default function Sidebar() {
     { icon: SquarePlus, name: "Upload Clip", href: "/uploadClip" },
     { icon: User, name: "Find Friends", href: "/searchUsers" },
     { icon: MessageCircleMore, name: "Chat", href: "/chat" },
+    { icon: Mail, name: "Inbox", href: "/inbox"},
     { icon: Settings, name: "Settings", href: "/settings/userFeedback" },
   ];
 

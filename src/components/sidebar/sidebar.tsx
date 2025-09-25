@@ -14,7 +14,6 @@ import {
   Home,
   User,
   GamepadIcon,
-  MessageCircleMore,
   Mail,
   Settings,
   SquarePlus,
@@ -35,8 +34,8 @@ export default function Sidebar() {
     { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
     { icon: SquarePlus, name: "Upload Clip", href: "/uploadClip" },
     { icon: User, name: "Find Friends", href: "/searchUsers" },
-    { icon: MessageCircleMore, name: "Chat", href: "/chat" },
-    { icon: ChatIcon, name: "Inbox", href: "/inbox"},
+    { icon: ChatIcon, name: "Chat", href: "/chat" },
+    { icon: Mail, name: "Inbox", href: "/inbox"},
     { icon: Settings, name: "Settings", href: "/settings/userFeedback" },
   ];
 

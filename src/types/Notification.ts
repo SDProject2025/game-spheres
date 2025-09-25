@@ -1,6 +1,7 @@
 import { Timestamp } from "firebase-admin/firestore";
 
 export type Notification = {
+    notificationId?: string;
     type: "like" | "comment" | "follow" | "message"; // self explanatory
     fromUid: string; // id of person who triggered notification
     // following are related to notification type

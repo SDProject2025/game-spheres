@@ -1,11 +1,12 @@
 "use client";
-import { useState, useRef, ReactElement } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { storage, db } from "@/config/firebaseConfig";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
 import { useUser } from "@/config/userProvider";
 import { FullGameSphere } from "@/types/GameSphere";
+import Fuse from "fuse.js";
 
 interface ClipUploadProps {
   onUploadComplete?: () => void;
@@ -19,9 +20,77 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
   const [upProgress, setUpProgress] = useState(0);
   const [error, setError] = useState("");
 
+  // GameSphere search states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isGameSphereDropdownOpen, setIsGameSphereDropdownOpen] =
+    useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const gameSphereContainerRef = useRef<HTMLDivElement>(null);
   const { gameSpheres } = useGameSpheresContext();
   const { user } = useUser();
+
+  // Configure Fuse.js for searching game spheres
+  const fuse = useMemo(() => {
+    return new Fuse(gameSpheres, {
+      keys: ["name"],
+      threshold: 0.3,
+      includeScore: true,
+    });
+  }, [gameSpheres]);
+
+  // Get filtered results based on search query
+  const filteredGameSpheres = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return gameSpheres;
+    }
+
+    const results = fuse.search(searchQuery);
+    return results.map((result) => result.item);
+  }, [searchQuery, fuse, gameSpheres]);
+
+  // Get the display text for selected game sphere
+  const selectedGameSphereName = useMemo(() => {
+    if (!selectedGameSphere) return "";
+    const sphere = gameSpheres.find((s) => s.id === selectedGameSphere);
+    return sphere?.name || "";
+  }, [selectedGameSphere, gameSpheres]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        gameSphereContainerRef.current &&
+        !gameSphereContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsGameSphereDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleGameSphereOptionClick = (gameSphereId: string) => {
+    setSelectedGameSphere(gameSphereId);
+    const sphere = gameSpheres.find((s) => s.id === gameSphereId);
+    setSearchQuery(sphere?.name || "");
+    setIsGameSphereDropdownOpen(false);
+  };
+
+  const handleGameSphereInputFocus = () => {
+    setIsGameSphereDropdownOpen(true);
+    if (selectedGameSphereName) {
+      setSearchQuery(selectedGameSphereName);
+    }
+  };
+
+  const handleGameSphereInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSearchQuery(e.target.value);
+    setIsGameSphereDropdownOpen(true);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -94,6 +163,7 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
       // Reset form
       setCaption("");
       setSelectedGameSphere("");
+      setSearchQuery("");
       setFile(null);
 
       if (fileInputRef.current) {
@@ -160,24 +230,52 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
         <div className="mb-4">
           <label
             htmlFor="gameSphere"
-            className="block text-sm font-medium text-white"
+            className="block text-sm font-medium text-white mb-1"
           >
             GameSphere *
           </label>
-          <select
-            id="gameSphere"
-            value={selectedGameSphere}
-            onChange={(e) => setSelectedGameSphere(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm bg-[#111] text-white focus:ring-green-500 focus:border-green-500"
-            required
-          >
-            <option value="">Select a GameSphere</option>
-            {gameSpheres.map((sphere: FullGameSphere) => (
-              <option key={sphere.id} value={sphere.id}>
-                {sphere.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative" ref={gameSphereContainerRef}>
+            {/* Search Input */}
+            <input
+              type="text"
+              placeholder="Search and select a GameSphere..."
+              value={
+                isGameSphereDropdownOpen
+                  ? searchQuery
+                  : selectedGameSphereName || "Select a GameSphere..."
+              }
+              onChange={handleGameSphereInputChange}
+              onFocus={handleGameSphereInputFocus}
+              className="block w-full px-3 py-2 bg-[#111] border border-gray-700 rounded-md text-white placeholder-gray-400 focus:ring-green-500 focus:border-green-500 text-sm cursor-pointer"
+              readOnly={!isGameSphereDropdownOpen}
+              required
+            />
+
+            {/* Dropdown Results */}
+            {isGameSphereDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 z-10 bg-[#111] border-l border-r border-b border-gray-700 rounded-b-md max-h-64 overflow-y-auto">
+                {/* Filtered options */}
+                {filteredGameSpheres.map((sphere) => (
+                  <div
+                    key={sphere.id}
+                    onClick={() => handleGameSphereOptionClick(sphere.id)}
+                    className={`px-3 py-2 cursor-pointer hover:bg-gray-800 text-sm text-white ${
+                      selectedGameSphere === sphere.id ? "bg-gray-800" : ""
+                    }`}
+                  >
+                    {sphere.name}
+                  </div>
+                ))}
+
+                {/* No results message */}
+                {searchQuery.trim() && filteredGameSpheres.length === 0 && (
+                  <div className="px-3 py-2 text-sm text-gray-400">
+                    No GameSpheres found for "{searchQuery}"
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mb-4">
@@ -192,7 +290,7 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             rows={3}
-            className="mt-1 block w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm bg-[#111] text-white focus:ring-green-500 focus:border-green-500"
+            className="mt-1 block w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm bg-[#111] text-white focus:ring-green-500 focus:border-green-500 resize-none"
             placeholder="Share what makes this clip special..."
           />
         </div>

@@ -39,28 +39,6 @@ export default function ClipGrid({
     loadClips();
   }, [gameSphereFilter, userFilter, savedClips, profileFilter]);
 
-  // Utility to dedupe clips by id and warn if duplicates are found
-  const dedupeClips = (clips: Clip[]) => {
-    const seen = new Set<string>();
-    const unique: Clip[] = [];
-    const duplicates: string[] = [];
-
-    clips.forEach((clip) => {
-      if (seen.has(clip.id)) {
-        duplicates.push(clip.id);
-      } else {
-        seen.add(clip.id);
-        unique.push(clip);
-      }
-    });
-
-    if (duplicates.length > 0) {
-      console.warn("Duplicate clip IDs found and removed:", duplicates);
-    }
-
-    return unique;
-  };
-
   const loadClips = async () => {
     try {
       setLoading(true);
@@ -113,7 +91,7 @@ export default function ClipGrid({
         (clip) => clip.processingStatus === "ready"
       );
 
-      setClips(dedupeClips(readyClips));
+      setClips(readyClips);
     } catch (error) {
       console.error("Error loading clips:", error);
     } finally {
@@ -174,7 +152,7 @@ export default function ClipGrid({
         (clip) => clip.processingStatus === "ready"
       );
 
-      setClips(dedupeClips(readyClips));
+      setClips(readyClips);
     } catch (error) {
       console.error("Error loading saved clips:", error);
       setClips([]);
@@ -205,50 +183,27 @@ export default function ClipGrid({
         return;
       }
 
+      // Use a set to track Clip IDs so we dont fetch duplicates
+      const seenClipIds = new Set<string>();
+
       const allClips: Clip[] = [];
 
-      // batch fetches
-      for (let i = 0; i < userSubs.length; i += 10) {
-        const gsBatchIds = userSubs.slice(i, i + 10);
-        const conditions = [where("gameSphereId", "in", gsBatchIds)];
+      // fetch by GS subs
+      const gsClipsPromise = userSubs.length
+        ? fetchClipsByGameSphereIds(userSubs, gameSphereFilter, seenClipIds)
+        : Promise.resolve([]);
 
-        if (gameSphereFilter) {
-          conditions.push(where("gameSphereId", "==", gameSphereFilter));
-        }
+      const followingClipsPromise = userFollowing.length
+        ? fetchClipsByFollowing(userFollowing, gameSphereFilter, seenClipIds)
+        : Promise.resolve([]);
 
-        const q = query(collection(db, "clips"), ...conditions);
-        const querySnapshot = await getDocs(q);
+      // Fetch concurrently
+      const [gsClips, followingClips] = await Promise.all([
+        gsClipsPromise,
+        followingClipsPromise,
+      ]);
 
-        querySnapshot.forEach((doc) => {
-          const clipData = doc.data();
-          allClips.push({
-            id: doc.id,
-            ...clipData,
-            uploadedAt: clipData.uploadedAt.toDate(),
-          } as Clip);
-        });
-      }
-
-      for (let i = 0; i < userFollowing.length; i += 10) {
-        const followingBatchIds = userFollowing.slice(i, i + 10);
-        const conditions = [where("uploadedBy", "in", followingBatchIds)];
-
-        if (gameSphereFilter) {
-          conditions.push(where("gameSphereId", "==", gameSphereFilter));
-        }
-
-        const q = query(collection(db, "clips"), ...conditions);
-        const querySnapshot = await getDocs(q);
-
-        querySnapshot.forEach((doc) => {
-          const clipData = doc.data();
-          allClips.push({
-            id: doc.id,
-            ...clipData,
-            uploadedAt: clipData.uploadedAt.toDate(),
-          } as Clip);
-        });
-      }
+      allClips.push(...gsClips, ...followingClips);
 
       const readyClips = allClips.filter(
         (clip) =>
@@ -262,11 +217,75 @@ export default function ClipGrid({
           clip2.uploadedAt.getTime() - clip1.uploadedAt.getTime()
       );
 
-      setClips(dedupeClips(readyClips));
+      setClips(readyClips);
     } catch (error) {
       console.error("Error loading home page clips");
       setClips([]);
     }
+  };
+
+  const fetchClipsByGameSphereIds = async (
+    gsIds: string[],
+    gameSphereFilter: string | undefined,
+    seenClipIds: Set<string>
+  ) => {
+    const allClips: Clip[] = [];
+    for (let i = 0; i < gsIds.length; i += 10) {
+      const batchIds = gsIds.slice(i, i + 10);
+      const conditions = [where("gameSphereId", "in", batchIds)];
+
+      if (gameSphereFilter) {
+        conditions.push(where("gameSphereId", "==", gameSphereFilter));
+      }
+
+      const q = query(collection(db, "clips"), ...conditions);
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const clipData = doc.data();
+        if (!seenClipIds.has(doc.id)) {
+          allClips.push({
+            id: doc.id,
+            ...clipData,
+            uploadedAt: clipData.uploadedAt.toDate(),
+          } as Clip);
+          seenClipIds.add(doc.id); // Mark this clip as seen
+        }
+      });
+    }
+    return allClips;
+  };
+
+  const fetchClipsByFollowing = async (
+    followingIds: string[],
+    gameSphereFilter: string | undefined,
+    seenClipIds: Set<string>
+  ) => {
+    const allClips: Clip[] = [];
+    for (let i = 0; i < followingIds.length; i += 10) {
+      const batchIds = followingIds.slice(i, i + 10);
+      const conditions = [where("uploadedBy", "in", batchIds)];
+
+      if (gameSphereFilter) {
+        conditions.push(where("gameSphereId", "==", gameSphereFilter));
+      }
+
+      const q = query(collection(db, "clips"), ...conditions);
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const clipData = doc.data();
+        if (!seenClipIds.has(doc.id)) {
+          allClips.push({
+            id: doc.id,
+            ...clipData,
+            uploadedAt: clipData.uploadedAt.toDate(),
+          } as Clip);
+          seenClipIds.add(doc.id);
+        }
+      });
+    }
+    return allClips;
   };
 
   const handlePlayClip = (clip: Clip) => {

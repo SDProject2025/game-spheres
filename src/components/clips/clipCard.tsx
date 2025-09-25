@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Clip } from "@/types/Clip";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
 import { PlayIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ClipCardProps {
   clip: Clip;
@@ -17,8 +18,9 @@ interface UserInfo {
 }
 
 export default function ClipCard({ clip, onPlay }: ClipCardProps) {
-  const { gameSpheres } = useGameSpheresContext();
   const [uploader, setUploader] = useState<UserInfo | null>(null);
+  const { gameSpheres } = useGameSpheresContext();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -36,9 +38,6 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
 
   const getGameSphereName = (id: string) =>
     gameSpheres.find((gs) => gs.id === id)?.name || "Unknown Game";
-
-  const getGameSphereCover = (id: string) =>
-    gameSpheres.find((gs) => gs.id === id)?.coverUrl;
 
   const getThumbnailUrl = (clip: Clip) => {
     if (clip.thumbnailUrl) return clip.thumbnailUrl;
@@ -127,7 +126,10 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
 
         {/* User info */}
         {uploader && (
-          <div className="flex items-center mb-2">
+          <div
+            className="flex items-center mb-2"
+            onClick={() => router.replace(`/profile/${uploader.uid}`)}
+          >
             {uploader.photoURL && (
               <img
                 src={uploader.photoURL}
@@ -135,8 +137,8 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
                 className="w-5 h-5 rounded-full object-cover mr-2"
               />
             )}
-            <span className="text-gray-400 text-sm hover:text-gray-200 cursor-pointer">
-              {uploader.displayName || uploader.username || uploader.uid}
+            <span className="text-gray-400 text-sm hover:text-gray-200">
+              {uploader.username}
             </span>
           </div>
         )}

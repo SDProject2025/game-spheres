@@ -270,7 +270,7 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
                 {/* No results message */}
                 {searchQuery.trim() && filteredGameSpheres.length === 0 && (
                   <div className="px-3 py-2 text-sm text-gray-400">
-                    No GameSpheres found for "{searchQuery}"
+                    No GameSpheres found for &quot{searchQuery}&quot
                   </div>
                 )}
               </div>

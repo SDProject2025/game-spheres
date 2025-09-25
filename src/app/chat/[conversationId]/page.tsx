@@ -50,7 +50,7 @@ export default function Chat() {
   }, [conversationId, user]);
 
   useEffect(() => {
-    if (!conversationId) return;
+    if (!conversationId || !user) return;
 
     const q = query(
       collection(db, "conversations", conversationId, "messages"),
@@ -70,14 +70,21 @@ export default function Chat() {
             (typeof data.createdAt === "string"
               ? data.createdAt
               : new Date().toISOString()),
+          read: data.read,
         };
       });
 
       setMessages(msgs);
+
+      const unread = msgs.filter((m) => m.senderId !== user.uid && !m.read);
+
+      if (unread.length > 0) {
+        markRead(unread);
+      }
     });
 
     return () => unsub();
-  }, [conversationId]);
+  }, [conversationId, user]);
 
   async function sendMessage(content: string) {
     if (!user) return;
@@ -89,6 +96,7 @@ export default function Chat() {
       conversationId,
       createdAt: new Date().toISOString(),
       senderId: user.uid,
+      read: false,
     };
 
     setMessages((prev) => [...prev, msg]);
@@ -106,6 +114,20 @@ export default function Chat() {
     } catch (e) {
       console.error(e instanceof Error ? e.message : "Failed");
       setMessages((prev) => prev.filter((m) => m.messageId !== tempId));
+    }
+  }
+
+  async function markRead(unreadMessages: MessageInput[]) {
+    try {
+      const res = await authFetch("/api/chat/update/read", {
+        method: "POST",
+        body: JSON.stringify(unreadMessages),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (e) {
+      console.error("Couldn't mark read:", e instanceof Error ? e.message : "");
     }
   }
 

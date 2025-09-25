@@ -53,6 +53,7 @@ export default function ConversationsPage() {
     fetchUserData();
   }, [user]);
 
+  // fetches list of conversations as a snapshot
   useEffect(() => {
     if (!user) return;
 

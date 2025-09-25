@@ -1,5 +1,5 @@
 import type { MessageInput } from "@/types/Message";
-
+import { CgCheckO } from "react-icons/cg";
 type Props = {
   msg: MessageInput;
   isSent: boolean;
@@ -9,7 +9,9 @@ export default function MessageBubble({ msg, isSent }: Props) {
   return (
     <div
       key={msg.messageId}
-      className={`flex flex-col max-w-[70%] ${isSent ? "ml-auto items-end" : "mr-auto items-start"}`}
+      className={`flex flex-col max-w-[70%] ${
+        isSent ? "ml-auto items-end" : "mr-auto items-start"
+      }`}
     >
       <div
         style={{ overflowWrap: "anywhere" }} // strongest fallback for very long tokens
@@ -19,6 +21,12 @@ export default function MessageBubble({ msg, isSent }: Props) {
       >
         {msg.content}
       </div>
+      {isSent && (
+        <CgCheckO
+          className={`${msg.read ? "text-green-400" : "text-gray-400"}`}
+        />
+      )}
+
       <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
         {(() => {
           const createdDate = new Date(msg.createdAt);
@@ -28,17 +36,23 @@ export default function MessageBubble({ msg, isSent }: Props) {
             createdDate.getMonth() === now.getMonth() &&
             createdDate.getFullYear() === now.getFullYear();
 
-            const isYesterday =
+          const isYesterday =
             createdDate.getDate() === now.getDate() - 1 &&
             createdDate.getMonth() === now.getMonth() &&
             createdDate.getFullYear() === now.getFullYear();
 
           if (isToday) {
-            return `Today, ${createdDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`; 
+            return `Today, ${createdDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}`;
           } else if (isYesterday) {
-            return `Yesterday, ${createdDate.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`
+            return `Yesterday, ${createdDate.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}`;
           } else {
-            return createdDate.toLocaleString("en", {
+            return createdDate.toLocaleString([], {
               month: "short",
               day: "2-digit",
               hour: "2-digit",

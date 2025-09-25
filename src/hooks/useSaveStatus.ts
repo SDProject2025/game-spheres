@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { checkSavedStatus, toggleSaveClip } from "@/services/clipsService";
 
-export function useSaveStatus(clipId: string, user: any, initialSaved?: boolean) {
+interface User {
+  uid: string;
+}
+
+export function useSaveStatus(
+  clipId: string,
+  user: User | null,
+  initialSaved?: boolean
+) {
   const [saved, setSaved] = useState(initialSaved);
 
   useEffect(() => {

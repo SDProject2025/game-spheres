@@ -1,5 +1,11 @@
+interface UserInfo {
+  displayName: string;
+  username: string;
+  photoURL: string;
+}
+
 interface Props {
-  uploader: any;
+  uploader: UserInfo | null;
   uploadedAt: Date;
 }
 

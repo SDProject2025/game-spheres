@@ -15,9 +15,7 @@ import CommentsList from "../videoModal/CommentsList";
 import CommentInput from "../videoModal/CommentInput";
 import { MessageCircle } from "lucide-react";
 import type { Profile } from "@/types/Profile";
-import type { Comment } from '@/types/Comment';
-
-
+import type { Comment } from "@/types/Comment";
 
 interface VideoModalProps {
   clip: Clip;
@@ -25,18 +23,24 @@ interface VideoModalProps {
   clipSaved?: boolean;
 }
 
-export default function VideoModal({ clip, onClose, clipSaved }: VideoModalProps) {
+export default function VideoModal({
+  clip,
+  onClose,
+  clipSaved,
+}: VideoModalProps) {
   const { user } = useUser();
   const { gameSpheres } = useGameSpheresContext();
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Hooks for logic
-  const { likesCount, isLiked, toggleLike, isLiking } = useClipLikes(clip.id, user?.uid);
+  const { likesCount, isLiked, toggleLike, isLiking } = useClipLikes(
+    clip.id,
+    user?.uid
+  );
   const { saved, toggleSave } = useSaveStatus(clip.id, user, clipSaved);
- const { comments, add, remove } = useComments(clip.id, user, clip.uploadedBy);
+  const { comments, add, remove } = useComments(clip.id, user, clip.uploadedBy);
 
-
- const [uploader, setUploader] = useState<Profile | null>(null);
+  const [uploader, setUploader] = useState<Profile | null>(null);
 
   // fetch uploader
   useEffect(() => {
@@ -44,10 +48,9 @@ export default function VideoModal({ clip, onClose, clipSaved }: VideoModalProps
     if (!clip.uploadedBy) return;
     (async () => {
       try {
-       const res = await fetch(`/api/profile?uid=${clip.uploadedBy}`);
-const data = await res.json();
-setUploader(data.userData as Profile);
-
+        const res = await fetch(`/api/profile?uid=${clip.uploadedBy}`);
+        const data = await res.json();
+        setUploader(data.userData as Profile);
       } catch (err) {
         console.error("Error fetching uploader:", err);
       }
@@ -111,7 +114,9 @@ setUploader(data.userData as Profile);
             {/* Title + Like/Save */}
             <div className="mb-4">
               <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-white">{clip.caption}</h1>
+                <h1 className="text-2xl font-bold text-white">
+                  {clip.caption}
+                </h1>
                 <div className="flex items-center gap-4">
                   <LikeButton
                     isLiked={isLiked}
@@ -146,20 +151,20 @@ setUploader(data.userData as Profile);
 
           {/* Comments list */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[calc(90vh-100px)]">
-           <CommentsList
-  comments={comments}
-  userId={user?.uid}
-  uploaderId={clip.uploadedBy}
-  onDelete={remove}
-/>
+            <CommentsList
+              comments={comments}
+              userId={user?.uid}
+              uploaderId={clip.uploadedBy}
+              onDelete={remove}
+            />
           </div>
 
           {/* Input */}
           <CommentInput
-  onAdd={(text) => {
-    add(text);
-  }}
-/>
+            onAdd={(text) => {
+              add(text);
+            }}
+          />
         </div>
       </div>
     </div>

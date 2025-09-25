@@ -1,10 +1,12 @@
+import { Comment } from "@/types/Comment";
+
 export default function CommentsList({
   comments,
   userId,
   uploaderId,
   onDelete,
 }: {
-  comments: any[];
+  comments: Comment[];
   userId?: string;
   uploaderId?: string;
   onDelete: (id: string, userId: string) => void;
@@ -26,10 +28,7 @@ export default function CommentsList({
             <span className="font-semibold">{c.displayName}</span>: {c.text}
           </p>
           <p className="text-xs text-gray-500">
-           {c.createdAt
-  ? c.createdAt.toLocaleString()
-  : "just now"}
-
+            {c.createdAt ? c.createdAt.toLocaleString() : "just now"}
           </p>
         </div>
         {(userId === c.userId || userId === uploaderId) && (

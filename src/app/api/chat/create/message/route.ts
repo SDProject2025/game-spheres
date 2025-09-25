@@ -59,30 +59,15 @@ export async function POST(request: NextRequest) {
       { merge: true }
     );
 
-    const unreadCountsUpdate: Record<string, any> = {};
-    for (const recipientId of recipients) {
-      unreadCountsUpdate[`unreadCounts.${recipientId}`] =
-        FieldValue.increment(1);
-    }
-    batch.set(conversationRef, unreadCountsUpdate, { merge: true });
-
-    const notification: Notification = {
-      type: "message",
-      fromUid: message.senderId,
-      conversationId: message.conversationId,
-      messageId: messageRef.id,
-      createdAt: now.toMillis(),
-      read: false,
+    const unreadCountsUpdate: Record<string, any> = {
+      unreadCounts: {},
     };
 
     for (const recipientId of recipients) {
-      const notifRef = db
-        .collection(USERS_COLLECTION)
-        .doc(recipientId)
-        .collection("notifications")
-        .doc();
-      batch.set(notifRef, notification);
+      unreadCountsUpdate.unreadCounts[recipientId] = FieldValue.increment(1);
     }
+
+    batch.set(conversationRef, unreadCountsUpdate, { merge: true });
 
     await batch.commit();
 

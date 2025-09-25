@@ -6,22 +6,15 @@ import {
 } from "@/app/api/collections";
 import type { MessageInput } from "@/types/Message";
 import type { Notification } from "@/types/Notification";
-import {
-  Timestamp,
-  DocumentReference,
-  WriteBatch,
-} from "firebase-admin/firestore";
+import { Timestamp, WriteBatch, FieldValue } from "firebase-admin/firestore";
 import { decodeToken } from "@/app/api/decodeToken";
 
 export async function POST(request: NextRequest) {
-  // verify sender token for security
   const authHeader = request.headers.get("Authorization");
   const uid = await decodeToken(authHeader);
 
-  // standard server side validation and input collection
-  if (!uid) {
+  if (!uid)
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
 
   const body = await request.json();
   if (!body)
@@ -30,25 +23,28 @@ export async function POST(request: NextRequest) {
   const message = body as MessageInput;
 
   try {
-    // get a document reference to the current conversation
     const conversationRef = db
       .collection(CONVERSATIONS_COLLECTION)
       .doc(message.conversationId);
 
     const batch: WriteBatch = db.batch();
-    const now = Timestamp.now(); // keep now as a constant for consistency across fields
+    const now = Timestamp.now();
 
-    //get document reference to a new message within the messages subcollection
+    const convSnap = await conversationRef.get();
+    const conversationData = convSnap.exists ? convSnap.data() : null;
+    const participants: string[] = conversationData?.participants || [];
+
+    const recipients = participants.filter((id) => id !== message.senderId);
+
     const messageRef = conversationRef.collection("messages").doc();
-
-    // add message creation to batch
     batch.set(messageRef, {
       content: message.content,
       senderId: message.senderId,
       createdAt: now,
+      read: false,
+      recipientIds: recipients,
     });
 
-    // add new message as lastMessage to batch
     batch.set(
       conversationRef,
       {
@@ -63,43 +59,34 @@ export async function POST(request: NextRequest) {
       { merge: true }
     );
 
-    // pull conversation data to reference participants
-    const conversationSnap = await conversationRef.get();
-    const conversationData = conversationSnap.exists
-      ? conversationSnap.data()
-      : null;
+    const unreadCountsUpdate: Record<string, any> = {};
+    for (const recipientId of recipients) {
+      unreadCountsUpdate[`unreadCounts.${recipientId}`] =
+        FieldValue.increment(1);
+    }
+    batch.set(conversationRef, unreadCountsUpdate, { merge: true });
 
-    // filter out message sender from list of participants
-    const participants: string[] = conversationData?.participants || [];
-    const recipients = participants.filter((id) => id !== message.senderId);
-
-    // create list of recipient document references
-    const recipientRefs = recipients.map((id) =>
-      db.collection(USERS_COLLECTION).doc(id)
-    );
-
-    // create type enforced notification
     const notification: Notification = {
       type: "message",
       fromUid: message.senderId,
       conversationId: message.conversationId,
       messageId: messageRef.id,
-      createdAt: now,
-      read: false
-    }
+      createdAt: now.toMillis(),
+      read: false,
+    };
 
-    // for each recipient reference, create a document in the notifications subcollection
-    for (const ref of recipientRefs) {
-      const notifRef = ref.collection("notifications").doc();
+    for (const recipientId of recipients) {
+      const notifRef = db
+        .collection(USERS_COLLECTION)
+        .doc(recipientId)
+        .collection("notifications")
+        .doc();
       batch.set(notifRef, notification);
     }
 
-    // finalise batch write
     await batch.commit();
 
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json({ success: true });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Failed to post message";
     console.error(message);

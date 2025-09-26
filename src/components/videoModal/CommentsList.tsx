@@ -11,6 +11,17 @@ export default function CommentsList({
   uploaderId?: string;
   onDelete: (id: string, userId: string) => void;
 }) {
+  const formatTimeSinceUpload = (date: Date) => {
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (diff < 60) return "just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
+    if (diff < 2592000) return `${Math.floor(diff / 604800)} weeks ago`;
+    if (diff < 31536000) return `${Math.floor(diff / 2592000)} months ago`;
+    return `${Math.floor(diff / 31536000)} years ago`;
+  };
   return comments.length === 0 ? (
     <p className="text-gray-400 text-sm">No comments yet. Be the first!</p>
   ) : (
@@ -28,7 +39,7 @@ export default function CommentsList({
             <span className="font-semibold">{c.displayName}</span>: {c.text}
           </p>
           <p className="text-xs text-gray-500">
-            {c.createdAt ? c.createdAt.toLocaleString() : "just now"}
+            {formatTimeSinceUpload(c.createdAt)}
           </p>
         </div>
         {(userId === c.userId || userId === uploaderId) && (

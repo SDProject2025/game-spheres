@@ -1,3 +1,5 @@
+import * as admin from "firebase-admin";
+
 export interface Clip {
   id: string;
   caption: string;
@@ -5,6 +7,11 @@ export interface Clip {
   uploadedBy: string;
   uploadedAt: Date;
   fileSize: number;
+  likesCount: number;
+  likesLast24h?: number;
+  likesLastWeek?: number;
+  likesLastMonth?: number;
+  lastPopularityUpdate?: admin.firestore.Timestamp;
 
   muxAssetId: string;
   muxPlaybackId?: string;

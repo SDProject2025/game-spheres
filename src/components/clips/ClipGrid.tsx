@@ -4,7 +4,6 @@ import {
   collection,
   getDocs,
   query,
-  orderBy,
   where,
   doc,
   getDoc,
@@ -14,15 +13,14 @@ import { Clip } from "@/types/Clip";
 import ClipCard from "./clipCard";
 import VideoModal from "./videoModal";
 import { DocumentReference } from "firebase-admin/firestore";
+import { SortOption } from "./sortDropdown";
 
 interface ClipGridProps {
   gameSphereFilter?: string;
   userFilter?: string;
   savedClips?: boolean;
-
-  // This will be used to keep track of whose profile you're viewing
-  // Not necessarily the same as the person who uploaded the clip
   profileFilter?: string;
+  sortBy?: SortOption;
 }
 
 export default function ClipGrid({
@@ -30,6 +28,7 @@ export default function ClipGrid({
   userFilter,
   savedClips,
   profileFilter,
+  sortBy = "popular24h",
 }: ClipGridProps) {
   const [clips, setClips] = useState<Clip[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,7 +36,7 @@ export default function ClipGrid({
 
   useEffect(() => {
     loadClips();
-  }, [gameSphereFilter, userFilter, savedClips, profileFilter]);
+  }, [gameSphereFilter, userFilter, savedClips, profileFilter, sortBy]);
 
   const loadClips = async () => {
     try {
@@ -68,11 +67,7 @@ export default function ClipGrid({
         conditions.push(where("gameSphereId", "==", gameSphereFilter));
       }
 
-      const q = query(
-        collection(db, "clips"),
-        ...conditions,
-        orderBy("uploadedAt", "desc")
-      );
+      const q = query(collection(db, "clips"), ...conditions);
 
       const querySnapshot = await getDocs(q);
       const clipsData: Clip[] = [];
@@ -152,7 +147,8 @@ export default function ClipGrid({
         (clip) => clip.processingStatus === "ready"
       );
 
-      setClips(readyClips);
+      const sortedClips = sortClips(readyClips, sortBy);
+      setClips(sortedClips);
     } catch (error) {
       console.error("Error loading saved clips:", error);
       setClips([]);
@@ -210,17 +206,34 @@ export default function ClipGrid({
           clip.processingStatus === "ready" && clip.uploadedBy !== userId
       );
 
-      // Newest clips first
-      // Ideally we would order clips by some form of popularity metric
-      readyClips.sort(
-        (clip1: Clip, clip2: Clip) =>
-          clip2.uploadedAt.getTime() - clip1.uploadedAt.getTime()
-      );
-
-      setClips(readyClips);
+      const sortedClips = sortClips(readyClips, sortBy);
+      setClips(sortedClips);
     } catch (error) {
       console.error("Error loading home page clips");
       setClips([]);
+    }
+  };
+
+  const sortClips = (clips: Clip[], sortOption: string) => {
+    const clipsToSort = [...clips];
+
+    switch (sortOption) {
+      case "popular24h":
+        return clipsToSort.sort(
+          (a, b) => (b.likesLast24h || 0) - (a.likesLast24h || 0)
+        );
+      case "popularWeek":
+        return clipsToSort.sort(
+          (a, b) => (b.likesLastWeek || 0) - (a.likesLastWeek || 0)
+        );
+      case "popularMonth":
+        return clipsToSort.sort(
+          (a, b) => (b.likesLastMonth || 0) - (a.likesLastMonth || 0)
+        );
+      default:
+        return clipsToSort.sort(
+          (a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime()
+        );
     }
   };
 

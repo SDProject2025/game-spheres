@@ -134,6 +134,7 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
           filename: file.name,
           gameSphereId: selectedGameSphere,
           uploadedBy: user?.uid,
+          caption: caption,
         }),
       });
 

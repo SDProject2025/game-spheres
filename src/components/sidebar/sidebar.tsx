@@ -26,9 +26,9 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const navItems = [
-    { icon: Home, name: "Home", href: "/home" },
-    { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
-    { icon: User, name: "Find Friends", href: "/searchUsers" },
+    { icon: Home, name: "Home", href: "/home", testid: "home" },
+    { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres", testid: "gamespheres" },
+    { icon: User, name: "Find Friends", href: "/searchUsers", testid: "friends" },
   ];
 
   return (
@@ -68,6 +68,7 @@ export default function Sidebar() {
                 ${!isExpanded ? "justify-center" : ""}
               `}
               data-label={item.name}
+              data-testid={item.testid}
             >
               <item.icon className="w-5 h-5 flex-shrink-0 text-white" />
               {isExpanded && (

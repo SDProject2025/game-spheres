@@ -3,7 +3,8 @@ import { mux } from "@/config/muxConfig";
 
 export async function POST(request: NextRequest) {
   try {
-    const { filename, gameSphereId, uploadedBy } = await request.json();
+    const { filename, gameSphereId, uploadedBy, caption } =
+      await request.json();
 
     // Determine CORS origin
     const corsOrigin =
@@ -18,7 +19,10 @@ export async function POST(request: NextRequest) {
         playback_policies: ["public"],
         video_quality: "basic",
         normalize_audio: true,
-
+        meta: {
+          title: caption,
+          creator_id: uploadedBy,
+        },
         // store metadata with upload
         passthrough: JSON.stringify({
           gameSphereId,

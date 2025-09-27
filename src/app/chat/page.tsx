@@ -14,12 +14,11 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import Link from "next/link";
 import type { ConversationInput } from "@/types/Conversation";
 import type { Profile } from "@/types/Profile";
 import { User } from "@/components/profile/forms/followList";
 import { authFetch } from "@/config/authorisation";
-import FollowList from "@/components/profile/forms/followList";
+import ConversationsPageForm from "@/components/chat/forms/conversationsPage";
 
 export default function ConversationsPage() {
   const { user } = useUser();
@@ -52,8 +51,7 @@ export default function ConversationsPage() {
 
     fetchUserData();
   }, [user]);
-
-  // fetches list of conversations as a snapshot
+  
   useEffect(() => {
     if (!user) return;
 
@@ -65,14 +63,19 @@ export default function ConversationsPage() {
     );
 
     const unsub = onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
-      const convs: ConversationInput[] = snapshot.docs.map((doc) => ({
-        conversationId: doc.id,
-        lastMessage: doc.data().lastMessage?.content || "",
-        updatedAt: doc.data().updatedAt?.toDate
-          ? doc.data().updatedAt.toDate().toISOString()
-          : "",
-        participants: doc.data().participants || [],
-      }));
+      const convs: ConversationInput[] = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          conversationId: doc.id,
+          lastMessage: data.lastMessage?.content || "",
+          updatedAt: data.updatedAt?.toDate
+            ? data.updatedAt.toDate().toISOString()
+            : "",
+          participants: data.participants || [],
+          unreadCounts: data.unreadCounts || {}, // <-- include this
+        };
+      });
+
       setConversations(convs);
     });
 
@@ -139,72 +142,15 @@ export default function ConversationsPage() {
   if (!profile) return <div>Error...</div>;
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Active Conversations</h1>
-        <button
-          onClick={() => setOpenType("following")}
-          className="px-4 py-2 bg-green-700 text-white hover:bg-green-600 transition"
-        >
-          New Chat
-        </button>
-      </div>
-      {conversations.length === 0 && (
-        <p className="text-gray-500">No conversations yet.</p>
-      )}
-      <ul className="space-y-2">
-        {conversations.map((conv) => (
-          <li key={conv.conversationId}>
-            <Link
-              href={`/chat/${conv.conversationId}`}
-              className="block p-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
-            >
-              <div className="flex justify-between">
-                <span>
-                  Conversation with:{" "}
-                  {conv.participants
-                    .filter((uid) => uid !== user.uid)
-                    .map((uid) => usernames[uid] || uid)
-                    .join(", ")}
-                </span>
-                <span className="text-sm text-gray-400">
-                  {conv.updatedAt
-                    ? new Intl.DateTimeFormat("en", {
-                        month: "short",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }).format(new Date(conv.updatedAt))
-                    : ""}
-                </span>
-              </div>
-              <p
-                className="text-gray-300 text-sm mt-1 truncate"
-                style={{ overflowWrap: "anywhere" }}
-              >
-                {conv.lastMessage || "No messages yet."}
-              </p>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      {openType && (
-        <FollowList
-          type={openType}
-          count={openType === "followers" ? 0 : profile.following.length}
-          isOpen={true}
-          onClose={() => setOpenType(null)}
-          onFetchData={fetchFollowData}
-          renderButton={(followedUser) => (
-            <button
-              onClick={() => createChat(followedUser)}
-              className="px-4 py-2 bg-green-700 text-white hover:bg-green-600 transition"
-            >
-              Message
-            </button>
-          )}
-        />
-      )}
-    </div>
+    <ConversationsPageForm
+      userId={user.uid}
+      profile={profile!}
+      conversations={conversations}
+      usernames={usernames}
+      openType={openType}
+      setOpenType={setOpenType}
+      fetchFollowData={fetchFollowData}
+      createChat={createChat}
+    />
   );
 }

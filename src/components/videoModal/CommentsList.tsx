@@ -26,10 +26,7 @@ export default function CommentsList({
             <span className="font-semibold">{c.displayName}</span>: {c.text}
           </p>
           <p className="text-xs text-gray-500">
-           {c.createdAt
-  ? c.createdAt.toLocaleString()
-  : "just now"}
-
+            {c.createdAt ? c.createdAt.toLocaleString() : "just now"}
           </p>
         </div>
         {(userId === c.userId || userId === uploaderId) && (

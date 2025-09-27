@@ -10,7 +10,6 @@ import {
 
 // TODO: chunk messages into multiple batches if more than 500 in request
 export async function POST(request: NextRequest) {
-  console.log("Mark read API hit");
   const authHeader = request.headers.get("Authorization");
   const uid = await decodeToken(authHeader);
 

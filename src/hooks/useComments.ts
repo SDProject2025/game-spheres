@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import type { Comment } from "@/types/Comment";
 import type { Profile } from "@/types/Profile";
 import { addComment, deleteComment, listenToComments } from "@/services/clipsService";
+import { authFetch } from "@/config/authorisation";
+import type { Notification } from "@/types/Notification";
 
 export function useComments(clipId: string, user: Profile | null, uploaderId?: string) {
   const [comments, setComments] = useState<Comment[]>([]);

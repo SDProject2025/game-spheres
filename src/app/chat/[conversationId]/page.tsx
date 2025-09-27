@@ -4,7 +4,7 @@ import ChatPage from "@/components/chat/forms/chatPage";
 import { useUser } from "@/config/userProvider";
 import { MessageInput } from "@/types/Message";
 import { useParams, useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "@/config/firebaseConfig";
 import {
   onSnapshot,
@@ -15,6 +15,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { authFetch } from "@/config/authorisation";
+import { Profile } from "@/types/Profile";
 
 export default function Chat() {
   const { user } = useUser();
@@ -23,9 +24,9 @@ export default function Chat() {
   const conversationId = params.conversationId as string;
 
   const [messages, setMessages] = useState<MessageInput[]>([]);
-  const [otherUsername, setOtherUsername] = useState<string>("Chat");
+  const [otherUser, setOtherUser] = useState<Profile>();
 
-  // 🔹 fetch the conversation + other user's name
+  // 🔹 fetch the conversation + other user's profile
   useEffect(() => {
     if (!conversationId || !user?.uid) return;
 
@@ -36,11 +37,14 @@ export default function Chat() {
         const otherId = participants.find((id) => id !== user!.uid);
 
         if (otherId) {
-          const userSnap = await getDoc(doc(db, "users", otherId));
-          if (userSnap.exists()) {
-            setOtherUsername(userSnap.data().username || otherId);
-          } else {
-            setOtherUsername(otherId);
+          try {
+            const res = await fetch(`/api/profile?uid=${otherId}`);
+            const data = await res.json();
+            setOtherUser(data.userData);
+          } catch (e) {
+            const message =
+              e instanceof Error ? e.message : "Couldn't fetch profile";
+            console.error(message);
           }
         }
       }
@@ -131,13 +135,15 @@ export default function Chat() {
     }
   }
 
+  if (!otherUser) return <h1>Loading...</h1>
+
   return (
     <div className="h-full flex flex-col">
       <ChatPage
         messages={messages}
         currentUserId={user?.uid}
         onSendMessage={sendMessage}
-        title={otherUsername}
+        otherUser={otherUser}
         onBack={() => router.push("/chat")}
       />
     </div>

@@ -19,6 +19,7 @@ import {
   SquarePlus,
 } from "lucide-react";
 import ChatIcon from "../chat/messageCounter";
+import InboxIcon from "../notifications/notificationCounter";
 
 export default function Sidebar() {
   const [isMoreClicked, setIsMoreClicked] = useState(false);
@@ -35,7 +36,7 @@ export default function Sidebar() {
     { icon: SquarePlus, name: "Upload Clip", href: "/uploadClip" },
     { icon: User, name: "Find Friends", href: "/searchUsers" },
     { icon: ChatIcon, name: "Chat", href: "/chat" },
-    { icon: Mail, name: "Inbox", href: "/inbox"},
+    { icon: InboxIcon, name: "Inbox", href: "/inbox"},
     { icon: Settings, name: "Settings", href: "/settings/userFeedback" },
   ];
 

@@ -125,6 +125,7 @@ export default function Sidebar({ hideToggle }: SidebarProps) {
 
               <div className="relative ml-2">
                 <CgMoreVertical
+                  data-testid="more-toggle"
                   onClick={() => setIsMoreClicked((p) => !p)}
                   className="cursor-pointer text-gray-400 hover:text-white transition-colors flex-shrink-0"
                 />

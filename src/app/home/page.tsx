@@ -17,13 +17,13 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-2 ml-50">
-      <h1 className="text-4xl mb-4">GameSpheres</h1>
+    <div className="w-full max-w-6xl mx-auto px-4 flex flex-col items-center">
+      <h1 className="text-3xl sm:text-4xl text-center">GameSpheres</h1>
       <>
         {/* Filter and sort controls */}
-        <div className="mt-3 mb-5 flex justify-between items-start">
+        <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           {/* Left side - Sort Dropdown */}
-          <div className="flex flex-col">
+          <div className="flex items-center space-x-4">
             <SortDropdown
               currentSort={sortBy}
               onSortChange={handleSortChange}
@@ -45,6 +45,14 @@ export default function Home() {
                 Clear filter
               </button>
             )}
+          </div>
+          {/* Right Side - Dropdown */}
+          <div className="w-full sm:w-auto max-w-xs">
+            <GameSphereFilter
+              selectedGameSphere={selectedGameSphere}
+              onGameSphereChange={setSelectedGameSphere}
+              className="w-full"
+            />
           </div>
         </div>
 

@@ -1,5 +1,7 @@
 // components/NeonButton.tsx
+import searchUsers from "@/app/searchUsers/page";
 import React from "react";
+import { SiRclone } from "react-icons/si";
 import styled from "styled-components";
 
 type NeonButtonProps = {
@@ -7,15 +9,23 @@ type NeonButtonProps = {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
+  src?: string;
+  alt?: string;
+  color?: string | "#00ffc3";
+  variant?: "filled" | "outline";
 };
 
 const NeonButton = ({
   children,
   onClick,
   type = "button",
+  src,
+  alt,
+  color = "#00ffc3",
+  variant = "filled",
 }: NeonButtonProps) => {
   return (
-    <StyledWrapper>
+    <StyledWrapper neonColor={color} variant={variant}>
       <button className="btn" type={type} onClick={onClick}>
         <strong>{children}</strong>
         <div id="container-stars">
@@ -25,6 +35,7 @@ const NeonButton = ({
           <div className="circle" />
           <div className="circle" />
         </div>
+        {src && <img src={src} alt={alt} className="h-5 w-15" />}
       </button>
     </StyledWrapper>
   );
@@ -33,32 +44,40 @@ const NeonButton = ({
 export default NeonButton;
 
 // ⬇️ styled-components styles:
-const StyledWrapper = styled.div`
+const StyledWrapper = styled.div<{ neonColor: string, variant: "filled" | "outline" }>`
   .btn {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 13rem;
-    overflow: hidden;
     height: 3rem;
-    background-size: 300% 300%;
     cursor: pointer;
-    backdrop-filter: blur(1rem);
     border-radius: 5rem;
+    position: relative;
+    overflow: hidden;
     transition: 0.5s;
-    animation: gradient_301 5s ease infinite;
-    border: double 4px transparent;
-    background-image: linear-gradient(#1d1d1d, #1d1d1d),
-      linear-gradient(
-        137.48deg,
-        #00ffc3 10%,
-        #00e6b3 45%,
-        #00ff87 67%,
-        #00a896 87%
-      );
+
+    border: ${(props) =>
+    props.variant === "filled" 
+      ? "double 2px transparent" 
+      : `2px solid ${props.neonColor}`};
+
+    background: ${(props) =>
+    props.variant === "filled"
+      ? "#1d1d1d"
+      : "transparent"};
+
+    background-image: ${(props) =>
+    props.variant === "filled"
+      ? `linear-gradient(#1d1d1d, #1d1d1d),
+         linear-gradient(137.48deg, #00ffc3 10%, #00e6b3 45%, #00ff87 67%, #00a896 87%)`
+      : "none"};
+
     background-origin: border-box;
     background-clip: content-box, border-box;
-    position: relative;
+
+    animation: ${(props) =>
+    props.variant === "filled" ? "gradient_301 5s ease infinite" : "none"};
   }
 
   #container-stars {
@@ -77,8 +96,9 @@ const StyledWrapper = styled.div`
     font-family: "Montserrat", sans-serif;
     font-size: 12px;
     letter-spacing: 5px;
-    color: #ffffff;
-    text-shadow: 0 0 4px white;
+    color: ${(props) =>
+      props.variant === "filled" ? "#fff" : props.neonColor}; // text white if filled, neon if outline
+    text-shadow: 0 0 4px ${(props) => (props.variant === "filled" ? "white" : props.neonColor)};
   }
 
   #glow {
@@ -92,7 +112,7 @@ const StyledWrapper = styled.div`
     height: 30px;
     filter: blur(2rem);
     animation: pulse_3011 4s infinite;
-    z-index: -1;
+    background: ${(props) => props.neonColor}; // stars colored in both variants
   }
 
   .circle:nth-of-type(1) {
@@ -109,7 +129,8 @@ const StyledWrapper = styled.div`
   }
 
   .btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px ${(props) => props.neonColor};
   }
 
   .btn:active {

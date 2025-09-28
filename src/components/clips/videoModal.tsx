@@ -102,7 +102,7 @@ export default function VideoModal({
     >
       <div
         ref={modalRef}
-        className="bg-[#111] rounded-lg overflow-hidden max-w-6xl w-full max-h-[90vh] flex"
+        className="bg-[#111] rounded-lg overflow-hidden w-full max-h-[90vh] overflow-y-auto sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
       >
         {/* Left side: video + info */}
         <div className="flex-1 flex flex-col">

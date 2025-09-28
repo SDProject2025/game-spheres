@@ -3,7 +3,7 @@ import { MdArrowLeft } from "react-icons/md";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CgMoreVertical } from "react-icons/cg";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import UserMenu from "../UserMenu";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/config/userProvider";
@@ -21,10 +21,14 @@ import {
 import ChatIcon from "../chat/messageCounter";
 import InboxIcon from "../notifications/notificationCounter";
 
-export default function Sidebar() {
+type SidebarProps = {
+  hideToggle?: boolean; // hide expand/collapse on mobile overlay
+};
+
+export default function Sidebar({ hideToggle }: SidebarProps) {
   const [isMoreClicked, setIsMoreClicked] = useState(false);
 
-  const { user, loading } = useUser();
+  const { user } = useUser();
   const { isExpanded, toggleSidebar } = useSidebar();
 
   const router = useRouter();
@@ -48,19 +52,23 @@ export default function Sidebar() {
     >
       {/* Header */}
       <div className="p-4 pb flex justify-between items-center border-b">
-        {isExpanded && <h1 className="font-bold text-white">GameSpheres</h1>}
-        <button
-          onClick={toggleSidebar}
-          className={`p-1.5 rounded-lg bg-[#2b2a2a] hover:bg-[#3d3c3c] transition-colors ${
-            !isExpanded ? "mx-auto" : ""
-          }`}
-        >
-          {isExpanded ? (
-            <ChevronLeft className="text-white w-5 h-5" />
-          ) : (
-            <ChevronRight className="text-white w-5 h-5" />
-          )}
-        </button>
+        {(hideToggle ? true : isExpanded) && <h1 className="font-bold text-white">GameSpheres</h1>}
+
+        {/* Only show chevron if not hiding toggle */}
+        {!hideToggle && (
+          <button
+            onClick={toggleSidebar}
+            className={`p-1.5 rounded-lg bg-[#2b2a2a] hover:bg-[#3d3c3c] transition-colors ${
+              !isExpanded ? "mx-auto" : ""
+            }`}
+          >
+            {isExpanded ? (
+              <ChevronLeft className="text-white w-5 h-5" />
+            ) : (
+              <ChevronRight className="text-white w-5 h-5" />
+            )}
+          </button>
+        )}
       </div>
 
       {/* Navigation Items */}
@@ -74,12 +82,12 @@ export default function Sidebar() {
               className={`
                 sidebar-item flex items-center gap-3 p-3 rounded-md hover:bg-[#3d3c3c] transition-colors
                 ${isActive ? "bg-[#3d3c3c]" : ""}
-                ${!isExpanded ? "justify-center" : ""}
+                ${!isExpanded && !hideToggle ? "justify-center" : ""}
               `}
               data-label={item.name}
             >
               <item.icon className="w-5 h-5 flex-shrink-0 text-white" />
-              {isExpanded && (
+              {(isExpanded || hideToggle) && (
                 <span className="text-sm font-medium text-white overflow-hidden">
                   {item.name}
                 </span>

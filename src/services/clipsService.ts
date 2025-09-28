@@ -13,7 +13,7 @@ import {
   getDoc,
   Timestamp,
 } from "firebase/firestore";
-import { CLIPS_COLLECTION, USERS_COLLECTION } from "@/app/api/collections";  
+import { CLIPS_COLLECTION, USERS_COLLECTION } from "@/app/api/collections";
 import { Comment } from "@/types/Comment";
 
 export const fetchUploader = async (uid: string) => {
@@ -74,17 +74,20 @@ export const toggleLikeClip = async (
       read: false,
     };
 
-    try {
-      const res = await authFetch("/api/notifications/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(notification),
-      });
+    if (action === "like") {
+      try {
+        const res = await authFetch("/api/notifications/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(notification),
+        });
 
-      if (!res.ok) console.error("Failed to create notification");
-    } catch (e) {
-      console.error("Error posting notification:", e);
+        if (!res.ok) console.error("Failed to create notification");
+      } catch (e) {
+        console.error("Error posting notification:", e);
+      }
     }
+
     return fetch("/api/clips/likes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -129,7 +132,7 @@ export const listenToComments = (
 
 export const addComment = async (clipId: string, user: User, text: string) => {
   const commentsRef = collection(db, CLIPS_COLLECTION, clipId, "comments");
-
+  if (!user.uid) return;
   try {
     const commentDoc = await addDoc(commentsRef, {
       userId: user.uid,

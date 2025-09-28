@@ -26,14 +26,12 @@ export default function NotificationList({
     async function enrich() {
       const updated = await Promise.all(
         notifications.map(async (notif) => {
-          if (!notif.postId) throw new Error("Clip ID not attached");
-
-          if (notif.type === "comment" || notif.type === "like") {
+          if ((notif.type === "comment" || notif.type === "like") && notif.postId) {
             const clip = await getClip(notif.postId);
             notif.clip = clip;
           }
 
-          if (notif.type === "comment" && notif.commentId) {
+          if (notif.type === "comment" && notif.commentId && notif.postId) {
             const content = await getComment(notif.postId, notif.commentId);
             return { ...notif, commentContent: content };
           }

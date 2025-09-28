@@ -45,11 +45,45 @@ export const toggleLikeClip = async (
   clipId: string,
   action: "like" | "unlike"
 ) => {
-  return fetch("/api/clips/likes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, clipId, action }),
-  });
+  try {
+    const clipSnap = await getDoc(doc(db, CLIPS_COLLECTION, clipId));
+    if (!clipSnap.exists()) {
+      return fetch("/api/clips/likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, clipId, action }),
+      });
+    }
+
+    const clipData = clipSnap.data();
+
+    const notification: Notification = {
+      type: "like",
+      fromUid: userId,
+      toUid: clipData.uploadedBy,
+      postId: clipId,
+      read: false,
+    };
+
+    try {
+      const res = await authFetch("/api/notifications/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notification),
+      });
+
+      if (!res.ok) console.error("Failed to create notification");
+    } catch (e) {
+      console.error("Error posting notification:", e);
+    }
+    return fetch("/api/clips/likes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, clipId, action }),
+    });
+  } catch (e) {
+    console.error("Error posting notification:", e);
+  }
 };
 
 export const listenToLikes = (

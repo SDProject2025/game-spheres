@@ -235,10 +235,11 @@ describe("UserDetail", () => {
     fireEvent.click(followButton);
     
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith("/api/profile/profile-123/follow", {
+      expect(mockFetch).toHaveBeenCalledWith("/api/profile/profile-123/update/follow", {
         method: "POST",
         headers: {
-          Authorization: "Bearer fake-token"
+          Authorization: "Bearer fake-token",
+          "Content-Type": "application/json",
         }
       });
     });

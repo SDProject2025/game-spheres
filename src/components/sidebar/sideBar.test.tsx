@@ -38,6 +38,10 @@ describe("SideBar Component", () => {
 
         expect(screen.getByTestId('home')).toBeInTheDocument();
         expect(screen.getByTestId('gamespheres')).toBeInTheDocument();
-        expect(screen.getByTestId('friends')).toBeInTheDocument();
+        expect(screen.getByTestId('uploadclip')).toBeInTheDocument();
+        expect(screen.getByTestId('searchusers')).toBeInTheDocument();
+        expect(screen.getByTestId('chat')).toBeInTheDocument();
+        expect(screen.getByTestId('inbox')).toBeInTheDocument();
+        expect(screen.getByTestId('settings')).toBeInTheDocument();
     });
 });

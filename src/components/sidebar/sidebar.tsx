@@ -35,13 +35,13 @@ export default function Sidebar({ hideToggle }: SidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
-    { icon: Home, name: "Home", href: "/home" },
-    { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres" },
-    { icon: SquarePlus, name: "Upload Clip", href: "/uploadClip" },
-    { icon: User, name: "Find Friends", href: "/searchUsers" },
-    { icon: ChatIcon, name: "Chat", href: "/chat" },
-    { icon: InboxIcon, name: "Inbox", href: "/inbox"},
-    { icon: Settings, name: "Settings", href: "/settings/userFeedback" },
+    { icon: Home, name: "Home", href: "/home", testid: "home" },
+    { icon: GamepadIcon, name: "GameSpheres", href: "/gameSpheres", testid: "gamespheres" },
+    { icon: SquarePlus, name: "Upload Clip", href: "/uploadClip", testid: "uploadclip" },
+    { icon: User, name: "Find Friends", href: "/searchUsers",  testid: "searchusers"},
+    { icon: ChatIcon, name: "Chat", href: "/chat", testid: "chat" },
+    { icon: InboxIcon, name: "Inbox", href: "/inbox", testid: "inbox"},
+    { icon: Settings, name: "Settings", href: "/settings/userFeedback", testid: "settings" },
   ];
 
   return (

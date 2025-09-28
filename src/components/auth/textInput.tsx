@@ -5,9 +5,10 @@ type Props = {
     icon?: JSX.Element;
     label: string;
     isInvalid?: boolean;
+    id?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export default function TextInput({label, icon, isInvalid, ...props}: Props) {
+export default function TextInput({label, icon, isInvalid, id, ...props}: Props) {
     return (
         <div className="relative mb-4">
             <input

@@ -90,8 +90,9 @@ describe("MessageBubble Component", () => {
     const oldMessage = { ...baseMessage, createdAt: getDateString(-3) }; //3 days ago
     render(<MessageBubble msg={oldMessage} isSent={false} />);
 
-    const regex = /\w{3} \d{2}, \d{2}:\d{2}/; //ie like "Sep 25, 10:30"
-    const timestamp = screen.getByText(regex);
+    const timestamp = screen.getByText((content) =>
+      /\d{1,2} \w{3,}, \d{2}:\d{2}/.test(content)
+    );
     expect(timestamp).toBeInTheDocument();
   });
 

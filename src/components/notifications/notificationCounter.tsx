@@ -26,7 +26,7 @@ export default function InboxIcon() {
 
   return (
     <div className="relative inline-block">
-      <Mail className="w-6 h-6" />
+      <Mail className="w-6 h-6" data-testid="mail-icon" />
       {unreadCount > 0 && (
         <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-green-500 text-xs font-bold">
           {unreadCount}

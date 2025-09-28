@@ -39,6 +39,7 @@ export default function ChatPage({
         <div className="px-4 py-3 border-b font-semibold text-lg bg-gray-100 dark:bg-neutral-800 flex items-center">
           {onBack && (
             <button
+              data-testid="back-button"
               onClick={onBack}
               className="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
             >

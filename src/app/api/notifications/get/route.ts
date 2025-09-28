@@ -19,12 +19,14 @@ export async function GET(request: NextRequest) {
       .orderBy("createdAt", "desc")
       .get();
 
-    const notificationsData = notifications.docs.map((doc) => ({
-      notificationId: doc.id,
-      ...doc.data(),
-    }));
-
-    console.log(notificationsData);
+    const notificationsData = notifications.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        notificationId: doc.id,
+        ...data,
+        createdAt: data.createdAt.toMillis()
+      };
+    });
 
     return NextResponse.json({ notificationsData }, { status: 200 });
   } catch (e: unknown) {

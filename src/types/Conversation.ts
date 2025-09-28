@@ -7,7 +7,9 @@ export type ConversationInput = {
   lastMessage: string;
   participants: string[];
   updatedAt: string;
+  unreadCounts?: Record<string, number>;
 };
+
 
 export type ConversationDoc = {
   conversationId: DocumentReference;

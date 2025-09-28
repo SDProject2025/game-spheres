@@ -10,7 +10,6 @@ import {
 
 // TODO: chunk messages into multiple batches if more than 500 in request
 export async function POST(request: NextRequest) {
-  console.log("Mark read API hit");
   const authHeader = request.headers.get("Authorization");
   const uid = await decodeToken(authHeader);
 
@@ -20,7 +19,7 @@ export async function POST(request: NextRequest) {
   const unreadMessages: MessageInput[] = await request.json();
 
   if (!unreadMessages)
-    return NextResponse.json({ message: "missing messages" }, { status: 400 });
+    return NextResponse.json({ message: "Missing messages" }, { status: 400 });
 
   try {
     const batch: WriteBatch = db.batch();
@@ -56,7 +55,7 @@ export async function POST(request: NextRequest) {
     await batch.commit();
 
     return NextResponse.json({ status: 200 });
-  } catch (e) {
+  } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Internal Server Error";
     console.error(message);
     return NextResponse.json({ message }, { status: 500 });

@@ -12,7 +12,6 @@ export default function ChatIcon() {
   useEffect(() => {
     if (!user) return;
 
-    // Only fetch conversations where user is a participant
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION),
       where("participants", "array-contains", user.uid)
@@ -22,11 +21,9 @@ export default function ChatIcon() {
       let total = 0;
       snapshot.docs.forEach((doc) => {
         const data = doc.data();
-        console.log(data.unreadCounts?.[user.uid]);
         total += data.unreadCounts?.[user.uid] || 0;
       });
 
-      console.log("unread total:", total);
       setUnreadCount(total);
     });
 

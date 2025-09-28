@@ -4,20 +4,22 @@ import { MdArrowBack } from "react-icons/md";
 import type { MessageInput } from "@/types/Message";
 import MessageBubble from "../messageBubble";
 import ChatInput from "../chatInput";
+import { Profile } from "@/types/Profile";
+import Link from "next/link";
 
 interface ChatProps {
   messages?: MessageInput[];
   onSendMessage: (message: string) => void;
   currentUserId?: string;
-  title?: string;//fetching username
-  onBack?: () => void;//back btn
+  otherUser: Profile;
+  onBack?: () => void; //back btn
 }
 
 export default function ChatPage({
   messages = [],
   onSendMessage,
   currentUserId = "current-user",
-  title = "Chat",
+  otherUser,
   onBack,
 }: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -40,10 +42,15 @@ export default function ChatPage({
               onClick={onBack}
               className="px-3 py-1 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
             >
-              <MdArrowBack/>
+              <MdArrowBack />
             </button>
           )}
-          <div className="flex-1 text-center">{title}</div>
+          <Link
+            href={`/profile/${otherUser.uid}`}
+            className="flex-1 text-center"
+          >
+            {otherUser.username}
+          </Link>
         </div>
 
         {/* Messages area (flex-1 makes it take all remaining space) */}
@@ -58,7 +65,7 @@ export default function ChatPage({
         </div>
 
         {/* Input form (stays pinned at the bottom because flex-col + no flex-1) */}
-          <ChatInput onSendMessage={onSendMessage}/>
+        <ChatInput onSendMessage={onSendMessage} />
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+import { authFetch } from "@/config/authorisation";
+import type { Notification } from "@/types/Notification";
 import { db } from "@/config/firebaseConfig";
 import {
   doc,
@@ -8,8 +10,10 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  getDoc,
   Timestamp,
 } from "firebase/firestore";
+import { CLIPS_COLLECTION, USERS_COLLECTION } from "@/app/api/collections";  
 import { Comment } from "@/types/Comment";
 
 export const fetchUploader = async (uid: string) => {
@@ -50,11 +54,45 @@ export const toggleLikeClip = async (
   clipId: string,
   action: "like" | "unlike"
 ) => {
-  return fetch("/api/clips/likes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, clipId, action }),
-  });
+  try {
+    const clipSnap = await getDoc(doc(db, CLIPS_COLLECTION, clipId));
+    if (!clipSnap.exists()) {
+      return fetch("/api/clips/likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, clipId, action }),
+      });
+    }
+
+    const clipData = clipSnap.data();
+
+    const notification: Notification = {
+      type: "like",
+      fromUid: userId,
+      toUid: clipData.uploadedBy,
+      postId: clipId,
+      read: false,
+    };
+
+    try {
+      const res = await authFetch("/api/notifications/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notification),
+      });
+
+      if (!res.ok) console.error("Failed to create notification");
+    } catch (e) {
+      console.error("Error posting notification:", e);
+    }
+    return fetch("/api/clips/likes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, clipId, action }),
+    });
+  } catch (e) {
+    console.error("Error posting notification:", e);
+  }
 };
 
 export const listenToLikes = (
@@ -90,14 +128,47 @@ export const listenToComments = (
 };
 
 export const addComment = async (clipId: string, user: User, text: string) => {
-  const commentsRef = collection(db, "clips", clipId, "comments");
-  return addDoc(commentsRef, {
-    userId: user.uid,
-    text,
-    createdAt: serverTimestamp(),
-    displayName: user.displayName || user.username || "Anonymous",
-    photoURL: user.photoURL || null,
-  });
+  const commentsRef = collection(db, CLIPS_COLLECTION, clipId, "comments");
+
+  try {
+    const commentDoc = await addDoc(commentsRef, {
+      userId: user.uid,
+      text,
+      createdAt: serverTimestamp(),
+      displayName: user.displayName || user.username || "Anonymous",
+      photoURL: user.photoURL || null,
+    });
+
+    const clipSnap = await getDoc(doc(db, CLIPS_COLLECTION, clipId));
+    if (!clipSnap.exists()) return commentDoc;
+
+    const clipData = clipSnap.data();
+
+    const notification: Notification = {
+      type: "comment",
+      commentId: commentDoc.id,
+      fromUid: user.uid,
+      toUid: clipData.uploadedBy,
+      postId: clipId,
+      read: false,
+    };
+
+    try {
+      const res = await authFetch("/api/notifications/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notification),
+      });
+
+      if (!res.ok) console.error("Failed to create notification");
+    } catch (e) {
+      console.error("Error posting notification:", e);
+    }
+
+    return commentDoc;
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : e);
+  }
 };
 
 export const deleteComment = async (clipId: string, commentId: string) => {

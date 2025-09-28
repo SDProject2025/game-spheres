@@ -11,6 +11,7 @@ import { auth } from "@/config/firebaseConfig";
 
 import type { Profile } from "@/types/Profile";
 import { authFetch } from "@/config/authorisation";
+import { Notification } from "@/types/Notification";
 
 export default function ProfilePage({ profile }: { profile: Profile | null }) {
   const { user, loading } = useUser();
@@ -31,6 +32,7 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
 
   async function sendFollow() {
     if (!profile?.uid) return false;
+    if (!user) return false;
 
     try {
       const res = await authFetch(`/api/profile/${profile.uid}/update/follow`, {
@@ -40,6 +42,27 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
       if (res.ok) {
         if (user?.uid) profile.followers.push(user.uid);
         setIsFollowing(true);
+      }
+
+      try {
+        const notification: Notification = {
+          type: "follow",
+          fromUid: user.uid,
+          toUid: profile.uid,
+          read: false,
+        };
+
+        const res = await authFetch("/api/notifications/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(notification),
+        });
+
+        if (!res.ok) console.error("Failed to create notification");
+      } catch (e: unknown) {
+        console.error(
+          e instanceof Error ? e.message : "Failed to create notification"
+        );
       }
     } catch (error: unknown) {
       const message =

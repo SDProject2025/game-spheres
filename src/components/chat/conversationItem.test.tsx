@@ -28,7 +28,7 @@ describe("ConversationItem Component", () => {
 
   test("renders formatted updatedAt date when present", () => {
     render(<ConversationItem conv={baseConv} userId={userId} usernames={usernames} />);
-    const dateElement = screen.getByText(/\d{1,2} \w{3,}, \d{2}:\d{2}/); // matches 'Sep 28, 10:30'
+    const dateElement = screen.getByText(/\w{3} \d{1,2}, \d{1,2}:\d{2} (AM|PM)/); // matches 'Sep 28, 10:30'
     expect(dateElement).toBeInTheDocument();
   });
 

@@ -7,20 +7,23 @@ import { useRouter } from "next/navigation";
 import ProfilePicture from "../profilePicture";
 import FollowButton from "../followButton";
 import ProfileStat from "../profileStats";
+
+import type { Notification } from "@/types/Notification";
 //import VideoGrid from "./videoGrid";
 
 import type { Profile } from "@/types/Profile";
+import { authFetch } from "@/config/authorisation";
 
-export default function UserDetail({
-  profile,
-}: {
-  profile: Profile | null;
-}) {
+export default function UserDetail({ profile }: { profile: Profile | null }) {
   const router = useRouter();
   const { user, loading } = useUser();
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
+    if (user?.uid === profile?.uid) {
+      setIsFollowing(false);
+      return;
+    }
     if (profile?.followers.includes(user?.uid ? user.uid : "")) {
       setIsFollowing(true);
     } else {
@@ -34,22 +37,42 @@ export default function UserDetail({
 
   async function sendFollow() {
     if (!profile?.uid) return false;
+    if (!user) return false;
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/follow`, {
+      const res = await authFetch(`/api/profile/${profile.uid}/update/follow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (res.ok) {
         if (user?.uid) profile.followers.push(user.uid);
         setIsFollowing(true);
       }
+
+      try {
+        const notification: Notification = {
+          type: "follow",
+          fromUid: user.uid,
+          toUid: profile.uid,
+          read: false,
+        };
+
+        const res = await authFetch("/api/notifications/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(notification),
+        });
+
+        if (!res.ok) console.error("Failed to create notification");
+      } catch (e: unknown) {
+        console.error(
+          e instanceof Error ? e.message : "Failed to create notification"
+        );
+      }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message =
+        error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }
@@ -58,13 +81,12 @@ export default function UserDetail({
     if (!profile?.uid) return false;
 
     try {
-      const token = await auth.currentUser?.getIdToken();
-      const res = await fetch(`/api/profile/${profile.uid}/unfollow`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await authFetch(
+        `/api/profile/${profile.uid}/update/unfollow`,
+        {
+          method: "POST",
+        }
+      );
 
       if (res.ok) {
         if (user?.uid)
@@ -72,7 +94,8 @@ export default function UserDetail({
         setIsFollowing(false);
       }
     } catch (error: unknown) {
-      let message = error instanceof Error ? error.message : "Failed to follow";
+      const message =
+        error instanceof Error ? error.message : "Failed to follow";
       console.log(message);
     }
   }
@@ -114,12 +137,13 @@ export default function UserDetail({
               />
             </div>
           </div>
-          {/*TODO: add featured gamesphere/active gamespheres*/}
-          <FollowButton
-            isFollowing={isFollowing}
-            handleFollowClick={sendFollow}
-            handleUnfollowClick={sendUnfollow}
-          />
+          {user?.uid !== profile.uid && (
+            <FollowButton
+              isFollowing={isFollowing}
+              handleFollowClick={sendFollow}
+              handleUnfollowClick={sendUnfollow}
+            />
+          )}
           <button
             type="button"
             onClick={() => viewUserProfile()}

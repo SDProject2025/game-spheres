@@ -11,6 +11,8 @@ interface User extends SearchItem {
   bio: string;
   followers: string[];
   following: string[];
+  conversations: string[];
+  messages: string[];
   posts: number;
 }
 
@@ -19,7 +21,7 @@ async function searchWithQuery(query: string) {
     const users: User[] = [];
     const res = await fetch(`/api/profile/search?query=${query}`);
     const data = await res.json();
-    for (let user of data.users) users.push(user);
+    for (const user of data.users) users.push(user);
     console.log(users);
     return users;
   } catch (e: unknown) {

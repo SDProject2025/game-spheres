@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebaseAdminConfig";
 import admin from "firebase-admin";
+import { decodeToken } from "../../decodeToken";
 
 // Check sub status
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
+    const authHeader = request.headers.get("Authorization");
+    const userId = await decodeToken(authHeader);
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     const gameSphereId = searchParams.get("gameSphereId");
 
     if (!userId || !gameSphereId) {
@@ -40,7 +46,13 @@ export async function GET(request: NextRequest) {
 // (Un)Subscribe
 export async function POST(request: NextRequest) {
   try {
-    const { userId, gameSphereId, action } = await request.json();
+    const authHeader = request.headers.get("Authorization");
+    const userId = await decodeToken(authHeader);
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const { gameSphereId, action } = await request.json();
 
     if (!userId || !gameSphereId || !action) {
       return NextResponse.json(

@@ -7,8 +7,8 @@ export async function GET(request: NextRequest) {
     const gsSnap = await db.collection("gamespheres").get();
 
     const gameSpheres: FullGameSphere[] = gsSnap.docs.map((doc) => ({
-      id: doc.id,
       ...(doc.data() as GameSphere),
+      id: doc.id, // last one wins
     }));
     
     return NextResponse.json({ gameSpheres });

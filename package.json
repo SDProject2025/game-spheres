@@ -7,15 +7,20 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "error-check": "next lint && tsc --noEmit"
   },
   "dependencies": {
     "@testing-library/jest-dom": "^6.8.0",
+    "@mux/mux-node": "^12.7.0",
+    "@mux/mux-player-react": "^3.6.0",
+    "dotenv": "^17.2.1",
     "firebase": "^12.0.0",
     "firebase-admin": "^13.4.0",
     "fuse.js": "^7.1.0",
     "lucide-react": "^0.539.0",
-    "next": "15.4.5",
+    "next": "15.5.2",
+    "nodemailer": "^7.0.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hot-toast": "^2.5.2",
@@ -30,7 +35,8 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
-    "@types/react": "^19",
+    "@types/nodemailer": "^7.0.1",
+    "@types/react": "19.1.12",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.5",
@@ -38,6 +44,6 @@
     "jest-environment-jsdom": "^30.1.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.1",
-    "typescript": "^5.9.2"
+    "typescript": "5.9.2.9.2"
   }
 }

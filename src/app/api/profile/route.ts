@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
         followers: data.get("followers"),
         following: data.get("following"),
         photoURL: data.get("photoURL"),
-        //posts: data.get("posts"),
     };
 
     return NextResponse.json({userData}, {status: 200});

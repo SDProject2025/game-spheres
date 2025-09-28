@@ -87,11 +87,11 @@ describe("MessageBubble Component", () => {
   });
 
   test("displays full date for messages older than yesterday", () => {
-    const oldMessage = { ...baseMessage, createdAt: getDateString(-3) }; //3 days ago
+    const oldMessage = { ...baseMessage, createdAt: getDateString(-3) }; // 3 days ago
     render(<MessageBubble msg={oldMessage} isSent={false} />);
 
     const timestamp = screen.getByText((content) =>
-      /\d{1,2} \w{3,}, \d{2}:\d{2}/.test(content)
+      /\w{3} \d{1,2}, \d{1,2}:\d{2} (AM|PM)/.test(content)
     );
     expect(timestamp).toBeInTheDocument();
   });

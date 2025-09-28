@@ -17,6 +17,7 @@ export default function ChatInput({ onSendMessage }: Props) {
 
   return (
     <form
+      data-testid="chat-form"
       onSubmit={handleSubmit}
       className="flex items-center gap-2 p-3 border-t bg-gray-50 dark:bg-neutral-800"
     >

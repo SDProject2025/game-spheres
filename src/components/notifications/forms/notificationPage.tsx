@@ -10,6 +10,7 @@ type Props = {
   getComment: (postId: string, commentId: string) => Promise<string>;
   getClip: (postId: string) => Promise<Clip>;
   handlePlayClip: (clip: Clip) => void;
+  markRead: () => void;
 };
 
 export default function NotificationsPage({
@@ -17,12 +18,19 @@ export default function NotificationsPage({
   profiles,
   getComment,
   getClip,
-  handlePlayClip
+  handlePlayClip,
+  markRead
 }: Props) {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Recent Notifications:</h1>
+        <button
+          onClick={markRead}
+          className="px-4 py-2 bg-green-700 text-white hover:bg-green-600 transition"
+        >
+          Mark all as read
+        </button>
       </div>
 
       {notifications.length === 0 && (

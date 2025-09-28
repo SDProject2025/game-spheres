@@ -2,6 +2,7 @@ import type { Notification } from "@/types/Notification";
 import type { Profile } from "@/types/Profile";
 import { ReactNode } from "react";
 import { Clip } from "@/types/Clip";
+import { useRouter } from "next/navigation";
 
 type Props = {
   notif: Notification;
@@ -10,11 +11,12 @@ type Props = {
 };
 
 export default function NotificationItem({ notif, profiles, handlePlayClip }: Props) {
+  const router = useRouter();
   const notifSender = profiles[notif.fromUid];
   const username = notifSender.username;
   const isClipNotification = notif.type === "comment" || notif.type === "like";
 
-  if (!notifSender || isClipNotification === undefined) return <h1>Fuck</h1>
+  if (!notifSender || isClipNotification === undefined) return <h1>Problem</h1>
 
   let message: ReactNode = "";
   if (notif.type === "comment") {
@@ -39,8 +41,9 @@ export default function NotificationItem({ notif, profiles, handlePlayClip }: Pr
   }
 
   return (
-      <div className="flex justify-between" onClick={() => {
+      <div className="flex items-start" onClick={() => {
         if (isClipNotification && notif.clip) handlePlayClip(notif.clip);
+        else router.push(`/profile/${notif.fromUid}`)
       }}>
         <img
           src={notifSender.photoURL}

@@ -12,7 +12,6 @@ export default function ChatIcon() {
   useEffect(() => {
     if (!user) return;
 
-    // Only fetch conversations where user is a participant
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION),
       where("participants", "array-contains", user.uid)

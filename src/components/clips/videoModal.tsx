@@ -97,6 +97,8 @@ export default function VideoModal({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
       className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
     >

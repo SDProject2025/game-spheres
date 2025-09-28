@@ -23,6 +23,7 @@ export default function MessageBubble({ msg, isSent }: Props) {
       </div>
       {isSent && (
         <CgCheckO
+          data-testid="check-icon"
           className={`${msg.read ? "text-green-400" : "text-gray-400"}`}
         />
       )}

@@ -1,118 +1,112 @@
-/** 
+/**
  * @jest-environment jsdom
  */
-
-import { render, screen } from "@testing-library/react";
+import React from "react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import SidebarWrapper from "./sidebarWrapper";
 
-//mock Sidebar so we don’t render full comopnent
-jest.mock("./sidebar", () => { 
-  return function MockSidebar() { 
-    return <div data-testid="sidebar">Mock Sidebar</div>; //mock sidebar renders a simple div
-  };
-});
+// Mock the Sidebar component
+jest.mock("./sidebar", () => () => <div data-testid="sidebar">Sidebar Content</div>);
 
-//mock providers
-jest.mock("@/config/userProvider", () => ({ 
-  useUser: jest.fn(), //mock useUser hook
+// Mock useUser and useSidebar hooks
+jest.mock("@/config/userProvider", () => ({
+  useUser: jest.fn(),
 }));
 
-jest.mock("@/config/sidebarProvider", () => ({ 
-  useSidebar: jest.fn(), //mock useSidebar hook
+jest.mock("@/config/sidebarProvider", () => ({
+  useSidebar: jest.fn(),
 }));
 
-describe("SidebarWrapper", () => { 
-  beforeEach(() => { 
-    jest.resetAllMocks(); //reset mocks before each test
-    document.documentElement.style.setProperty = jest.fn(); //mock setProperty to track sidebar width changes
+import { useUser } from "@/config/userProvider";
+import { useSidebar } from "@/config/sidebarProvider";
+
+// Utility to change window size
+const resizeWindow = (width: number) => {
+  act(() => {
+    (window as any).innerWidth = width;
+    window.dispatchEvent(new Event("resize"));
+  });
+};
+
+describe("SidebarWrapper", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default mock values
+    (useUser as jest.Mock).mockReturnValue({ user: { emailVerified: true } });
+    (useSidebar as jest.Mock).mockReturnValue({ isExpanded: true });
   });
 
-  it("renders Sidebar when user exists and is email verified", () => { 
-    const { useUser } = require("@/config/userProvider"); //grab the mocked useUser
-    const { useSidebar } = require("@/config/sidebarProvider"); //grab the mocked useSidebar
-
-    useUser.mockReturnValue({ 
-      user: { displayName: "Test User", emailVerified: true }, //simulate a verified user
-      loading: false, //loading is false
-    });
-
-    useSidebar.mockReturnValue({ 
-      isExpanded: true, //sidebar is expanded
-    });
-
-    render(<SidebarWrapper />); //render component
-
-    const sidebar = screen.getByTestId("sidebar"); //query for mocked sidebar
-    expect(sidebar).toBeInTheDocument(); //check that sidebar is in the document
-  });
-
-  it("returns null if user is not present", () => { 
-    const { useUser } = require("@/config/userProvider"); 
-    const { useSidebar } = require("@/config/sidebarProvider"); 
-
-    useUser.mockReturnValue({ 
-      user: null,
-      loading: false, 
-    });
-
-    useSidebar.mockReturnValue({ 
-      isExpanded: true, 
-    });
-
+  it("renders nothing if no user is provided", () => {
+    (useUser as jest.Mock).mockReturnValue({ user: null });
     const { container } = render(<SidebarWrapper />);
     expect(container.firstChild).toBeNull();
   });
 
-  it("returns null if user is not email verified", () => { 
-    const { useUser } = require("@/config/userProvider"); 
-    const { useSidebar } = require("@/config/sidebarProvider"); 
-
-    useUser.mockReturnValue({ 
-      user: { displayName: "Test User", emailVerified: false }, //simulate unverified user
-      loading: false, 
-    });
-
-    useSidebar.mockReturnValue({ 
-      isExpanded: true, 
-    });
-
-    const { container } = render(<SidebarWrapper />); 
-    expect(container.firstChild).toBeNull(); //expect nothing to render
+  it("renders nothing if user email is not verified", () => {
+    (useUser as jest.Mock).mockReturnValue({ user: { emailVerified: false } });
+    const { container } = render(<SidebarWrapper />);
+    expect(container.firstChild).toBeNull();
   });
 
-  it("applies collapsed width class when isExpanded is false", () => { 
-    const { useUser } = require("@/config/userProvider"); 
-    const { useSidebar } = require("@/config/sidebarProvider"); 
-
-    useUser.mockReturnValue({ 
-      user: { displayName: "Test User", emailVerified: true }, //verified user
-      loading: false, 
+  describe("Desktop behavior (width >= 768px)", () => {
+    beforeEach(() => {
+      resizeWindow(1024); // simulate desktop screen
     });
 
-    useSidebar.mockReturnValue({ 
-      isExpanded: false, //sidebar collapsed
+    it("renders expanded sidebar when isExpanded is true", () => {
+      (useSidebar as jest.Mock).mockReturnValue({ isExpanded: true });
+      render(<SidebarWrapper />);
+      const sidebar = screen.getByTestId("sidebar").parentElement;
+      expect(sidebar).toHaveClass("w-64");
     });
 
-    render(<SidebarWrapper />); 
-    const aside = screen.getByTestId("sidebar").closest("aside"); //get the parent aside
-    expect(aside).toHaveClass("w-16"); //expect collapsed width class
+    it("renders collapsed sidebar when isExpanded is false", () => {
+      (useSidebar as jest.Mock).mockReturnValue({ isExpanded: false });
+      render(<SidebarWrapper />);
+      const sidebar = screen.getByTestId("sidebar").parentElement;
+      expect(sidebar).toHaveClass("w-16");
+    });
   });
 
-  it("applies expanded width class when isExpanded is true", () => { 
-    const { useUser } = require("@/config/userProvider"); 
-    const { useSidebar } = require("@/config/sidebarProvider"); 
-
-    useUser.mockReturnValue({ 
-      user: { displayName: "Test User", emailVerified: true }, //verified user
-      loading: false, 
+  describe("Mobile behavior (width < 768px)", () => {
+    beforeEach(() => {
+      resizeWindow(500); // simulate mobile screen
     });
 
-    useSidebar.mockReturnValue({ 
-      isExpanded: true, //sidebar expanded
+    it("shows mobile menu button", () => {
+      render(<SidebarWrapper />);
+      expect(screen.getByRole("button", { name: "☰" })).toBeInTheDocument();
     });
 
-    render(<SidebarWrapper />); 
-    const aside = screen.getByTestId("sidebar").closest("aside"); //get the parent aside
-    expect(aside).toHaveClass("w-64"); //expect expanded width class
+    it("opens mobile sidebar when menu button is clicked", () => {
+      render(<SidebarWrapper />);
+      const menuButton = screen.getByRole("button", { name: "☰" });
+
+      fireEvent.click(menuButton);
+
+      expect(screen.getByTestId("sidebar")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "✕" })).toBeInTheDocument();
+    });
+
+    it("closes mobile sidebar when backdrop is clicked", () => {
+      render(<SidebarWrapper />);
+      fireEvent.click(screen.getByRole("button", { name: "☰" }));
+
+      const backdrop = screen.getByTestId("mobile-backdrop");
+      fireEvent.click(backdrop);
+
+
+      expect(screen.queryByTestId("sidebar")).not.toBeInTheDocument();
+    });
+
+    it("closes mobile sidebar when close button is clicked", () => {
+      render(<SidebarWrapper />);
+      fireEvent.click(screen.getByRole("button", { name: "☰" }));
+
+      const closeButton = screen.getByRole("button", { name: "✕" });
+      fireEvent.click(closeButton);
+
+      expect(screen.queryByTestId("sidebar")).not.toBeInTheDocument();
+    });
   });
 });

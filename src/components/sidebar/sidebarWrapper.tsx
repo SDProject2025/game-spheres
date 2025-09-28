@@ -40,6 +40,7 @@ export default function SidebarWrapper() {
           <>
             {/* Semi-transparent background */}
             <div
+              data-testid="mobile-backdrop"
               className="fixed inset-0 bg-black/50 z-40"
               onClick={() => setMobileOpen(false)}
             />

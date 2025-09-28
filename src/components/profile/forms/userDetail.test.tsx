@@ -282,10 +282,11 @@ describe("UserDetail", () => {
     fireEvent.click(unfollowButton);
     
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith("/api/profile/profile-123/unfollow", {
+      expect(mockFetch).toHaveBeenCalledWith("/api/profile/profile-123/update/unfollow", {
         method: "POST",
         headers: {
-          Authorization: "Bearer fake-token"
+          Authorization: "Bearer fake-token",
+          "Content-Type": "application/json",
         }
       });
     });

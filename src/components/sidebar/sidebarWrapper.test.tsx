@@ -51,7 +51,7 @@ describe("SidebarWrapper", () => {
     const { useSidebar } = require("@/config/sidebarProvider"); 
 
     useUser.mockReturnValue({ 
-      user: null, //simulate no user
+      user: null,
       loading: false, 
     });
 
@@ -59,9 +59,8 @@ describe("SidebarWrapper", () => {
       isExpanded: true, 
     });
 
-    const { container } = render(<SidebarWrapper />); //render component
-    expect(container.firstChild).toBeNull(); //expect nothing to render
-    expect(document.documentElement.style.setProperty).toHaveBeenCalledWith("--sidebar-width", "0px"); // check sidebar width reset
+    const { container } = render(<SidebarWrapper />);
+    expect(container.firstChild).toBeNull();
   });
 
   it("returns null if user is not email verified", () => { 

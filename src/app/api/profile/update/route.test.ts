@@ -1,93 +1,131 @@
-import { NextRequest } from "next/server";
 import { POST } from "./route";
 import { db } from "@/config/firebaseAdminConfig";
+import { decodeToken } from "../../decodeToken";
+import { NextRequest } from "next/server";
 
 jest.mock("@/config/firebaseAdminConfig", () => ({
-    db: {
-        collection: jest.fn(),
-    },
+  db: {
+    collection: jest.fn(),
+  },
+}));
+
+jest.mock("../../decodeToken", () => ({
+  decodeToken: jest.fn(),
 }));
 
 describe("POST /api/profile/update", () => {
-    const mockCollection = db.collection as jest.Mock;
+  const mockUpdate = jest.fn();
 
-    it("returns 400 if body is missing", async () => {
-        const request =  {
-            json: jest.fn().mockResolvedValue(null),
-        } as unknown as NextRequest;
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-        const response = await POST(request);
-        const body = await response.json();
+    const mockDoc = jest.fn(() => ({
+      update: mockUpdate,
+    }));
 
-        expect(response.status).toBe(400);
-        expect(body.message).toBe("Missing post body");
+    (db.collection as jest.Mock).mockReturnValue({
+      doc: mockDoc,
+    });
+  });
+
+  it("returns 401 if no valid UID", async () => {
+    (decodeToken as jest.Mock).mockResolvedValue(null);
+
+    const mockReq = {
+      headers: {
+        get: jest.fn(() => null),
+      },
+      json: jest.fn(),
+    } as unknown as NextRequest;
+
+    const res = await POST(mockReq);
+    const json = await res.json();
+
+    expect(json.message).toBe("Unauthorized");
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 400 if body is missing", async () => {
+    (decodeToken as jest.Mock).mockResolvedValue("uid123");
+
+    const mockReq = {
+      headers: {
+        get: jest.fn(() => "Bearer token"),
+      },
+      json: jest.fn(async () => null),
+    } as unknown as NextRequest;
+
+    const res = await POST(mockReq);
+    const json = await res.json();
+
+    expect(json.message).toBe("Missing post body");
+    expect(res.status).toBe(400);
+  });
+
+  it("updates profile and returns success", async () => {
+    (decodeToken as jest.Mock).mockResolvedValue("uid123");
+
+    const profile = {
+      uid: "uid123",
+      displayName: "Test User",
+      username: "testuser",
+      bio: "My bio",
+      photoURL: "https://example.com/photo.png",
+    };
+
+    const mockReq = {
+      headers: {
+        get: jest.fn(() => "Bearer token"),
+      },
+      json: jest.fn(async () => profile),
+    } as unknown as NextRequest;
+
+    const res = await POST(mockReq);
+    const json = await res.json();
+
+    expect(db.collection).toHaveBeenCalledWith("users");
+    expect(mockUpdate).toHaveBeenCalledWith({
+      displayName: profile.displayName,
+      username: profile.username,
+      bio: profile.bio,
+      photoURL: profile.photoURL,
+    });
+    expect(json.success).toBe(true);
+  });
+
+  it("returns 500 if update fails", async () => {
+    (decodeToken as jest.Mock).mockResolvedValue("uid123");
+    const errorMessage = "Update failed";
+
+    const profile = {
+      uid: "uid123",
+      displayName: "Test User",
+      username: "testuser",
+      bio: "My bio",
+      photoURL: "https://example.com/photo.png",
+    };
+
+    const mockReq = {
+      headers: {
+        get: jest.fn(() => "Bearer token"),
+      },
+      json: jest.fn(async () => profile),
+    } as unknown as NextRequest;
+
+    const mockDoc = jest.fn(() => ({
+      update: jest.fn(() => {
+        throw new Error(errorMessage);
+      }),
+    }));
+
+    (db.collection as jest.Mock).mockReturnValue({
+      doc: mockDoc,
     });
 
-    it("updates profile successfully", async () => {
-        const mockUpdate = jest.fn().mockResolvedValue({});
-        const mockDoc = jest.fn().mockReturnValue({ update: mockUpdate });
-        mockCollection.mockReturnValue({ doc: mockDoc });
+    const res = await POST(mockReq);
+    const json = await res.json();
 
-        const profile = {
-            uid: "uid123",
-            displayName: "Test User",
-            username: "testuser",
-            bio: "testing is fun",
-            photoURL: "https://photo.url",
-        }
-
-        const request = {
-            json: jest.fn().mockResolvedValue(profile),
-        } as unknown as NextRequest;
-
-        const response = await POST(request);
-        const body = await response.json();
-
-        expect(mockCollection).toHaveBeenCalledWith("users");
-        expect(mockDoc).toHaveBeenCalledWith("uid123");
-        expect(mockUpdate).toHaveBeenCalledWith({
-            displayName: "Test User",
-            username: "testuser",
-            bio: "testing is fun",
-            photoURL: "https://photo.url",
-        });
-        expect(response.status).toBe(200);
-        expect(body.success).toBe(true);
-    });
-
-    it("handles errors gracefully", async () => {
-        const mockUpdate = jest.fn().mockRejectedValue(new Error("Update failed"));
-        const mockDoc = jest.fn().mockReturnValue({ update: mockUpdate });
-        mockCollection.mockReturnValue({ doc: mockDoc });
-
-        const profile = { uid: "uid123" };
-
-        const request = {
-            json: jest.fn().mockResolvedValue(profile),
-        } as unknown as NextRequest;
-
-        const response = await POST(request);
-        const body = await response.json();
-
-        expect(response.status).toBe(500);
-        expect(body.message).toBe("Update failed");
-    });
-
-    it("handles non-error thrown values", async () =>{
-        const mockUpdate = jest.fn().mockRejectedValue("random string");
-        const mockDoc = jest.fn().mockReturnValue({ update: mockUpdate });
-        mockCollection.mockReturnValue({ doc: mockDoc });
-
-        const profile = { uid: "uid123" };
-
-        const request = {
-            json: jest.fn().mockResolvedValue(profile),
-        } as unknown as NextRequest;
-
-        const response = await POST(request);
-        const body = await response.json();
-
-        expect(response.status).toBe(500);
-        expect(body.message).toBe("Error updating profile");
-    });
+    expect(json.message).toBe(errorMessage);
+    expect(res.status).toBe(500);
+  });
 });

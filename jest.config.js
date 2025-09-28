@@ -13,6 +13,10 @@ module.exports = {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
 
+  transformIgnorePatterns: [
+    "./node_modules/(?!(@mux|custom-media-element)/)", //force Jest to transform these ESM packages
+  ],
+
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
 
   collectCoverage: true,

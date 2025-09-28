@@ -5,11 +5,17 @@
 import { screen, render, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SignUpForm from "./signUpForm";
-import { mock } from "node:test";
 
 describe("SignUpForm", () => {
     it("renders correctly with all necessary fields and buttons", () => {
-        render(<SignUpForm handleSignUpClick={jest.fn()} validatePassword={jest.fn()} validateUsername={jest.fn()} />);
+        render(
+            <SignUpForm
+                handleSignUpClick={jest.fn()}
+                validatePassword={jest.fn()}
+                validateUsername={jest.fn()}
+                signInWithGoogle={jest.fn()}
+            />
+        );
 
         expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/display name/i)).toBeInTheDocument();
@@ -18,52 +24,66 @@ describe("SignUpForm", () => {
         expect(screen.getAllByRole("button")[0]).toBeInTheDocument();
     });
 
-    it("shows if there is a invalid username, password or email", async () => {
-        const mockHandleSignUpClick = jest.fn();
-        const mockValidatePassword = jest.fn( async () => false);
-        const mockValidateUsername = jest.fn( async () => false);
-        render(<SignUpForm handleSignUpClick={mockHandleSignUpClick} validatePassword={mockValidatePassword} validateUsername={mockValidateUsername} />);
+    it("adds invalid styling when username, password or email are invalid", async () => {
+        const mockValidatePassword = jest.fn(async () => false);
+        const mockValidateUsername = jest.fn(async () => false);
+
+        render(
+            <SignUpForm
+                handleSignUpClick={jest.fn()}
+                validatePassword={mockValidatePassword}
+                validateUsername={mockValidateUsername}
+                signInWithGoogle={jest.fn()}
+            />
+        );
 
         const usernameInput = screen.getByLabelText(/username/i);
         await userEvent.type(usernameInput, "takenUsername");
 
-        await waitFor( () => expect(mockValidateUsername).toHaveBeenCalled());
+        await waitFor(() => expect(mockValidateUsername).toHaveBeenCalled());
 
-        expect(await screen.findByText(/username already taken/i));
+        expect(usernameInput.className).toContain("border-red-500");
 
         const passwordInput = screen.getByLabelText(/password/i);
         await userEvent.type(passwordInput, "123");
 
-        await waitFor( () => expect(mockValidatePassword).toHaveBeenCalled());
+        await waitFor(() => expect(mockValidatePassword).toHaveBeenCalled());
 
-        expect(await screen.findByText(/password requirements not met/i)).toBeInTheDocument();
+        expect(passwordInput.className).toContain("border-red-500");
 
         const emailInput = screen.getByLabelText(/email/i);
         await userEvent.type(emailInput, "invalid@example");
 
-        expect(await screen.findByText(/invalid email address/i)).toBeInTheDocument();
+        expect(emailInput.className).toContain("border-red-500");
     });
 
-    it("calls handleSignUpClick when all validations pass", async () =>{
+    it("calls handleSignUpClick when all validations pass", async () => {
         const mockHandleSignUpClick = jest.fn();
-        const mockValidatePassword = jest.fn( async () => true) ;
-        const mockValidateUsername = jest.fn( async () => true) ;
+        const mockValidatePassword = jest.fn(async () => true);
+        const mockValidateUsername = jest.fn(async () => true);
 
-        render(<SignUpForm handleSignUpClick={mockHandleSignUpClick} validatePassword={mockValidatePassword} validateUsername={mockValidateUsername} />);
+        render(
+            <SignUpForm
+                handleSignUpClick={mockHandleSignUpClick}
+                validatePassword={mockValidatePassword}
+                validateUsername={mockValidateUsername}
+                signInWithGoogle={jest.fn()}
+            />
+        );
 
         await userEvent.type(screen.getByLabelText(/username/i), "newUser");
         await userEvent.type(screen.getByLabelText(/display name/i), "Display");
         await userEvent.type(screen.getByLabelText(/email/i), "test@example.com");
         await userEvent.type(screen.getByLabelText(/password/i), "StrongPassword1");
 
-        fireEvent.click(screen.getByRole("button", { name: /sign up/i }));
+        fireEvent.click(screen.getByRole("button", { name: /^SIGN UP$/i }));
 
-        await waitFor( () => 
+        await waitFor(() =>
             expect(mockHandleSignUpClick).toHaveBeenLastCalledWith(
                 "newUser",
                 "Display",
                 "test@example.com",
-                "StrongPassword1",
+                "StrongPassword1"
             )
         );
     });

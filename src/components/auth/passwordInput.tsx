@@ -6,9 +6,10 @@ import { MdLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
 type Props = {
     label: string;
     isInvalid?: boolean;
+    id: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export default function PasswordInput({label, isInvalid, ...props}: Props) {
+export default function PasswordInput({label, isInvalid, id, ...props}: Props) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (

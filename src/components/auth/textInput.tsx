@@ -36,12 +36,13 @@ export default function TextInput({label, icon, isInvalid, id, ...props}: Props)
                  }
                  peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-[#888]
                  peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-[#00ffc3]`}
+                htmlFor={id}
             >
                 {label}
             </label>
             {icon && (
                 <div className={`absolute left-1.5 top-2.5 text-lg sm:text-xl md:text-2xl
-                      ${isInvalid ? "text-red-400" : "text-[#00ffc3]"}`}>
+                      ${isInvalid ? "text-red-400" : "text-[#00ffc3]"}`} data-testid="icon">
                     {icon}
                 </div>
             )}

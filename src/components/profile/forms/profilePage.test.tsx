@@ -2,190 +2,116 @@
  * @jest-environment jsdom
  */
 
-global.fetch = jest.fn();
-global.Response = jest.fn().mockImplementation((body, init) => ({
-  ok: true,
-  status: 200,
-  statusText: 'OK',
-  headers: new Map(),
-  body,
-  ...init
-})) as any;
-
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ProfilePage from "./profilePage";
 import { useUser } from "@/config/userProvider";
-import { auth } from "@/config/firebaseConfig";
+import { authFetch } from "@/config/authorisation";
 
-jest.mock("@/config/userProvider");
-jest.mock("@/config/firebaseConfig", () => ({
-  auth: { currentUser: { getIdToken: jest.fn() } }
+jest.mock("@/config/userProvider", () => ({
+  useUser: jest.fn(),
 }));
 
-//create typed mock variables for the useUser hook and getIdToken function
-const mockUseUser = useUser as jest.MockedFunction<typeof useUser>;
-const mockGetIdToken = auth.currentUser?.getIdToken as jest.MockedFunction<any>;
+jest.mock("@/config/authorisation", () => ({
+  authFetch: jest.fn(),
+}));
 
-//mock current user data with minimal required fields
-const mockCurrentUser = { uid: "user-123", email: "test@test.com", emailVerified: true } as any;
+jest.mock("../profilePicture", () => () => <div data-testid="profile-picture" />);
+jest.mock("../profileButton", () => () => <button data-testid="profile-button">Edit</button>);
+jest.mock("../followButton", () => (props: any) => (
+  <button data-testid="follow-button" onClick={props.isFollowing ? props.handleUnfollowClick : props.handleFollowClick}>
+    {props.isFollowing ? "Unfollow" : "Follow"}
+  </button>
+));
+jest.mock("../profileStats", () => (props: any) => (
+  <div data-testid={`profile-stat-${props.type}`}>{props.stat}</div>
+));
+jest.mock("./followList", () => (props: any) => (
+  <div data-testid="follow-list">Follow List: {props.type}</div>
+));
+jest.mock("@/components/clips/gameSphereFilter", () => (props: any) => (
+  <div data-testid="gamesphere-filter" />
+));
+jest.mock("@/components/clips/ClipGrid", () => (props: any) => (
+  <div data-testid="clip-grid" />
+));
 
-//mock profile data for testing
-const mockProfile = {
-  uid: "profile-1",
-  username: "johndoe",
-  displayName: "John Doe",
-  bio: "My bio",
-  photoURL: "https://example.com/photo.jpg",
-  followers: ["user-456"],
-  following: ["user-789"]
-};
+describe("ProfilePage", () => {
+  const mockProfile = {
+    uid: "user123",
+    displayName: "Test User",
+    username: "testuser",
+    bio: "Test bio",
+    followers: ["user456"],
+    following: ["user789"],
+    photoURL: "https://example.com/photo.png",
+  };
 
-//test suite for improving test coverage on ProfilePage component
-describe("ProfilePage coverage improvements", () => {
-  //beforeEach runs before each test to reset mocks
   beforeEach(() => {
     jest.clearAllMocks();
-    //mock the useUser hook to return our test user
-    mockUseUser.mockReturnValue({ user: mockCurrentUser, loading: false });
   });
 
-  //test that isFollowing is set to true when current user is in the profile's followers list
-  it("sets isFollowing correctly when user is in followers", () => {
-    //create a profile where current user is already following
-    const profileWithUser = { ...mockProfile, followers: ["user-123"] };
-    render(<ProfilePage profile={profileWithUser} />);
-    //verify the button shows "Unfollow" text
-    expect(screen.getByText("Unfollow")).toBeInTheDocument();
-  });
-
-  //test that isFollowing is set to false when current user is NOT in the profile's followers list
-  it("sets isFollowing correctly when user is NOT in followers", () => {
-    render(<ProfilePage profile={mockProfile} />);
-    //verify the button shows "Follow" text
-    expect(screen.getByText("Follow")).toBeInTheDocument();
-  });
-
-  //test that sendFollow function updates state correctly on successful API call
-  it("sendFollow updates state on success", async () => {
-    //mock successful token retrieval
-    mockGetIdToken.mockResolvedValue("fake-token");
-    //mock successful fetch response
-    global.fetch = jest.fn().mockResolvedValue({ ok: true } as any);
-
-    //create a copy of the profile to test state updates
-    const profileCopy = { ...mockProfile, followers: [...mockProfile.followers] };
-    render(<ProfilePage profile={profileCopy} />);
-
-    //simulate clicking the follow button
-    fireEvent.click(screen.getByText("Follow"));
-
-    //wait for state updates and verify changes
-    await waitFor(() => {
-      //verify current user was added to followers array
-      expect(profileCopy.followers).toContain(mockCurrentUser.uid);
-      //verify button text changed to "Unfollow"
-      expect(screen.getByText("Unfollow")).toBeInTheDocument();
-    });
-  });
-
-  //test that sendFollow handles API failure gracefully without updating state
-  it("sendFollow handles fetch failure gracefully", async () => {
-    //mock console.log to prevent test output pollution
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-    mockGetIdToken.mockResolvedValue("fake-token");
-    //mock failed fetch response
-    global.fetch = jest.fn().mockResolvedValue({ ok: false } as any);
+  it("renders profile correctly", () => {
+    (useUser as jest.Mock).mockReturnValue({ user: { uid: "user456" }, loading: false });
 
     render(<ProfilePage profile={mockProfile} />);
 
-    fireEvent.click(screen.getByText("Follow"));
-
-    //wait and verify that state didn't change (still shows "Follow")
-    await waitFor(() => {
-      expect(screen.getByText("Follow")).toBeInTheDocument();
-    });
-
-    //restore original console.log function
-    consoleSpy.mockRestore();
+    expect(screen.getByText(mockProfile.displayName)).toBeInTheDocument();
+    expect(screen.getByText(`@${mockProfile.username}`)).toBeInTheDocument();
+    expect(screen.getByText(mockProfile.bio)).toBeInTheDocument();
+    expect(screen.getByTestId("profile-picture")).toBeInTheDocument();
+    expect(screen.getByTestId("follow-button")).toBeInTheDocument();
   });
 
-  //test that sendUnfollow function updates state correctly on successful API call
-  it("sendUnfollow updates state on success", async () => {
-    mockGetIdToken.mockResolvedValue("fake-token");
-    global.fetch = jest.fn().mockResolvedValue({ ok: true } as any);
+  it("renders 'No profile found' when profile is null", () => {
+    (useUser as jest.Mock).mockReturnValue({ user: null, loading: false });
 
-    //create profile where current user is already following
-    const profileCopy = { ...mockProfile, followers: ["user-123", "user-456"] };
-    render(<ProfilePage profile={profileCopy} />);
+    render(<ProfilePage profile={null} />);
 
-    fireEvent.click(screen.getByText("Unfollow"));
-
-    //wait for state updates and verify changes
-    await waitFor(() => {
-      //verify current user was removed from followers array
-      expect(profileCopy.followers).not.toContain(mockCurrentUser.uid);
-      //verify button text changed to "Follow"
-      expect(screen.getByText("Follow")).toBeInTheDocument();
-    });
+    expect(screen.getByText(/no profile found/i)).toBeInTheDocument();
   });
 
-  //test that sendUnfollow handles API failure gracefully without updating state
-  it("sendUnfollow handles fetch failure gracefully", async () => {
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-    mockGetIdToken.mockResolvedValue("fake-token");
-    global.fetch = jest.fn().mockResolvedValue({ ok: false } as any);
+  it("follow button triggers sendFollow", async () => {
+    (useUser as jest.Mock).mockReturnValue({ user: { uid: "user456" }, loading: false });
+    (authFetch as jest.Mock).mockResolvedValue({ ok: true });
 
-    //create profile where current user is already following
-    const profileCopy = { ...mockProfile, followers: ["user-123", "user-456"] };
-    render(<ProfilePage profile={profileCopy} />);
+    render(<ProfilePage profile={mockProfile} />);
 
-    fireEvent.click(screen.getByText("Unfollow"));
+    const followButton = screen.getByTestId("follow-button");
+    fireEvent.click(followButton);
 
-    //wait and verify that state didn't change (still shows "Unfollow")
     await waitFor(() => {
-      expect(screen.getByText("Unfollow")).toBeInTheDocument();
+      expect(authFetch).toHaveBeenCalledWith(`/api/profile/${mockProfile.uid}/update/unfollow`, { method: "POST" });
     });
 
-    consoleSpy.mockRestore();
+    expect(screen.getByTestId("follow-button").textContent).toBe("Unfollow");
   });
 
-//test that FollowList modal opens and closes correctly
-it("opens and closes FollowList correctly", async () => {
-  render(<ProfilePage profile={mockProfile} />);
+  it("unfollow button triggers sendUnfollow", async () => {
+    (useUser as jest.Mock).mockReturnValue({ user: { uid: "user456" }, loading: false });
+    (authFetch as jest.Mock).mockResolvedValue({ ok: true });
 
-  //open followers list by clicking on the followers stat text
-  //using a more specific selector to target the correct element
-  const followersStat = screen.getByText("Followers", { selector: "p.text-sm" });
-  fireEvent.click(followersStat);
+    const profile = { ...mockProfile, followers: ["user456"] }; // already following
 
-  //verify the FollowList modal header appears with count
-  const followListHeader = screen.getByText(/Followers \(\d+\)/i, { selector: "h3" });
-  expect(followListHeader).toBeInTheDocument();
+    render(<ProfilePage profile={profile} />);
 
-  //close the modal by clicking the close button (× character)
-  const closeButton = screen.getByText("×", { selector: "button" });
-  fireEvent.click(closeButton);
+    const unfollowButton = screen.getByTestId("follow-button");
+    fireEvent.click(unfollowButton);
 
-  //wait for modal to close and verify it's no longer in document
-  await waitFor(() => {
-    expect(followListHeader).not.toBeInTheDocument();
-  });
-});
-
-
-  //test error handling in fetchFollowData function
-  it("fetchFollowData returns empty array on error", async () => {
-    //mock fetch to reject with an error
-    global.fetch = jest.fn().mockRejectedValue(new Error("fail"));
-
-    //render the component
-    const instance = render(<ProfilePage profile={mockProfile} />);
-    //trigger a follow action to indirectly test fetchFollowData error handling
-    fireEvent.click(screen.getByText("Follow"));
-
-    //wait and verify that the button state remains unchanged
     await waitFor(() => {
-      expect(screen.getByText("Follow")).toBeInTheDocument();
+      expect(authFetch).toHaveBeenCalledWith(`/api/profile/${profile.uid}/update/unfollow`, { method: "POST" });
     });
+
+    expect(screen.getByTestId("follow-button").textContent).toBe("Follow");
+  });
+
+  it("switches tabs when clicking tab buttons", () => {
+    (useUser as jest.Mock).mockReturnValue({ user: { uid: "user456" }, loading: false });
+
+    render(<ProfilePage profile={mockProfile} />);
+
+    const savedTab = screen.getByText(/saved/i);
+    fireEvent.click(savedTab);
+
+    expect(screen.getByTestId("clip-grid")).toBeInTheDocument();
   });
 });

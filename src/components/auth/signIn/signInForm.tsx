@@ -41,13 +41,14 @@ export default function SignInForm({
           </h1>
           <TextInput
             id="email"
-          label="Email:"
+            label="Email:"
+            
             icon={<MdEmail />}
             onChange={(e) => setEmail(e.target.value)}
           />
           <PasswordInput
             id="password"
-          label="Password"
+            label="Password"
             onChange={(e) => setPassword(e.target.value)}
           />
           <div className="flex flex-col sm:flex-row items-center justify-center w-full mt-4 gap-4 max-w-sm mx-auto">

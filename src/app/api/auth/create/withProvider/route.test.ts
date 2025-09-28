@@ -1,6 +1,10 @@
 import { GET, POST } from "./route";
 import { NextRequest } from "next/server";
 import { db } from "@/config/firebaseAdminConfig";
+
+jest.mock("@/app/api/decodeToken", () => ({
+  decodeToken: jest.fn().mockResolvedValue("123"),
+}));
 //similar stuff to manual signup, same type of test cases as well
 const mockWhere = jest.fn();
 const mockSelect = jest.fn(() => ({ where: mockWhere }));
@@ -144,6 +148,7 @@ describe("POST /api/users (user creation)", () => {
       following: [],
       photoURL: "https://firebasestorage.googleapis.com/v0/b/game-spheres.firebasestorage.app/o/profilePhotos%2Fdefault_avatar.png?alt=media&token=e9eb0302-6064-4757-9c81-227a32f45b54",
       gsSubs: [],
+      savedClips: [],
     });
   });
 

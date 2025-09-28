@@ -1,21 +1,36 @@
 import { useState, useEffect } from "react";
 import type { Comment } from "@/types/Comment";
 import type { Profile } from "@/types/Profile";
-import { addComment, deleteComment, listenToComments } from "@/services/clipsService";
 import { authFetch } from "@/config/authorisation";
 import type { Notification } from "@/types/Notification";
+import {
+  addComment,
+  deleteComment,
+  listenToComments,
+} from "@/services/clipsService";
 
-export function useComments(clipId: string, user: Profile | null, uploaderId?: string) {
+interface User {
+  uid?: string;
+  username?: string;
+  displayName?: string | null;
+  photoURL?: string | null;
+}
+
+export function useComments(
+  clipId: string,
+  user: User | null,
+  uploaderId?: string
+) {
   const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     const unsubscribe = listenToComments(clipId, (data) => {
       setComments(
-        data.map((c: any) => ({
+        data.map((c: Comment) => ({
           id: c.id,
           userId: c.userId,
           text: c.text,
-          createdAt: c.createdAt?.toDate?.() || new Date(),
+          createdAt: c.createdAt,
           displayName: c.displayName,
           photoURL: c.photoURL || null,
         }))
@@ -26,7 +41,13 @@ export function useComments(clipId: string, user: Profile | null, uploaderId?: s
 
   const add = async (text: string) => {
     if (!user) return;
-    await addComment(clipId, user, text);
+    const userForComment = {
+      uid: user.uid,
+      username: user.username,
+      displayName: user.displayName || undefined, // Convert null to undefined if nede be (for TypeScript to be happy)
+      photoURL: user.photoURL || undefined,
+    };
+    await addComment(clipId, userForComment, text);
   };
 
   const remove = async (commentId: string, commentUserId: string) => {

@@ -4,7 +4,6 @@ import {
   collection,
   getDocs,
   query,
-  orderBy,
   where,
   doc,
   getDoc,
@@ -14,15 +13,14 @@ import { Clip } from "@/types/Clip";
 import ClipCard from "./clipCard";
 import VideoModal from "./videoModal";
 import { DocumentReference } from "firebase-admin/firestore";
+import { SortOption } from "./sortDropdown";
 
 interface ClipGridProps {
   gameSphereFilter?: string;
   userFilter?: string;
   savedClips?: boolean;
-
-  // This will be used to keep track of whose profile you're viewing
-  // Not necessarily the same as the person who uploaded the clip
   profileFilter?: string;
+  sortBy?: SortOption;
 }
 
 export default function ClipGrid({
@@ -30,6 +28,7 @@ export default function ClipGrid({
   userFilter,
   savedClips,
   profileFilter,
+  sortBy = "popular24h",
 }: ClipGridProps) {
   const [clips, setClips] = useState<Clip[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,29 +36,7 @@ export default function ClipGrid({
 
   useEffect(() => {
     loadClips();
-  }, [gameSphereFilter, userFilter, savedClips, profileFilter]);
-
-  // Utility to dedupe clips by id and warn if duplicates are found
-  const dedupeClips = (clips: Clip[]) => {
-    const seen = new Set<string>();
-    const unique: Clip[] = [];
-    const duplicates: string[] = [];
-
-    clips.forEach((clip) => {
-      if (seen.has(clip.id)) {
-        duplicates.push(clip.id);
-      } else {
-        seen.add(clip.id);
-        unique.push(clip);
-      }
-    });
-
-    if (duplicates.length > 0) {
-      console.warn("Duplicate clip IDs found and removed:", duplicates);
-    }
-
-    return unique;
-  };
+  }, [gameSphereFilter, userFilter, savedClips, profileFilter, sortBy]);
 
   const loadClips = async () => {
     try {
@@ -90,11 +67,7 @@ export default function ClipGrid({
         conditions.push(where("gameSphereId", "==", gameSphereFilter));
       }
 
-      const q = query(
-        collection(db, "clips"),
-        ...conditions,
-        orderBy("uploadedAt", "desc")
-      );
+      const q = query(collection(db, "clips"), ...conditions);
 
       const querySnapshot = await getDocs(q);
       const clipsData: Clip[] = [];
@@ -113,7 +86,7 @@ export default function ClipGrid({
         (clip) => clip.processingStatus === "ready"
       );
 
-      setClips(dedupeClips(readyClips));
+      setClips(readyClips);
     } catch (error) {
       console.error("Error loading clips:", error);
     } finally {
@@ -174,7 +147,8 @@ export default function ClipGrid({
         (clip) => clip.processingStatus === "ready"
       );
 
-      setClips(dedupeClips(readyClips));
+      const sortedClips = sortClips(readyClips, sortBy);
+      setClips(sortedClips);
     } catch (error) {
       console.error("Error loading saved clips:", error);
       setClips([]);
@@ -205,68 +179,126 @@ export default function ClipGrid({
         return;
       }
 
+      // Use a set to track Clip IDs so we dont fetch duplicates
+      const seenClipIds = new Set<string>();
+
       const allClips: Clip[] = [];
 
-      // batch fetches
-      for (let i = 0; i < userSubs.length; i += 10) {
-        const gsBatchIds = userSubs.slice(i, i + 10);
-        const conditions = [where("gameSphereId", "in", gsBatchIds)];
+      // fetch by GS subs
+      const gsClipsPromise = userSubs.length
+        ? fetchClipsByGameSphereIds(userSubs, gameSphereFilter, seenClipIds)
+        : Promise.resolve([]);
 
-        if (gameSphereFilter) {
-          conditions.push(where("gameSphereId", "==", gameSphereFilter));
-        }
+      const followingClipsPromise = userFollowing.length
+        ? fetchClipsByFollowing(userFollowing, gameSphereFilter, seenClipIds)
+        : Promise.resolve([]);
 
-        const q = query(collection(db, "clips"), ...conditions);
-        const querySnapshot = await getDocs(q);
+      // Fetch concurrently
+      const [gsClips, followingClips] = await Promise.all([
+        gsClipsPromise,
+        followingClipsPromise,
+      ]);
 
-        querySnapshot.forEach((doc) => {
-          const clipData = doc.data();
-          allClips.push({
-            id: doc.id,
-            ...clipData,
-            uploadedAt: clipData.uploadedAt.toDate(),
-          } as Clip);
-        });
-      }
-
-      for (let i = 0; i < userFollowing.length; i += 10) {
-        const followingBatchIds = userFollowing.slice(i, i + 10);
-        const conditions = [where("uploadedBy", "in", followingBatchIds)];
-
-        if (gameSphereFilter) {
-          conditions.push(where("gameSphereId", "==", gameSphereFilter));
-        }
-
-        const q = query(collection(db, "clips"), ...conditions);
-        const querySnapshot = await getDocs(q);
-
-        querySnapshot.forEach((doc) => {
-          const clipData = doc.data();
-          allClips.push({
-            id: doc.id,
-            ...clipData,
-            uploadedAt: clipData.uploadedAt.toDate(),
-          } as Clip);
-        });
-      }
+      allClips.push(...gsClips, ...followingClips);
 
       const readyClips = allClips.filter(
         (clip) =>
           clip.processingStatus === "ready" && clip.uploadedBy !== userId
       );
 
-      // Newest clips first
-      // Ideally we would order clips by some form of popularity metric
-      readyClips.sort(
-        (clip1: Clip, clip2: Clip) =>
-          clip2.uploadedAt.getTime() - clip1.uploadedAt.getTime()
-      );
-
-      setClips(dedupeClips(readyClips));
+      const sortedClips = sortClips(readyClips, sortBy);
+      setClips(sortedClips);
     } catch (error) {
       console.error("Error loading home page clips");
       setClips([]);
     }
+  };
+
+  const sortClips = (clips: Clip[], sortOption: string) => {
+    const clipsToSort = [...clips];
+
+    switch (sortOption) {
+      case "popular24h":
+        return clipsToSort.sort(
+          (a, b) => (b.likesLast24h || 0) - (a.likesLast24h || 0)
+        );
+      case "popularWeek":
+        return clipsToSort.sort(
+          (a, b) => (b.likesLastWeek || 0) - (a.likesLastWeek || 0)
+        );
+      case "popularMonth":
+        return clipsToSort.sort(
+          (a, b) => (b.likesLastMonth || 0) - (a.likesLastMonth || 0)
+        );
+      default:
+        return clipsToSort.sort(
+          (a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime()
+        );
+    }
+  };
+
+  const fetchClipsByGameSphereIds = async (
+    gsIds: string[],
+    gameSphereFilter: string | undefined,
+    seenClipIds: Set<string>
+  ) => {
+    const allClips: Clip[] = [];
+    for (let i = 0; i < gsIds.length; i += 10) {
+      const batchIds = gsIds.slice(i, i + 10);
+      const conditions = [where("gameSphereId", "in", batchIds)];
+
+      if (gameSphereFilter) {
+        conditions.push(where("gameSphereId", "==", gameSphereFilter));
+      }
+
+      const q = query(collection(db, "clips"), ...conditions);
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const clipData = doc.data();
+        if (!seenClipIds.has(doc.id)) {
+          allClips.push({
+            id: doc.id,
+            ...clipData,
+            uploadedAt: clipData.uploadedAt.toDate(),
+          } as Clip);
+          seenClipIds.add(doc.id); // Mark this clip as seen
+        }
+      });
+    }
+    return allClips;
+  };
+
+  const fetchClipsByFollowing = async (
+    followingIds: string[],
+    gameSphereFilter: string | undefined,
+    seenClipIds: Set<string>
+  ) => {
+    const allClips: Clip[] = [];
+    for (let i = 0; i < followingIds.length; i += 10) {
+      const batchIds = followingIds.slice(i, i + 10);
+      const conditions = [where("uploadedBy", "in", batchIds)];
+
+      if (gameSphereFilter) {
+        conditions.push(where("gameSphereId", "==", gameSphereFilter));
+      }
+
+      const q = query(collection(db, "clips"), ...conditions);
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const clipData = doc.data();
+        if (!seenClipIds.has(doc.id)) {
+          allClips.push({
+            id: doc.id,
+            ...clipData,
+            uploadedAt: clipData.uploadedAt.toDate(),
+          } as Clip);
+          seenClipIds.add(doc.id);
+        }
+      });
+    }
+    return allClips;
   };
 
   const handlePlayClip = (clip: Clip) => {

@@ -11,14 +11,23 @@ import {
   query,
   serverTimestamp,
   getDoc,
+  Timestamp,
 } from "firebase/firestore";
-import { CLIPS_COLLECTION, USERS_COLLECTION } from "@/app/api/collections";
+import { CLIPS_COLLECTION, USERS_COLLECTION } from "@/app/api/collections";  
+import { Comment } from "@/types/Comment";
 
 export const fetchUploader = async (uid: string) => {
   const res = await fetch(`/api/profile?uid=${uid}`);
   if (!res.ok) throw new Error("Failed to fetch user profile");
   return res.json();
 };
+
+interface User {
+  uid?: string;
+  username?: string;
+  displayName?: string;
+  photoURL?: string;
+}
 
 export const checkSavedStatus = async (userId: string, clipId: string) => {
   const res = await fetch(
@@ -98,20 +107,27 @@ export const listenToLikes = (
 
 export const listenToComments = (
   clipId: string,
-  callback: (comments: any[]) => void
+  callback: (comments: Comment[]) => void
 ) => {
   const commentsRef = collection(db, "clips", clipId, "comments");
   const q = query(commentsRef, orderBy("createdAt", "asc"));
   return onSnapshot(q, (snapshot) => {
-    const commentsData = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const commentsData = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        userId: data.userId,
+        text: data.text,
+        createdAt: (data.createdAt as Timestamp)?.toDate() ?? new Date(),
+        displayName: data.displayName,
+        photoURL: data.photoURL ?? null,
+      } as Comment;
+    });
     callback(commentsData);
   });
 };
 
-export const addComment = async (clipId: string, user: any, text: string) => {
+export const addComment = async (clipId: string, user: User, text: string) => {
   const commentsRef = collection(db, CLIPS_COLLECTION, clipId, "comments");
 
   try {

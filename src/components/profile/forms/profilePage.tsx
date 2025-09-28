@@ -189,23 +189,21 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
           {activeTab === "videos" && (
             <>
               {/* Filter Controls */}
-              <div className="mb-6 flex justify-between items-center">
-                <div className="flex items-center space-x-4">
-                  {selectedGameSphere && (
-                    <button
-                      onClick={() => setSelectedGameSphere("")}
-                      className="text-sm text-blue-400 hover:text-blue-300"
-                    >
-                      Clear filter
-                    </button>
-                  )}
-                </div>
-                <div className="max-w-xs">
+              <div className="mb-6 flex justify-end items-center">
+                <div className="flex flex-col items-end">
                   <GameSphereFilter
                     selectedGameSphere={selectedGameSphere}
                     onGameSphereChange={setSelectedGameSphere}
                     className="w-full"
                   />
+                  {selectedGameSphere && (
+                    <button
+                      onClick={() => setSelectedGameSphere("")}
+                      className="mt-1 text-sm text-blue-400 hover:text-blue-300"
+                    >
+                      Clear filter
+                    </button>
+                  )}
                 </div>
               </div>
 

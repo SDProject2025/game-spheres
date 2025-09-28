@@ -15,9 +15,7 @@ import CommentsList from "../videoModal/CommentsList";
 import CommentInput from "../videoModal/CommentInput";
 import { MessageCircle } from "lucide-react";
 import type { Profile } from "@/types/Profile";
-import type { Comment } from '@/types/Comment';
-
-
+import type { Comment } from "@/types/Comment";
 
 interface VideoModalProps {
   clip: Clip;

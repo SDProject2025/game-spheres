@@ -1,6 +1,7 @@
 import MuxVideoPlayer from "../clips/muxVideoPlayer";
+import { Clip } from "@/types/Clip";
 
-export default function VideoPlayer({ clip }: { clip: any }) {
+export default function VideoPlayer({ clip }: { clip: Clip }) {
   if (clip.processingStatus === "ready" && clip.muxPlaybackId) {
     return (
       <MuxVideoPlayer

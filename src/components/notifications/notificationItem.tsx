@@ -13,6 +13,7 @@ type Props = {
 export default function NotificationItem({ notif, profiles, handlePlayClip }: Props) {
   const router = useRouter();
   const notifSender = profiles[notif.fromUid];
+  if (!notifSender) return <h1>Problem</h1>;
   const username = notifSender.username;
   const isClipNotification = notif.type === "comment" || notif.type === "like";
 

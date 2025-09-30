@@ -14,7 +14,7 @@ export default function ConversationItem({ conv, userId, usernames }: Props) {
           Conversation with:{" "}
           {conv.participants
             .filter((uid) => uid !== userId)
-            .map((uid) => usernames[uid] || uid)
+            .map((uid) => usernames[uid] || "Loading...")
             .join(", ")}
         </span>
         <span className="text-sm text-gray-400">

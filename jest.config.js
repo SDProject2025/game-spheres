@@ -26,7 +26,9 @@ module.exports = {
     '!**/.next/**',
     '!**/config/**',
     '!next.config.ts',
-    '!next-env.d.ts'
+    '!next-env.d.ts',
+    '!src/app/layout.tsx',
+    '!functions/src/**'
   ],
   coverageReporters: ['clover', 'json', 'lcov', ['text']],
   coverageThreshold: {

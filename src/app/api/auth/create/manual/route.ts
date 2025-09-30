@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
 
   if (!username)
     return NextResponse.json({ message: "Missing username" }, { status: 400 });
-
   if (await checkUsernameAvailable(username))
     return NextResponse.json(
       { message: "Username available" },

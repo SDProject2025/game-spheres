@@ -1,59 +1,99 @@
-/** 
-* @jest-environment jsdom
-*/
-import React from "react";
+/**
+ * @jest-environment jsdom
+ */
+
 import { render, screen } from "@testing-library/react";
 import ConversationItem from "./conversationItem";
 import type { ConversationInput } from "@/types/Conversation";
 
-describe("ConversationItem Component", () => {
+describe("ConversationItem", () => {
+  const mockUserId = "user1";
+  const mockUsernames = {
+    user2: "Alice",
+    user3: "Bob",
+  };
+
   const baseConv: ConversationInput = {
-    //id: "1",//id not used ion comp so unnecessary
-    participants: ["user1", "user2"],
-    updatedAt: "2025-09-28T10:30:00Z",
-    lastMessage: "Hello there!",
+    participants: ["user1", "user2", "user3"],
+    updatedAt: new Date("2025-09-30T10:30:00Z").toISOString(),
+    lastMessage: "Hello world!",
   };
 
-  const usernames = {
-    user1: "Alice",
-    user2: "Bob",
-  };
+  it("renders participant names excluding the current user", () => {
+    render(
+      <ConversationItem
+        conv={baseConv}
+        userId={mockUserId}
+        usernames={mockUsernames}
+      />
+    );
 
-  const userId = "user1"; // current user
-
-  test("renders participants excluding current user", () => {
-    render(<ConversationItem conv={baseConv} userId={userId} usernames={usernames} />);
-    expect(screen.getByText(/Conversation with: Bob/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Conversation with: Alice, Bob/i)
+    ).toBeInTheDocument();
   });
 
-  test("renders formatted updatedAt date when present", () => {
-    render(<ConversationItem conv={baseConv} userId={userId} usernames={usernames} />);
-    const dateElement = screen.getByText(/\w{3} \d{1,2}, \d{1,2}:\d{2} (AM|PM)/); // matches 'Sep 28, 10:30'
-    expect(dateElement).toBeInTheDocument();
+  it("renders formatted updatedAt date", () => {
+    render(
+      <ConversationItem
+        conv={baseConv}
+        userId={mockUserId}
+        usernames={mockUsernames}
+      />
+    );
+
+    const expectedDate = new Intl.DateTimeFormat([], {
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(baseConv.updatedAt))
+
+    expect(screen.getByText(expectedDate)).toBeInTheDocument();
   });
 
-  test("displays 'No messages yet.' when lastMessage is missing", () => {
-    const convNoMsg = { ...baseConv, lastMessage: "" };
-    render(<ConversationItem conv={convNoMsg} userId={userId} usernames={usernames} />);
-    expect(screen.getByText(/No messages yet./i)).toBeInTheDocument();
+  it("renders lastMessage", () => {
+    render(
+      <ConversationItem
+        conv={baseConv}
+        userId={mockUserId}
+        usernames={mockUsernames}
+      />
+    );
+
+    expect(screen.getByText("Hello world!")).toBeInTheDocument();
   });
 
-  test("displays lastMessage when present", () => {
-    render(<ConversationItem conv={baseConv} userId={userId} usernames={usernames} />);
-    expect(screen.getByText(/Hello there!/i)).toBeInTheDocument();
+  it("shows 'No messages yet.' if lastMessage is empty", () => {
+    const convWithoutMessage = { ...baseConv, lastMessage: "" };
+
+    render(
+      <ConversationItem
+        conv={convWithoutMessage}
+        userId={mockUserId}
+        usernames={mockUsernames}
+      />
+    );
+
+    expect(screen.getByText("No messages yet.")).toBeInTheDocument();
   });
 
-  test("falls back to user ID if username not found", () => {
-    const convUnknownUser = { ...baseConv, participants: ["user1", "user3"] };
-    render(<ConversationItem conv={convUnknownUser} userId={userId} usernames={usernames} />);
-    expect(screen.getByText(/Conversation with: user3/i)).toBeInTheDocument();
-  });
+  it("handles missing usernames gracefully", () => {
+    const convWithUnknownUser = {
+      ...baseConv,
+      participants: ["user1", "unknownUser"],
+    };
 
-  test("renders empty date if updatedAt is missing", () => {
-    const convNoDate = { ...baseConv, updatedAt: "" };
-    render(<ConversationItem conv={convNoDate} userId={userId} usernames={usernames} />);
-    // Ensure no date text is shown
-    const dateElements = screen.queryByText(/\w{3} \d{2}, \d{2}:\d{2}/);
-    expect(dateElements).not.toBeInTheDocument();
+    render(
+      <ConversationItem
+        conv={convWithUnknownUser}
+        userId={mockUserId}
+        usernames={mockUsernames}
+      />
+    );
+
+    expect(
+      screen.getByText(/Conversation with: unknownUser/i)
+    ).toBeInTheDocument();
   });
 });

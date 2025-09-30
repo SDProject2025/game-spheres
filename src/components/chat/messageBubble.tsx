@@ -28,7 +28,7 @@ export default function MessageBubble({ msg, isSent }: Props) {
         />
       )}
 
-      <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+      <span className="mt-1 text-xs text-gray-500 dark:text-gray-400" data-testid="message-date">
         {(() => {
           const createdDate = new Date(msg.createdAt);
           const now = new Date();

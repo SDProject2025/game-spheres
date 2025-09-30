@@ -8,6 +8,7 @@ export default function VideoPlayer({ clip }: { clip: Clip }) {
         playbackId={clip.muxPlaybackId}
         className="w-full h-full"
         poster={clip.thumbnailUrl}
+        data-testid="mux-player"
       />
     );
   }

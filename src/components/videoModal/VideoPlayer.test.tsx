@@ -42,6 +42,7 @@ describe("VideoPlayer Component", () => {
     {
         playbackId: "mux123",
         className: "w-full h-full",
+        "data-testid": "mux-player",
         poster: "http://example.com/thumb.jpg",
     },
     undefined // context argument

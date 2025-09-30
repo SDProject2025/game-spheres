@@ -13,6 +13,18 @@ type Props = {
 export default function NotificationItem({ notif, profiles, handlePlayClip }: Props) {
   const router = useRouter();
   const notifSender = profiles[notif.fromUid];
+
+  if (!notifSender) {
+    return (
+      <div className="flex items-start">
+        <div className="w-12 h-12 bg-gray-700 rounded-full" />
+        <div className="flex flex-col pl-2">
+          <span className="text-gray-400">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+  
   const username = notifSender.username;
   const isClipNotification = notif.type === "comment" || notif.type === "like";
 

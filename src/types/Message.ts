@@ -7,6 +7,7 @@ export type MessageInput = {
   conversationId: string;
   senderId: string;
   createdAt: string;
+  read: boolean;
 };
 
 export type MessageDoc = {
@@ -14,4 +15,5 @@ export type MessageDoc = {
   conversationId: DocumentReference; // Firestore ref
   senderId: DocumentReference<Profile>;
   createdAt: Timestamp;
+  read: boolean;
 };

@@ -1,11 +1,21 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Clip } from "@/types/Clip";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
-import MuxVideoPlayer from "./muxVideoPlayer";
-import { Bookmark, BookmarkCheck } from "lucide-react";
 import { useUser } from "@/config/userProvider";
-import toast from "react-hot-toast";
+import { useClipLikes } from "@/hooks/useClipLikes";
+import { useSaveStatus } from "@/hooks/useSaveStatus";
+import { useComments } from "@/hooks/useComments";
+import { fetchUploader } from "@/services/clipsService";
+import VideoPlayer from "../videoModal/VideoPlayer";
+import LikeButton from "../videoModal/LikeButton";
+import SaveButton from "../videoModal/SaveButton";
+import UploaderInfo from "../videoModal/UploaderInfo";
+import CommentsList from "../videoModal/CommentsList";
+import CommentInput from "../videoModal/CommentInput";
+import { MessageCircle } from "lucide-react";
+import type { Profile } from "@/types/Profile";
+import type { Comment } from "@/types/Comment";
 
 interface VideoModalProps {
   clip: Clip;
@@ -13,38 +23,62 @@ interface VideoModalProps {
   clipSaved?: boolean;
 }
 
-interface UserInfo {
-  uid: string;
-  username?: string;
-  displayName?: string;
-  photoURL?: string;
-}
-
 export default function VideoModal({
   clip,
   onClose,
   clipSaved,
 }: VideoModalProps) {
-  const [uploader, setUploader] = useState<UserInfo | null>(null);
-  const [saved, setSaved] = useState(clipSaved);
-  const modalRef = useRef<HTMLDivElement>(null);
-  const { gameSpheres } = useGameSpheresContext();
-
   const { user } = useUser();
+  const { gameSpheres } = useGameSpheresContext();
+  const modalRef = useRef<HTMLDivElement>(null);
 
+  // Hooks for logic
+  const { likesCount, isLiked, toggleLike, isLiking } = useClipLikes(
+    clip.id,
+    user?.uid
+  );
+  const { saved, toggleSave } = useSaveStatus(clip.id, user, clipSaved);
+  const { comments, add, remove } = useComments(clip.id, user, clip.uploadedBy);
+
+  const [uploader, setUploader] = useState<Profile | null>(null);
+
+  // fetch uploader
   useEffect(() => {
-    const fetchUser = async () => {
+    let mounted = true;
+    if (!clip.uploadedBy) return;
+    (async () => {
       try {
         const res = await fetch(`/api/profile?uid=${clip.uploadedBy}`);
         const data = await res.json();
-        setUploader(data.userData);
+        setUploader(data.userData as Profile);
       } catch (err) {
-        console.error("Error fetching user info:", err);
+        console.error("Error fetching uploader:", err);
       }
+    })();
+    return () => {
+      mounted = false;
     };
-
-    if (clip.uploadedBy) fetchUser();
   }, [clip.uploadedBy]);
+
+  // keyboard escape and body overflow handling
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = prevOverflow || "unset";
+    };
+  }, [onClose]);
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose();
+    }
+  };
 
   const getGameSphereName = (id: string) =>
     gameSpheres.find((gs) => gs.id === id)?.name || "Unknown Game";
@@ -61,158 +95,76 @@ export default function VideoModal({
     return `${Math.floor(diff / 31536000)} years ago`;
   };
 
-  // Handle escape key press
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden"; // Prevent background scrolling
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
-    };
-  }, [onClose]);
-
-  // Handle click outside modal
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      onClose();
-    }
-  };
-
-  useEffect(() => {
-    if (!user?.uid) return;
-
-    const checkSavedStatus = async () => {
-      try {
-        const res = await fetch(
-          `/api/clips/savedClips?userId=${user?.uid}&clipId=${clip.id}`
-        );
-
-        if (res.ok) {
-          const data = await res.json();
-          setSaved(data.isSaved);
-        }
-      } catch (error) {
-        console.error("Error checking saved status:", error);
-      }
-    };
-    checkSavedStatus();
-  }, [user?.uid, clip.id]);
-
-  const handleSaveClipClick = async (action: string) => {
-    try {
-      if (!clip || !user) {
-        console.error("Clip and User fields are required");
-        return;
-      }
-
-      const res = await fetch(`/api/clips/savedClips`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          clipId: clip.id,
-          action: action,
-        }),
-      });
-
-      setSaved(action === "save");
-
-      if (!res.ok) {
-        throw new Error("Error saving clip");
-      }
-    } catch (error) {
-      console.error("Error saving clip:", error);
-    }
-  };
-
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
     >
-      {/* TODO: attach pane to right side of modal for comments */}
       <div
         ref={modalRef}
-        className="bg-[#111] rounded-lg overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#111] rounded-lg overflow-hidden w-full max-h-[90vh] overflow-y-auto sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl flex flex-col lg:flex-row"
       >
-        {/* Video Player */}
-        <div className="aspect-video bg-black min-h-[400px]">
-          {clip.processingStatus === "ready" && clip.muxPlaybackId ? (
-            <MuxVideoPlayer
-              playbackId={clip.muxPlaybackId}
-              className="w-full h-full"
-              poster={clip.thumbnailUrl}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-900 text-white">
-              {/* This is pretty redundant because I already filter out non-ready videos, but I've added it in as a failsafe */}
-              {clip.processingStatus === "preparing" &&
-                "Video is still processing..."}
-              {clip.processingStatus === "errored" && "Error processing video"}
-              {clip.processingStatus === "uploading" && "Upload in progress..."}
+        {/* Left side: video + info */}
+        <div className="flex-1 flex flex-col">
+          <div className="aspect-video bg-black min-h-[300px] lg:min-h-[400px]">
+            <VideoPlayer clip={clip} />
+          </div>
+
+          <div className="p-6">
+            {/* Title + Like/Save */}
+            <div className="mb-4">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                <h1 className="text-xl lg:text-2xl font-bold text-white">
+                  {clip.caption}
+                </h1>
+                <div className="flex items-center gap-4">
+                  <LikeButton
+                    isLiked={isLiked}
+                    likesCount={likesCount}
+                    onClick={toggleLike}
+                    disabled={isLiking}
+                  />
+                  <SaveButton saved={!!saved} onClick={toggleSave} />
+                </div>
+              </div>
+              <div className="flex items-center text-gray-400 mt-1 text-sm lg:text-base flex-wrap gap-2">
+                <span className="text-[#00ffd5] font-medium">
+                  {getGameSphereName(clip.gameSphereId)}
+                </span>
+                <span>•</span>
+                <span>{formatTimeSinceUpload(clip.uploadedAt)}</span>
+              </div>
             </div>
-          )}
+
+            {/* uploader info */}
+            <UploaderInfo uploader={uploader} uploadedAt={clip.uploadedAt} />
+          </div>
         </div>
 
-        {/* Video Info */}
-        <div className="p-6">
-          {/* Caption and GameSphere Info */}
-          {/* TODO: ADD "SAVE CLIP TO FAVORITES" OPTION IN THIS DIV, IN-LINE WITH CAPTION, RIGHT-ALIGNED */}
-          <div className="mb-4">
-            <div className="grid grid-cols-2">
-              <h1 className="text-2xl font-bold text-white mb-2">
-                {clip.caption}
-              </h1>
-              {saved && (
-                <BookmarkCheck
-                  className="ml-auto cursor-pointer"
-                  onClick={() => handleSaveClipClick("unsave")}
-                ></BookmarkCheck>
-              )}
-              {!saved && (
-                <Bookmark
-                  className="ml-auto cursor-pointer"
-                  onClick={() => handleSaveClipClick("save")}
-                ></Bookmark>
-              )}
-            </div>
-            <div className="flex items-center text-gray-400">
-              <span className="text-[#00ffd5] font-medium">
-                {getGameSphereName(clip.gameSphereId)}
-              </span>
-              <span className="mx-2">•</span>
-              <span>{formatTimeSinceUpload(clip.uploadedAt)}</span>
-            </div>
+        {/* Right side: comments */}
+        <div className="w-full lg:w-80 bg-[#1a1a1a] border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col">
+          {/* Header */}
+          <div className="p-4 border-b border-gray-700 flex items-center gap-2">
+            <MessageCircle className="text-gray-400" />
+            <h2 className="text-lg font-semibold text-white">Comments</h2>
           </div>
 
-          {/* User Info */}
-          {/* TODO: make username clickable -> takes you to their profile ?? */}
-          <div className="flex items-center mb-4 pb-4 border-b border-gray-700">
-            {uploader?.photoURL && (
-              <img
-                src={uploader?.photoURL}
-                alt={uploader?.displayName || uploader?.username || "User"}
-                className="w-10 h-10 rounded-full object-cover mr-2"
-              />
-            )}
-            <div>
-              <p className="font-semibold text-white">
-                {uploader?.displayName}
-              </p>
-              <p className="text-sm text-gray-400">
-                Uploaded At: {clip.uploadedAt.toLocaleDateString()}
-              </p>
-            </div>
+          {/* Comments list */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[calc(90vh-100px)]">
+            <CommentsList
+              comments={comments}
+              userId={user?.uid}
+              uploaderId={clip.uploadedBy}
+              onDelete={remove}
+            />
           </div>
+
+          {/* Input */}
+          <CommentInput
+            onAdd={(text) => {
+              add(text);
+            }}
+          />
         </div>
       </div>
     </div>

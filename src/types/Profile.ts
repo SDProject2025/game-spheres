@@ -6,6 +6,4 @@ export type Profile = {
   following: string[];
   followers: string[];
   photoURL: string;
-  conversations: string[];
-  messages: string[];
 };

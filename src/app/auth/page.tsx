@@ -206,6 +206,7 @@ export default function Auth() {
         } transition-opacity duration-700 flex flex-col items-center`}
       >
         <SignUpForm
+        signInWithGoogle={signInWithProvider}
           handleSignUpClick={signUpManual}
           validateUsername={isValidUsername}
           validatePassword={isValidPassword}

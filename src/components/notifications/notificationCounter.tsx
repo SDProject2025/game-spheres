@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Bell } from "lucide-react";
 import { db } from "@/config/firebaseConfig";
 import { useState, useEffect } from "react";
 import { useUser } from "@/config/userProvider";
@@ -26,7 +26,7 @@ export default function InboxIcon() {
 
   return (
     <div className="relative inline-block">
-      <Mail className="w-6 h-6" />
+      <Bell className="w-6 h-6" />
       {unreadCount > 0 && (
         <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-green-500 text-xs font-bold">
           {unreadCount}

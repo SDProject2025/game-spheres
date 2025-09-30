@@ -17,7 +17,7 @@ interface SortDropdownProps {
 interface SortConfig {
   value: SortOption;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   category: "popularity" | "time";
   description: string;
 }

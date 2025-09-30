@@ -102,19 +102,19 @@ export default function VideoModal({
     >
       <div
         ref={modalRef}
-        className="bg-[#111] rounded-lg overflow-hidden w-full max-h-[90vh] overflow-y-auto sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
+        className="bg-[#111] rounded-lg overflow-hidden w-full max-h-[90vh] overflow-y-auto sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl flex flex-col lg:flex-row"
       >
         {/* Left side: video + info */}
         <div className="flex-1 flex flex-col">
-          <div className="aspect-video bg-black min-h-[400px]">
+          <div className="aspect-video bg-black min-h-[300px] lg:min-h-[400px]">
             <VideoPlayer clip={clip} />
           </div>
 
           <div className="p-6">
             {/* Title + Like/Save */}
             <div className="mb-4">
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-white">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
+                <h1 className="text-xl lg:text-2xl font-bold text-white">
                   {clip.caption}
                 </h1>
                 <div className="flex items-center gap-4">
@@ -127,11 +127,11 @@ export default function VideoModal({
                   <SaveButton saved={!!saved} onClick={toggleSave} />
                 </div>
               </div>
-              <div className="flex items-center text-gray-400 mt-1">
+              <div className="flex items-center text-gray-400 mt-1 text-sm lg:text-base flex-wrap gap-2">
                 <span className="text-[#00ffd5] font-medium">
                   {getGameSphereName(clip.gameSphereId)}
                 </span>
-                <span className="mx-2">•</span>
+                <span>•</span>
                 <span>{formatTimeSinceUpload(clip.uploadedAt)}</span>
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function VideoModal({
         </div>
 
         {/* Right side: comments */}
-        <div className="w-80 bg-[#1a1a1a] border-l border-gray-800 flex flex-col">
+        <div className="w-full lg:w-80 bg-[#1a1a1a] border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col">
           {/* Header */}
           <div className="p-4 border-b border-gray-700 flex items-center gap-2">
             <MessageCircle className="text-gray-400" />

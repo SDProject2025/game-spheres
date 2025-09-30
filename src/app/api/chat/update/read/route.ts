@@ -47,8 +47,20 @@ export async function POST(request: NextRequest) {
         .collection(CONVERSATIONS_COLLECTION)
         .doc(conversationId);
 
-      batch.update(convRef, {
-        [`unreadCounts.${uid}`]: FieldValue.increment(-count),
+      // batch.update(convRef, {
+      //   [`unreadCounts.${uid}`]: FieldValue.increment(-count),
+      // });
+      db.runTransaction(async (transaction) => {
+        const snap = await transaction.get(convRef);
+        if (!snap.exists) return;
+
+        const data = snap.data();
+        const current = data?.unreadCounts?.[uid] || 0;
+        const newValue = Math.max(0, current - count);
+
+        transaction.update(convRef, {
+          [`unreadCounts.${uid}`]: newValue
+        });
       });
     }
 

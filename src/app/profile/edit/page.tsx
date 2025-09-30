@@ -5,6 +5,7 @@ import EditProfileForm from "@/components/profile/forms/EditProfileForm";
 import { Toaster, toast } from "react-hot-toast";
 import { useUser } from "@/config/userProvider";
 import { authFetch } from "@/config/authorisation";
+import { CONFLICT_STATUS } from "@/app/api/httpCodes";
 
 export default function EditProfilePage() {
   const { user } = useUser();
@@ -41,6 +42,7 @@ export default function EditProfilePage() {
         },
       });
       if (res.ok) router.replace("/profile");
+      else if (res.status === CONFLICT_STATUS) alert("Username already taken");
     } catch (e) {
       alert("Ya done fucked it");
     }

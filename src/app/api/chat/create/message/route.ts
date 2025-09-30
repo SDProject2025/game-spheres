@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/config/firebaseAdminConfig";
-import {
-  USERS_COLLECTION,
-  CONVERSATIONS_COLLECTION,
-} from "@/app/api/collections";
+import { CONVERSATIONS_COLLECTION } from "@/app/api/collections";
 import type { MessageInput } from "@/types/Message";
-import type { Notification } from "@/types/Notification";
 import { Timestamp, WriteBatch, FieldValue } from "firebase-admin/firestore";
 import { decodeToken } from "@/app/api/decodeToken";
 
@@ -59,7 +55,9 @@ export async function POST(request: NextRequest) {
       { merge: true }
     );
 
-    const unreadCountsUpdate: Record<string, any> = {
+    const unreadCountsUpdate: {
+      unreadCounts: Record<string, FieldValue>;
+    } = {
       unreadCounts: {},
     };
 

@@ -35,7 +35,8 @@ export default function NotificationItem({ notif, profiles, handlePlayClip }: Pr
     message = (
       <>
         <strong>{username}</strong> commented on your post:
-        <br />&quot{notif.commentContent}&quot
+        <br />
+        {`"${notif.commentContent}"`}
       </>
     );
   } else if (notif.type === "follow") {

@@ -106,10 +106,10 @@ export default function SearchBar<T extends SearchItem>({
 
   return (
     <div className="min-h-screen text-white p-6 flex flex-col items-center">
-      <div className="flex w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
+      <div className="flex flex-col md:flex-row w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
         {/* Left pane */}
-        <div className="w-1/3 bg-[#111111] p-4 border-r border-cyan-500 flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-cyan-400">{title}</h2>
+        <div className="w-full md:w-1/3 bg-[#111111] p-4 border-b md:border-b-0 md:border-r border-cyan-500 flex flex-col">
+          <h2 className="text-lg md:text-xl font-semibold mb-4 text-cyan-400 text-center md:text-left">{title}</h2>
 
           <input
             type="text"
@@ -122,10 +122,10 @@ export default function SearchBar<T extends SearchItem>({
           {loading && <p>Loading...</p>}
 
           {!loading && results.length === 0 && search.trim() !== "" && (
-            <p>No results found.</p>
+            <p className="text-center md:lext-left">No results found.</p>
           )}
 
-          <div className="overflow-y-auto flex-1 max-h-[600px] scrollbar-thin pr-1">
+          <div className="overflow-y-auto flex-1 max-h-[300px] md:max-h-[600px] scrollbar-thin pr-1">
             {results.map((item) => (
               <div
                 key={item.id}
@@ -143,13 +143,13 @@ export default function SearchBar<T extends SearchItem>({
         </div>
 
         {/* Right detail pane */}
-        <div className="w-2/3 p-6 flex flex-col justify-center relative">
+        <div className="w-full md:w-2/3 p-6 flex flex-col justify-center relative">
           {selected ? (
             <>
               {renderDetails(selected)}
 
               {onItemAction && actionButtonText && (
-                <div className="mt-auto flex justify-center">
+                <div className="mt-6 md:mt-auto flex justify-center">
                   <button
                     onClick={() => onItemAction(selected)}
                     className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 px-8 rounded-full transition cursor-pointer"
@@ -160,7 +160,7 @@ export default function SearchBar<T extends SearchItem>({
               )}
             </>
           ) : (
-            <p className="text-gray-400 self-center">
+            <p className="text-gray-400 self-center text-center">
               Search and select an item to see details here.
             </p>
           )}

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Clip } from "@/types/Clip";
 import { useGameSpheresContext } from "@/config/gameSpheresContext";
 import { PlayIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ClipCardProps {
   clip: Clip;
@@ -17,8 +18,9 @@ interface UserInfo {
 }
 
 export default function ClipCard({ clip, onPlay }: ClipCardProps) {
-  const { gameSpheres } = useGameSpheresContext();
   const [uploader, setUploader] = useState<UserInfo | null>(null);
+  const { gameSpheres } = useGameSpheresContext();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -36,9 +38,6 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
 
   const getGameSphereName = (id: string) =>
     gameSpheres.find((gs) => gs.id === id)?.name || "Unknown Game";
-
-  const getGameSphereCover = (id: string) =>
-    gameSpheres.find((gs) => gs.id === id)?.coverUrl;
 
   const getThumbnailUrl = (clip: Clip) => {
     if (clip.thumbnailUrl) return clip.thumbnailUrl;
@@ -70,10 +69,10 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
   };
 
   return (
-    <div className="bg-[#222] rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
+    <div className="bg-[#222] rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group w-full max-w-4xl mx-auto">
       {/* Thumbnail */}
       <div
-        className="relative aspect-video bg-gray-800 overflow-hidden"
+        className="relative bg-gray-800 overflow-hidden aspect-video md:aspect-[16/9] lg:aspect-[16/10] xl:aspect-[16/11] cursor-pointer"
         onClick={onPlay}
       >
         {/* Mux Thumbnail */}
@@ -88,7 +87,7 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
         {/* Processing Status Overlay */}
         {clip.processingStatus !== "ready" && (
           <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-            <div className="text-white text-center">
+            <div className="text-white text-center text-sm md:text-base">
               {clip.processingStatus === "uploading" && "Uploading..."}
               {clip.processingStatus === "preparing" && "Processing..."}
               {clip.processingStatus === "errored" && "Error"}
@@ -96,53 +95,56 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
           </div>
         )}
 
-        {/* Play button - when processing is done */}
+        {/* Play button */}
         {clip.processingStatus === "ready" && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="opacity-80 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-4">
-              <PlayIcon className="w-8 h-8 text-white" fill="white" />
+            <div className="opacity-80 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-4 md:p-5">
+              <PlayIcon className="w-7 h-7 md:w-9 md:h-9 text-white" fill="white" />
             </div>
           </div>
         )}
 
         {/* Duration */}
-        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs md:text-sm px-2 py-1 rounded">
           {formatDuration(clip.duration)}
         </div>
       </div>
 
       {/* Card Content */}
-      <div className="p-4 text-white">
+      <div className="p-3 text-white md:p-4">
         {/* Caption */}
-        <h3 className="font-semibold text-gray-100 text-sm leading-tight mb-2 line-clamp-2">
+        <h3 className="font-semibold text-gray-100 text-sm md:text-base leading-tight mb-2 line-clamp-2">
           {clip.caption}
         </h3>
 
         {/* GameSphere name */}
         <div className="flex items-center mb-2">
-          <span className="text-[#00ffd5] text-xs font-medium">
+          <span className="text-[#00ffd5] text-xs md:text-sm font-medium">
             {getGameSphereName(clip.gameSphereId)}
           </span>
         </div>
 
         {/* User info */}
         {uploader && (
-          <div className="flex items-center mb-2">
+          <div
+            className="flex items-center mb-2 cursor-pointer"
+            onClick={() => router.replace(`/profile/${uploader.uid}`)}
+          >
             {uploader.photoURL && (
               <img
                 src={uploader.photoURL}
                 alt={uploader.displayName || uploader.username || "User"}
-                className="w-5 h-5 rounded-full object-cover mr-2"
+                className="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover mr-2"
               />
             )}
-            <span className="text-gray-400 text-sm hover:text-gray-200 cursor-pointer">
-              {uploader.displayName || uploader.username || uploader.uid}
+            <span className="text-gray-400 text-sm md:text-base hover:text-gray-200">
+              {uploader.username}
             </span>
           </div>
         )}
 
         {/* Metadata */}
-        <div className="text-gray-500 text-xs">
+        <div className="text-gray-500 text-xs md:text-sm">
           <span>{formatTimeSinceUpload(clip.uploadedAt)}</span>
         </div>
       </div>

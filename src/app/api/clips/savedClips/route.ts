@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import admin from "firebase-admin";
 
 export async function POST(request: NextRequest) {
-  // TODO: Update to handle both save/unsave requests
   try {
     const { userId, clipId, action } = await request.json();
 

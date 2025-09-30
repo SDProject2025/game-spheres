@@ -49,22 +49,29 @@ export default function SettingsPage() {
       <Toaster position="top-center" />
       <div className="max-w-2xl mx-auto p-4 space-y-8">
         {/* Cache Clear Section */}
-        <section className="p-4 border rounded-xl shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Cache Management</h2>
+        <section className="p-4 border rounded-xl shadow-md flex flex-col items-center text-center">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">Cache Management</h2>
           <NeonButton onClick={handleClearCache} disabled={isRefreshing}>
             {isRefreshing ? "Refreshing..." : "Clear Cache"}
           </NeonButton>
         </section>
 
         {/* Feedback Section */}
-        <section className="p-4 border rounded-xl shadow-md">
-          <h2 className="text-xl font-semibold mb-4">
+        <section className="p-4 border rounded-xl shadow-md flex flex-col items-center text-center w-full">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">
             We&apos;d love your feedback!
           </h2>
-          <form onSubmit={handleSubmit}>
-            <MessageBody value={message} onChange={setMessage} />
-            <div className="mt-4">
-              <NeonButton type="submit">Submit</NeonButton>
+          <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-4">
+            {/* Make MessageBody fill the width */}
+            <div className="w-full">
+              <MessageBody value={message} onChange={setMessage} />
+            </div>
+
+            {/* Center the button and allow it to scale */}
+            <div className="w-full flex justify-center">
+              <div className="w-full sm:w-auto flex flex-col items-center">
+                <NeonButton type="submit">Submit</NeonButton>
+              </div>
             </div>
           </form>
         </section>

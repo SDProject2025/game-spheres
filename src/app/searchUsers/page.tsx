@@ -2,6 +2,7 @@
 import SearchBar, { SearchItem } from "@/components/search/searchBar";
 import SearchItemContainer from "@/components/search/searchItem";
 import UserDetail from "@/components/profile/forms/userDetail";
+import { useState, useCallback } from "react";
 
 interface User extends SearchItem {
   uid: string;
@@ -22,7 +23,7 @@ async function searchWithQuery(query: string) {
     const res = await fetch(`/api/profile/search?query=${query}`);
     const data = await res.json();
     for (const user of data.users) users.push(user);
-    console.log(users);
+    // console.log(users);
     return users;
   } catch (e: unknown) {
     console.error("Error searching:", e);

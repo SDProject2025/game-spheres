@@ -29,7 +29,7 @@ export default function UserDetail({ profile }: { profile: Profile | null }) {
     } else {
       setIsFollowing(false);
     }
-  }, [isFollowing]);
+  }, [profile?.uid, user?.uid]);
 
   function viewUserProfile() {
     router.push(`/profile/${profile?.uid}`);

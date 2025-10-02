@@ -7,6 +7,7 @@ import {
   where,
   doc,
   getDoc,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "@/config/firebaseConfig";
 import { Clip } from "@/types/Clip";
@@ -67,7 +68,11 @@ export default function ClipGrid({
         conditions.push(where("gameSphereId", "==", gameSphereFilter));
       }
 
-      const q = query(collection(db, "clips"), ...conditions);
+      const q = query(
+        collection(db, "clips"),
+        ...conditions,
+        orderBy("uploadedAt", "desc")
+      );
 
       const querySnapshot = await getDocs(q);
       const clipsData: Clip[] = [];
@@ -341,7 +346,7 @@ export default function ClipGrid({
   return (
     <>
       {/* Grid Container */}
-      <div className="grid grid-cols-1 gap-6 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         {clips.map((clip) => (
           <ClipCard
             key={clip.id}

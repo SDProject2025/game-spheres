@@ -1,4 +1,5 @@
 import { Comment } from "@/types/Comment";
+import { useRouter } from "next/navigation";
 
 export default function CommentsList({
   comments,
@@ -11,6 +12,8 @@ export default function CommentsList({
   uploaderId?: string;
   onDelete: (id: string, userId: string) => void;
 }) {
+  const router = useRouter();
+
   const formatTimeSinceUpload = (date: Date) => {
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -36,7 +39,13 @@ export default function CommentsList({
         )}
         <div className="min-w-0 flex-1">
           <p className="text-sm text-white break-words whitespace-pre-wrap">
-            <span className="font-semibold">{c.displayName}</span>: {c.text}
+            <span
+              className="font-semibold hover:text-gray-400 cursor-pointer"
+              onClick={() => router.replace(`/profile/${c.userId}`)}
+            >
+              {c.displayName}
+            </span>
+            : {c.text}
           </p>
           <p className="text-xs text-gray-500">
             {formatTimeSinceUpload(c.createdAt)}

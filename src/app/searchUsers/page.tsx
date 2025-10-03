@@ -2,7 +2,6 @@
 import SearchBar, { SearchItem } from "@/components/search/searchBar";
 import SearchItemContainer from "@/components/search/searchItem";
 import UserDetail from "@/components/profile/forms/userDetail";
-import { useState, useCallback } from "react";
 
 interface User extends SearchItem {
   uid: string;

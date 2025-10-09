@@ -24,11 +24,11 @@ export default function NotificationItem({ notif, profiles, handlePlayClip }: Pr
       </div>
     );
   }
-  
+
   const username = notifSender.username;
   const isClipNotification = notif.type === "comment" || notif.type === "like";
 
-  if (!notifSender || isClipNotification === undefined) return <h1>Problem</h1>
+  if (!notifSender || isClipNotification === undefined) return <h1>Problem</h1>;
 
   let message: ReactNode = "";
   if (notif.type === "comment") {
@@ -54,27 +54,30 @@ export default function NotificationItem({ notif, profiles, handlePlayClip }: Pr
   }
 
   return (
-      <div className="flex items-start" onClick={() => {
+    <div
+      className="flex items-start"
+      onClick={() => {
         if (isClipNotification && notif.clip) handlePlayClip(notif.clip);
-        else router.push(`/profile/${notif.fromUid}`)
-      }}>
-        <img
-          src={notifSender.photoURL}
-          className="w-12 h-12 object-cover rounded-full"
-        />
-        <div className="flex flex-col pl-2">
-          <span>{message}</span>
-          <span className="text-sm text-gray-400">
-            {notif.createdAt
-              ? new Intl.DateTimeFormat([], {
-                  month: "short",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }).format(new Date(notif.createdAt))
-              : ""}
-          </span>
-        </div>
+        else router.push(`/profile/${notif.fromUid}`);
+      }}
+    >
+      <img
+        src={notifSender.photoURL}
+        className="w-12 h-12 object-cover rounded-full"
+      />
+      <div className="flex flex-col pl-2">
+        <span>{message}</span>
+        <span className="text-sm text-gray-400">
+          {notif.createdAt
+            ? new Intl.DateTimeFormat([], {
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              }).format(new Date(notif.createdAt))
+            : ""}
+        </span>
       </div>
+    </div>
   );
 }

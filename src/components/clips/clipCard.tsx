@@ -69,7 +69,7 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
   };
 
   return (
-    <div className="bg-[#222] rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group w-full max-w-4xl mx-auto">
+    <div className="bg-[#222] rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 group w-full max-w-4xl mx-auto">
       {/* Thumbnail */}
       <div
         className="relative bg-gray-800 overflow-hidden aspect-video md:aspect-[16/9] lg:aspect-[16/10] xl:aspect-[16/11] cursor-pointer"
@@ -99,7 +99,10 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
         {clip.processingStatus === "ready" && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="opacity-80 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-4 md:p-5">
-              <PlayIcon className="w-7 h-7 md:w-9 md:h-9 text-white" fill="white" />
+              <PlayIcon
+                className="w-7 h-7 md:w-9 md:h-9 text-white"
+                fill="white"
+              />
             </div>
           </div>
         )}
@@ -134,7 +137,7 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
               <img
                 src={uploader.photoURL}
                 alt={uploader.displayName || uploader.username || "User"}
-                className="w-5 h-5 md:w-6 md:h-6 rounded-full object-cover mr-2"
+                className="w-4 h-4 md:w-5 md:h-5 rounded-full object-cover mr-2"
               />
             )}
             <span className="text-gray-400 text-sm md:text-base hover:text-gray-200">

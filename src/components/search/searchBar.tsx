@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 
 export interface SearchItem {
   id: string;
+  uid: string;
   name: string;
   [key: string]: unknown; // allow for item to have additional properties
 }
@@ -109,7 +110,9 @@ export default function SearchBar<T extends SearchItem>({
       <div className="flex flex-col md:flex-row w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
         {/* Left pane */}
         <div className="w-full md:w-1/3 bg-[#111111] p-4 border-b md:border-b-0 md:border-r border-cyan-500 flex flex-col">
-          <h2 className="text-lg md:text-xl font-semibold mb-4 text-cyan-400 text-center md:text-left">{title}</h2>
+          <h2 className="text-lg md:text-xl font-semibold mb-4 text-cyan-400 text-center md:text-left">
+            {title}
+          </h2>
 
           <input
             type="text"
@@ -126,19 +129,26 @@ export default function SearchBar<T extends SearchItem>({
           )}
 
           <div className="overflow-y-auto flex-1 max-h-[300px] md:max-h-[600px] scrollbar-thin pr-1">
-            {results.map((item) => (
-              <div
-                key={item.id}
-                className={`mb-2 p-3 rounded-lg cursor-pointer transition-colors duration-200 ${
-                  selected?.id === item.id
-                    ? "bg-cyan-600 text-black font-bold"
-                    : "bg-[#222] hover:bg-[#333]"
-                }`}
-                onClick={() => updateSelection(item)}
-              >
-                {renderItem(item, selected?.id === item.id)}
-              </div>
-            ))}
+            {results.map((item) => {
+              const itemId = item.id || item.uid;
+              const selectedId = selected?.id || selected?.uid;
+              const isSelected = itemId === selectedId;
+              return (
+                <div
+                  key={itemId}
+                  className={`mb-2 p-3 rounded-lg cursor-pointer transition-colors duration-200 ${
+                    isSelected
+                      ? "bg-cyan-600 text-black font-bold"
+                      : "bg-[#222] hover:bg-[#333]"
+                  }`}
+                  onClick={() => {
+                    updateSelection(item);
+                  }}
+                >
+                  {renderItem(item, isSelected)}
+                </div>
+              );
+            })}
           </div>
         </div>
 

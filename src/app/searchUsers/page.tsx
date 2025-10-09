@@ -22,7 +22,7 @@ async function searchWithQuery(query: string) {
     const res = await fetch(`/api/profile/search?query=${query}`);
     const data = await res.json();
     for (const user of data.users) users.push(user);
-    console.log(users);
+    // console.log(users);
     return users;
   } catch (e: unknown) {
     console.error("Error searching:", e);

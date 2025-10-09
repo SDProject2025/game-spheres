@@ -29,7 +29,6 @@ export default function Home() {
 
       {/* Filter and Sort Controls */}
       <div className="w-full mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        
         {/* Left: Sort Dropdown */}
         <div className="flex items-center space-x-4">
           <SortDropdown currentSort={sortBy} onSortChange={handleSortChange} />
@@ -54,7 +53,7 @@ export default function Home() {
       </div>
 
       {/* Clips Grid */}
-      <div className="w-full max-w-6xl mx-auto px-4 flex flex-col items-center">
+      <div className="w-full max-w-6xl mx-auto flex flex-col items-center">
         <ClipGrid
           userFilter={user?.uid}
           gameSphereFilter={selectedGameSphere}

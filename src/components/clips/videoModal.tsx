@@ -50,7 +50,9 @@ export default function VideoModal({
       try {
         const res = await fetch(`/api/profile?uid=${clip.uploadedBy}`);
         const data = await res.json();
-        setUploader(data.userData as Profile);
+        if (mounted) {
+          setUploader(data.userData as Profile);
+        }
       } catch (err) {
         console.error("Error fetching uploader:", err);
       }
@@ -97,27 +99,35 @@ export default function VideoModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2 sm:p-4"
       onClick={handleBackdropClick}
     >
       <div
         ref={modalRef}
-        className="bg-[#111] rounded-lg overflow-hidden w-full max-h-[90vh] overflow-y-auto sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl flex flex-col lg:flex-row"
+        className="bg-[#111] rounded-lg w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col lg:flex-row overflow-hidden sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
       >
         {/* Left side: video + info */}
-        <div className="flex-1 flex flex-col">
-          <div className="aspect-video bg-black min-h-[300px] lg:min-h-[400px]">
-            <VideoPlayer clip={clip} />
+        <div className="flex-1 flex flex-col overflow-y-auto lg:overflow-y-visible">
+          {/* Video container */}
+          <div className="w-full bg-black flex-shrink-0 overflow-hidden">
+            <div
+              className="relative w-full"
+              style={{ paddingBottom: "56.25%" }}
+            >
+              <div className="absolute inset-0">
+                <VideoPlayer clip={clip} />
+              </div>
+            </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Title + Like/Save */}
             <div className="mb-4">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
-                <h1 className="text-xl lg:text-2xl font-bold text-white">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-white break-words">
                   {clip.caption}
                 </h1>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                   <LikeButton
                     isLiked={isLiked}
                     likesCount={likesCount}
@@ -142,15 +152,15 @@ export default function VideoModal({
         </div>
 
         {/* Right side: comments */}
-        <div className="w-full lg:w-80 bg-[#1a1a1a] border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col">
+        <div className="w-full lg:w-80 bg-[#1a1a1a] border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col min-h-[250px] lg:min-h-0 flex-shrink-0">
           {/* Header */}
-          <div className="p-4 border-b border-gray-700 flex items-center gap-2">
-            <MessageCircle className="text-gray-400" />
+          <div className="p-4 border-b border-gray-700 flex items-center gap-2 flex-shrink-0">
+            <MessageCircle className="w-5 h-5 text-gray-400" />
             <h2 className="text-lg font-semibold text-white">Comments</h2>
           </div>
 
           {/* Comments list */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[calc(90vh-100px)]">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
             <CommentsList
               comments={comments}
               userId={user?.uid}
@@ -160,11 +170,13 @@ export default function VideoModal({
           </div>
 
           {/* Input */}
-          <CommentInput
-            onAdd={(text) => {
-              add(text);
-            }}
-          />
+          <div className="flex-shrink-0">
+            <CommentInput
+              onAdd={(text) => {
+                add(text);
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

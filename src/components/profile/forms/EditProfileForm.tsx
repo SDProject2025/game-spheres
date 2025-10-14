@@ -14,12 +14,16 @@ import { useUser } from "@/config/userProvider";
 
 type Props = {
   userId: string;
-  onSave: (displayName: string,
+  onSave: (
+    displayName: string,
     username: string,
     bio: string,
-    photoURL: string) => void;
+    photoURL: string
+  ) => void;
 };
-{/* this page redirects back to profile after save/ cancel - will prob change thisbut it works so im keeping it for nowwwww */}
+{
+  /* this page redirects back to profile after save/ cancel - will prob change thisbut it works so im keeping it for nowwwww */
+}
 
 export default function EditProfileForm({ userId, onSave }: Props) {
   const [username, setUsername] = useState("");
@@ -46,9 +50,8 @@ export default function EditProfileForm({ userId, onSave }: Props) {
 
   const handlePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-
       //handling uploading of profile photo
-      const file = e.target.files[0]; 
+      const file = e.target.files[0];
 
       // Create a reference in Firebase Storage
       const storageRef = ref(storage, `profilePhotos/${userId}`);
@@ -60,11 +63,11 @@ export default function EditProfileForm({ userId, onSave }: Props) {
       const downloadURL = await getDownloadURL(storageRef);
 
       //update profile pic of user for sidebar
-      if (user){
+      if (user) {
         await updateProfile(user, {
-          photoURL: downloadURL
+          photoURL: downloadURL,
         });
-      }else{
+      } else {
         console.log("User not found");
       }
 
@@ -75,8 +78,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
 
       // Update local state for immediate preview
       setPhotoURL(downloadURL);
-      
-      }
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -84,15 +86,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
     setLoading(true);
 
     try {
-      //TODO: add pfp stuff 
-      await updateDoc(doc(db, "users", userId), {
-        username,
-        displayName,
-        bio
-        //photoURL
-      });
-
-      onSave(displayName, username, bio, photoURL);
+      await onSave(displayName, username, bio, photoURL);
     } catch (err) {
       console.error("Error updating profile:", err);
     } finally {
@@ -123,7 +117,6 @@ export default function EditProfileForm({ userId, onSave }: Props) {
         </label>
       </div>
 
-     
       <div className="flex flex-col gap-4">
         <TextInput
           label="Username"
@@ -145,7 +138,7 @@ export default function EditProfileForm({ userId, onSave }: Props) {
             className="w-full p-2 rounded-md bg-black/40 border border-white/10 text-white"
           />
         </div>
-         
+
         <div className="flex gap-3 mt-4">
           <NeonButton type="submit" disabled={loading}>
             {loading ? "Saving..." : "Save"}

@@ -27,22 +27,33 @@ export default function EditProfilePage() {
     photoURL: string
   ) {
     try {
-      const res = await authFetch("/api/profile/update", {
-        method: "POST",
-        body: JSON.stringify({
-          uid: user?.uid,
-          displayName,
-          username,
-          bio,
-          photoURL,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (res.ok) router.replace("/profile");
+      const checkRes = await authFetch(`/api/profile/checkUsername?username=${username}`);
+
+      if (checkRes.ok) {
+        try {
+          const updateRes = await authFetch("/api/profile/update", {
+            method: "POST",
+            body: JSON.stringify({
+              uid: user?.uid,
+              displayName,
+              username,
+              bio,
+              photoURL,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          if (updateRes.ok) router.replace("/profile");
+        } catch (e) {
+          alert("Ya done fucked it");
+        }
+      } else {
+        alert("Username already taken");
+      }
     } catch (e) {
-      alert("Ya done fucked it");
+      const message = e instanceof Error ? e.message : "Error checking username";
+      console.error(message);
     }
   }
 
@@ -56,7 +67,9 @@ export default function EditProfilePage() {
 
   return (
     <div className="relative flex justify-center w-full h-full pt-20">
-      {user?.uid && <EditProfileForm userId={user.uid} onSave={updateProfile} />}
+      {user?.uid && (
+        <EditProfileForm userId={user.uid} onSave={updateProfile} />
+      )}
       <Toaster />
     </div>
   );

@@ -111,9 +111,17 @@ export default function Sidebar({ hideToggle, onMobileClose }: SidebarProps) {
               aria-label={item.name}
               title={!shouldShowExpanded ? item.name : undefined}
             >
-              <item.icon className="w-5 h-5 flex-shrink-0 text-white" />
+              <item.icon
+                className={`w-5 h-5 flex-shrink-0 ${
+                  isActive ? "text-[#00ffd5]" : "text-white"
+                }`}
+              />
               {shouldShowExpanded && (
-                <span className="text-sm font-medium text-white overflow-hidden text-ellipsis whitespace-nowrap">
+                <span
+                  className={`text-sm font-medium overflow-hidden text-ellipsis whitespace-nowrap ${
+                    isActive ? "text-[#00ffd5]" : "text-white"
+                  }`}
+                >
                   {item.name}
                 </span>
               )}

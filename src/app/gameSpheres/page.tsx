@@ -144,7 +144,7 @@ export default function GameSpheres() {
               onClick={() => router.push(`/gameSpheres/${game.id}`)}
               className="px-6 py-1 border border-cyan-400 text-cyan-300 rounded-md hover:bg-cyan-400 hover:text-black transition-all duration-200"
             >
-              View GameSphere
+              Visit GameSphere
             </button>
           </div>
         </div>

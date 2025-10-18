@@ -15,6 +15,7 @@ import ClipCard from "./clipCard";
 import VideoModal from "./videoModal";
 import { DocumentReference } from "firebase-admin/firestore";
 import { SortOption } from "./sortDropdown";
+import GameSphereFilter from "./gameSphereFilter";
 
 interface ClipGridProps {
   gameSphereFilter?: string;
@@ -46,6 +47,12 @@ export default function ClipGrid({
       // Check to see if we're accessing a user's saved clips
       if (savedClips && profileFilter) {
         await loadSavedClips(profileFilter);
+        return;
+      }
+
+      // If on a specific GameSphere page
+      if (gameSphereFilter && !userFilter) {
+        await loadGSClips(gameSphereFilter);
         return;
       }
 
@@ -156,6 +163,39 @@ export default function ClipGrid({
       setClips(sortedClips);
     } catch (error) {
       console.error("Error loading saved clips:", error);
+      setClips([]);
+    }
+  };
+
+  const loadGSClips = async (gameSphereFilter: string) => {
+    console.log("Loading clips for GameSPhere:", gameSphereFilter);
+    try {
+      const q = query(
+        collection(db, "clips"),
+        where("gameSphereId", "==", gameSphereFilter)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      const allClips: Clip[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const clipData = doc.data();
+        allClips.push({
+          id: doc.id,
+          ...clipData,
+          uploadedAt: clipData.uploadedAt.toDate(),
+        } as Clip);
+      });
+
+      const readyClips = allClips.filter(
+        (clip) => clip.processingStatus === "ready"
+      );
+
+      const sortedClips = sortClips(readyClips, sortBy);
+      setClips(sortedClips);
+    } catch (error) {
+      console.error("Error loading GameSphere clips:", error);
       setClips([]);
     }
   };

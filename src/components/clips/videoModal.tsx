@@ -6,7 +6,6 @@ import { useUser } from "@/config/userProvider";
 import { useClipLikes } from "@/hooks/useClipLikes";
 import { useSaveStatus } from "@/hooks/useSaveStatus";
 import { useComments } from "@/hooks/useComments";
-import { fetchUploader } from "@/services/clipsService";
 import VideoPlayer from "../videoModal/VideoPlayer";
 import LikeButton from "../videoModal/LikeButton";
 import SaveButton from "../videoModal/SaveButton";
@@ -15,7 +14,7 @@ import CommentsList from "../videoModal/CommentsList";
 import CommentInput from "../videoModal/CommentInput";
 import { MessageCircle, X } from "lucide-react";
 import type { Profile } from "@/types/Profile";
-import type { Comment } from "@/types/Comment";
+import { useRouter } from "next/navigation";
 
 interface VideoModalProps {
   clip: Clip;
@@ -37,10 +36,11 @@ export default function VideoModal({
     clip.id,
     user?.uid
   );
+
   const { saved, toggleSave } = useSaveStatus(clip.id, user, clipSaved);
   const { comments, add, remove } = useComments(clip.id, user, clip.uploadedBy);
-
   const [uploader, setUploader] = useState<Profile | null>(null);
+  const router = useRouter();
 
   // fetch uploader
   useEffect(() => {
@@ -147,7 +147,12 @@ export default function VideoModal({
                 </div>
               </div>
               <div className="flex items-center text-gray-400 mt-1 text-sm lg:text-base flex-wrap gap-2">
-                <span className="text-[#00ffd5] font-medium">
+                <span
+                  className="text-[#00ffd5] font-medium cursor-pointer"
+                  onClick={() => {
+                    router.push(`/gameSpheres/${clip.gameSphereId}`);
+                  }}
+                >
                   {getGameSphereName(clip.gameSphereId)}
                 </span>
                 <span>•</span>

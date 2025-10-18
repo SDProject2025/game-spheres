@@ -3,7 +3,6 @@
 GameSpheres is an online socal platform that allows users to share their favorite gaming moments with their friends and other members of various gaming communities
 
 ---
-
 ## Tech Stack
 - React
 - Next.js
@@ -39,8 +38,12 @@ NEXT_PUBLIC_CLIENT_MEASUREMENT_ID=your-measurement-id
 ADMIN_PROJECT_ID=your-project-id
 CLIENT_EMAIL=your-email
 ADMIN_PRIVATE_KEY=your-admin-key
+
+MUX_TOKEN_ID=your-mux-token-id
+MUX_TOKEN_SECRET=your-mux-token-secret
+MUX_WEBHOOK_SECRET=your-mux-webhook-secret
 ```
-> These values can be found in your Firebase project settings
+> See the [Mux docs](https://www.mux.com/docs) and the [Firebase docs](https://firebase.google.com/docs) for more info.
 
 ### Running the app locally
 Once you have everything set up, you can run

@@ -194,7 +194,7 @@ export default function Sidebar({ hideToggle, onMobileClose }: SidebarProps) {
                 title="User menu"
               />
               {isMoreClicked && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/8 mb-2">
                   <UserMenu onClose={() => setIsMoreClicked(false)} />
                 </div>
               )}

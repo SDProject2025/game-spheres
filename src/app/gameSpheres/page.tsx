@@ -127,12 +127,26 @@ export default function GameSpheres() {
     (game: FullGameSphere) => (
       <>
         <div className="flex flex-col md:flex-row items-center md:items-start mb-6 text-center md:text-left">
+          {/* Cover Image */}
           <img
             src={game.coverUrl}
             alt={game.name}
-            className="w-20 h-20 rounded-full object-cover mb-4 md:mb-0 md:mr-5 flex-shrink-0"
+            className="w-20 h-20 rounded-lg object-cover mb-4 md:mb-0 md:mr-5 shadow-md flex-shrink-0"
           />
-          <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-300">{game.name}</h2>
+
+          {/* Name + View Page Button*/}
+          <div className="flex flex-col items-center md:items-start">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-cyan-200 mb-3">
+              {game.name}
+            </h2>
+
+            <button
+              onClick={() => router.push(`/gameSpheres/${game.id}`)}
+              className="px-6 py-1 border border-cyan-400 text-cyan-300 rounded-md hover:bg-cyan-400 hover:text-black transition-all duration-200"
+            >
+              Visit GameSphere
+            </button>
+          </div>
         </div>
 
         {game.releaseDate && (
@@ -142,7 +156,9 @@ export default function GameSpheres() {
         )}
 
         {game.storyline && (
-          <p className="text-gray-300 mb-4 text-sm sm:text-base leading-relaxed">{game.storyline}</p>
+          <p className="text-gray-300 mb-4 text-sm sm:text-base leading-relaxed">
+            {game.storyline}
+          </p>
         )}
 
         {game.genres && game.genres.length > 0 && (

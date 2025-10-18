@@ -121,8 +121,11 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
         </h3>
 
         {/* GameSphere name */}
-        <div className="flex items-center mb-2">
-          <span className="text-[#00ffd5] text-xs md:text-sm font-medium">
+        <div
+          className="flex items-center mb-2"
+          onClick={() => router.push(`/gameSpheres/${clip.gameSphereId}`)}
+        >
+          <span className="text-[#00ffd5] text-xs md:text-sm font-medium cursor-pointer">
             {getGameSphereName(clip.gameSphereId)}
           </span>
         </div>
@@ -131,7 +134,7 @@ export default function ClipCard({ clip, onPlay }: ClipCardProps) {
         {uploader && (
           <div
             className="flex items-center mb-2 cursor-pointer"
-            onClick={() => router.replace(`/profile/${uploader.uid}`)}
+            onClick={() => router.push(`/profile/${uploader.uid}`)}
           >
             {uploader.photoURL && (
               <img

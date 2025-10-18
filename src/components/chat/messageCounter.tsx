@@ -5,7 +5,11 @@ import { useUser } from "@/config/userProvider";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { CONVERSATIONS_COLLECTION } from "@/app/api/collections";
 
-export default function ChatIcon() {
+interface ChatIconProps {
+  className?: string;
+}
+
+export default function ChatIcon({ className = "" }: ChatIconProps) {
   const { user } = useUser();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -32,7 +36,7 @@ export default function ChatIcon() {
 
   return (
     <div className="relative inline-block">
-      <MessageCircleMore className="w-6 h-6" />
+      <MessageCircleMore className={`w-6 h-6 ${className}`} />
       {unreadCount > 0 && (
         <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-green-500 text-xs font-bold">
           {unreadCount}

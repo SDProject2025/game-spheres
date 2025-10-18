@@ -6,16 +6,15 @@ import { useUser } from "@/config/userProvider";
 import { useClipLikes } from "@/hooks/useClipLikes";
 import { useSaveStatus } from "@/hooks/useSaveStatus";
 import { useComments } from "@/hooks/useComments";
-import { fetchUploader } from "@/services/clipsService";
 import VideoPlayer from "../videoModal/VideoPlayer";
 import LikeButton from "../videoModal/LikeButton";
 import SaveButton from "../videoModal/SaveButton";
 import UploaderInfo from "../videoModal/UploaderInfo";
 import CommentsList from "../videoModal/CommentsList";
 import CommentInput from "../videoModal/CommentInput";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 import type { Profile } from "@/types/Profile";
-import type { Comment } from "@/types/Comment";
+import { useRouter } from "next/navigation";
 
 interface VideoModalProps {
   clip: Clip;
@@ -37,10 +36,11 @@ export default function VideoModal({
     clip.id,
     user?.uid
   );
+
   const { saved, toggleSave } = useSaveStatus(clip.id, user, clipSaved);
   const { comments, add, remove } = useComments(clip.id, user, clip.uploadedBy);
-
   const [uploader, setUploader] = useState<Profile | null>(null);
+  const router = useRouter();
 
   // fetch uploader
   useEffect(() => {
@@ -104,8 +104,17 @@ export default function VideoModal({
     >
       <div
         ref={modalRef}
-        className="bg-[#111] rounded-lg w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col lg:flex-row overflow-hidden sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl"
+        className="bg-[#111] rounded-lg w-full max-h-[95vh] sm:max-h-[90vh] flex flex-col lg:flex-row overflow-hidden sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-5xl relative"
       >
+        {/* Close button - visible on mobile */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 bg-black bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 transition-all lg:hidden"
+          aria-label="Close modal"
+        >
+          <X className="w-5 h-5 text-white" />
+        </button>
+
         {/* Left side: video + info */}
         <div className="flex-1 flex flex-col overflow-y-auto lg:overflow-y-visible">
           {/* Video container */}
@@ -138,7 +147,12 @@ export default function VideoModal({
                 </div>
               </div>
               <div className="flex items-center text-gray-400 mt-1 text-sm lg:text-base flex-wrap gap-2">
-                <span className="text-[#00ffd5] font-medium">
+                <span
+                  className="text-[#00ffd5] font-medium cursor-pointer"
+                  onClick={() => {
+                    router.push(`/gameSpheres/${clip.gameSphereId}`);
+                  }}
+                >
                   {getGameSphereName(clip.gameSphereId)}
                 </span>
                 <span>•</span>

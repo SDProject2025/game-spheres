@@ -3,30 +3,37 @@ import { db } from "@/config/firebaseConfig";
 import { useState, useEffect } from "react";
 import { useUser } from "@/config/userProvider";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { USERS_COLLECTION, NOTIFICATIONS_COLLECTION } from "@/app/api/collections";
+import {
+  USERS_COLLECTION,
+  NOTIFICATIONS_COLLECTION,
+} from "@/app/api/collections";
 
-export default function InboxIcon() {
-    const { user } = useUser();
-    const [unreadCount, setUnreadCount] = useState(0);
+interface InboxIconProps {
+  className?: string;
+}
 
-    useEffect(() => {
-        if (!user) return;
+export default function InboxIcon({ className = "" }: InboxIconProps) {
+  const { user } = useUser();
+  const [unreadCount, setUnreadCount] = useState(0);
 
-        const q = query(
-            collection(db, USERS_COLLECTION, user.uid, NOTIFICATIONS_COLLECTION),
-            where("read", "==", false)
-        );
+  useEffect(() => {
+    if (!user) return;
 
-        const unsub = onSnapshot(q, (snapshot) => {
-            setUnreadCount(snapshot.size);
-        });
+    const q = query(
+      collection(db, USERS_COLLECTION, user.uid, NOTIFICATIONS_COLLECTION),
+      where("read", "==", false)
+    );
 
-        return () => unsub();
-    }, [user]);
+    const unsub = onSnapshot(q, (snapshot) => {
+      setUnreadCount(snapshot.size);
+    });
+
+    return () => unsub();
+  }, [user]);
 
   return (
     <div className="relative inline-block">
-      <Bell className="w-6 h-6" />
+      <Bell className={`w-6 h-6 ${className}`} />
       {unreadCount > 0 && (
         <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-green-500 text-xs font-bold">
           {unreadCount}

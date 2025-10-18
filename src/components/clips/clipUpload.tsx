@@ -248,7 +248,6 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
               onChange={handleGameSphereInputChange}
               onFocus={handleGameSphereInputFocus}
               className="block w-full px-3 py-2 bg-[#111] border border-gray-700 rounded-md text-white placeholder-gray-400 focus:ring-green-500 focus:border-green-500 text-sm cursor-pointer"
-              readOnly={!isGameSphereDropdownOpen}
               required
             />
 
@@ -271,7 +270,7 @@ export default function ClipUpload({ onUploadComplete }: ClipUploadProps) {
                 {/* No results message */}
                 {searchQuery.trim() && filteredGameSpheres.length === 0 && (
                   <div className="px-3 py-2 text-sm text-gray-400">
-                    No GameSpheres found for &quot{searchQuery}&quot
+                    No GameSpheres found for &quot;{searchQuery}&quot;
                   </div>
                 )}
               </div>

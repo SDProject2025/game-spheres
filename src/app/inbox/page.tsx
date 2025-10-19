@@ -63,7 +63,10 @@ export default function Inbox() {
     if (notifications.length > 0) fetchProfiles();
   }, [notifications]);
 
-  async function getComment(postId: string, commentId: string): Promise<string | undefined> {
+  async function getComment(
+    postId: string,
+    commentId: string
+  ): Promise<string | undefined> {
     const commentRef = doc(db, CLIPS_COLLECTION, postId, "comments", commentId);
     const snap = await getDoc(commentRef);
 
@@ -93,8 +96,9 @@ export default function Inbox() {
     return clip;
   }
 
-  async function markRead() {
+  async function markAllRead() {
     const unreadNotifs = notifications.filter((notif) => notif.read === false);
+    if (unreadNotifs.length === 0) return;
     try {
       const res = await authFetch("/api/notifications/update", {
         method: "POST",
@@ -102,6 +106,25 @@ export default function Inbox() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(unreadNotifs),
+      });
+
+      if (res.ok) fetchNotifications();
+    } catch (e) {
+      console.error(
+        e instanceof Error ? e.message : "Couldn't mark all as read"
+      );
+    }
+  }
+
+  async function markRead(notification: Notification) {
+    const payload: Notification[] = [notification];
+    try {
+      const res = await authFetch("/api/notifications/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) fetchNotifications();
@@ -128,6 +151,7 @@ export default function Inbox() {
         getComment={getComment}
         getClip={getClip}
         handlePlayClip={handlePlayClip}
+        markAllRead={markAllRead}
         markRead={markRead}
       />
 

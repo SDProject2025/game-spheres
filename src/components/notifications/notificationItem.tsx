@@ -8,9 +8,15 @@ type Props = {
   notif: Notification;
   profiles: Record<string, Profile>;
   handlePlayClip: (clip: Clip) => void;
+  markRead: (notification: Notification) => void;
 };
 
-export default function NotificationItem({ notif, profiles, handlePlayClip }: Props) {
+export default function NotificationItem({
+  notif,
+  profiles,
+  handlePlayClip,
+  markRead,
+}: Props) {
   const router = useRouter();
   const notifSender = profiles[notif.fromUid];
 
@@ -57,6 +63,7 @@ export default function NotificationItem({ notif, profiles, handlePlayClip }: Pr
     <div
       className="flex items-start"
       onClick={() => {
+        markRead(notif);
         if (isClipNotification && notif.clip) handlePlayClip(notif.clip);
         else router.push(`/profile/${notif.fromUid}`);
       }}

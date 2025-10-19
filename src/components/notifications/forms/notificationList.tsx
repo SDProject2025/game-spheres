@@ -8,9 +8,13 @@ import { Clip } from "@/types/Clip";
 type Props = {
   notifications: Notification[];
   profiles: Record<string, Profile>;
-  getComment: (postId: string, commentId: string) => Promise<string>;
-  getClip: (postId: string) => Promise<Clip>;
+  getComment: (
+    postId: string,
+    commentId: string
+  ) => Promise<string | undefined>;
+  getClip: (postId: string) => Promise<Clip | undefined>;
   handlePlayClip: (clip: Clip) => void;
+  markRead: (notification: Notification) => void;
 };
 
 export default function NotificationList({
@@ -18,7 +22,8 @@ export default function NotificationList({
   profiles,
   getComment,
   getClip,
-  handlePlayClip
+  handlePlayClip,
+  markRead,
 }: Props) {
   const [enhancedNotifs, setEnhancedNotifs] = useState<Notification[]>([]);
 
@@ -26,19 +31,26 @@ export default function NotificationList({
     async function enrich() {
       const updated = await Promise.all(
         notifications.map(async (notif) => {
-          if ((notif.type === "comment" || notif.type === "like") && notif.postId) {
+          if (
+            (notif.type === "comment" || notif.type === "like") &&
+            notif.postId
+          ) {
             const clip = await getClip(notif.postId);
+            if (clip === undefined) return undefined;
             notif.clip = clip;
           }
 
           if (notif.type === "comment" && notif.commentId && notif.postId) {
             const content = await getComment(notif.postId, notif.commentId);
+            if (content === undefined) return undefined;
             return { ...notif, commentContent: content };
           }
           return notif;
         })
       );
-      setEnhancedNotifs(updated);
+      setEnhancedNotifs(
+        updated.filter((n): n is Notification => n !== undefined)
+      );
     }
     enrich();
   }, [notifications, getComment]);
@@ -54,7 +66,12 @@ export default function NotificationList({
                 : "bg-green-800 hover:bg-green-700"
             } text-white rounded-lg transition`}
           >
-            <NotificationItem notif={notif} profiles={profiles} handlePlayClip={handlePlayClip}/>
+            <NotificationItem
+              notif={notif}
+              profiles={profiles}
+              handlePlayClip={handlePlayClip}
+              markRead={markRead}
+            />
           </div>
         </li>
       ))}

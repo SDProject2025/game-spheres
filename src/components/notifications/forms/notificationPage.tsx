@@ -7,10 +7,14 @@ import { Clip } from "@/types/Clip";
 type Props = {
   notifications: Notification[];
   profiles: Record<string, Profile>;
-  getComment: (postId: string, commentId: string) => Promise<string>;
-  getClip: (postId: string) => Promise<Clip>;
+  getComment: (
+    postId: string,
+    commentId: string
+  ) => Promise<string | undefined>;
+  getClip: (postId: string) => Promise<Clip | undefined>;
   handlePlayClip: (clip: Clip) => void;
-  markRead: () => void;
+  markAllRead: () => void;
+  markRead: (notification: Notification) => void;
 };
 
 export default function NotificationsPage({
@@ -19,14 +23,15 @@ export default function NotificationsPage({
   getComment,
   getClip,
   handlePlayClip,
-  markRead
+  markAllRead,
+  markRead,
 }: Props) {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Recent Notifications:</h1>
         <button
-          onClick={markRead}
+          onClick={markAllRead}
           className="px-4 py-2 bg-green-700 text-white hover:bg-green-600 transition"
         >
           Mark all as read
@@ -43,6 +48,7 @@ export default function NotificationsPage({
         getComment={getComment}
         getClip={getClip}
         handlePlayClip={handlePlayClip}
+        markRead={markRead}
       />
     </div>
   );

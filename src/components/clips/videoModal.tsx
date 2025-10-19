@@ -73,7 +73,7 @@ export default function VideoModal({
   // keyboard escape and body overflow handling
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !openType) onClose(); // only allow closing if openType is null
     };
     document.addEventListener("keydown", handleEscape);
     const prevOverflow = document.body.style.overflow;
@@ -82,9 +82,10 @@ export default function VideoModal({
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = prevOverflow || "unset";
     };
-  }, [onClose]);
+  }, [onClose, openType]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
+    if (openType) return;
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       onClose();
     }

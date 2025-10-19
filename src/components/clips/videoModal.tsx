@@ -96,16 +96,33 @@ export default function VideoModal({
   const formatTimeSinceUpload = (date: Date) => {
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    const formatUnit = (value: number, unit: string) =>
+      `${value} ${unit}${value === 1 ? "" : "s"} ago`;
+
     if (diff < 60) return "just now";
     if (diff < 3600) {
       const minutes = Math.floor(diff / 60);
-      return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+      return formatUnit(minutes, "minute");
     }
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
-    if (diff < 2592000) return `${Math.floor(diff / 604800)} weeks ago`;
-    if (diff < 31536000) return `${Math.floor(diff / 2592000)} months ago`;
-    return `${Math.floor(diff / 31536000)} years ago`;
+    if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      return formatUnit(hours, "hour");
+    }
+    if (diff < 604800) {
+      const days = Math.floor(diff / 86400);
+      return formatUnit(days, "day");
+    }
+    if (diff < 2592000) {
+      const weeks = Math.floor(diff / 604800);
+      return formatUnit(weeks, "week");
+    }
+    if (diff < 31536000) {
+      const months = Math.floor(diff / 2592000);
+      return formatUnit(months, "month");
+    }
+    const years = Math.floor(diff / 31536000);
+    return formatUnit(years, "year");
   };
 
   async function shareClip(chat: ConversationInput) {

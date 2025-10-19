@@ -9,10 +9,6 @@ export default function GameSpherePage() {
   const [sortBy, setSortBy] = useState<SortOption>("popular24h");
   const { gameSpheres } = useGameSpheresContext();
 
-  console.log("----------------------");
-  console.log("LOADING SPECIFIC GS CLIPS");
-  console.log("----------------------");
-
   const params = useParams();
   const gameSphereId = params.id as string;
   const gameSphere = gameSpheres.find((gs) => gs.id === gameSphereId);

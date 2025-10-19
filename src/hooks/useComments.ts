@@ -22,6 +22,21 @@ export function useComments(
   uploaderId?: string
 ) {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commenter, setCommenter] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`/api/profile?uid=${user?.uid}`);
+        const data = await res.json();
+        setCommenter(data.userData);
+      } catch (err) {
+        console.error("Error fetching user info:", err);
+      }
+    };
+
+    if (user?.uid) fetchUser();
+  }, [user?.uid]);
 
   useEffect(() => {
     const unsubscribe = listenToComments(clipId, (data) => {
@@ -40,12 +55,12 @@ export function useComments(
   }, [clipId]);
 
   const add = async (text: string) => {
-    if (!user) return;
+    if (!commenter) return;
     const userForComment = {
-      uid: user.uid,
-      username: user.username,
-      displayName: user.displayName || undefined, // Convert null to undefined if nede be (for TypeScript to be happy)
-      photoURL: user.photoURL || undefined,
+      uid: commenter.uid,
+      username: commenter.username,
+      displayName: commenter.displayName || undefined, // Convert null to undefined if nede be (for TypeScript to be happy)
+      photoURL: commenter.photoURL || undefined,
     };
     await addComment(clipId, userForComment, text);
   };

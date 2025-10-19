@@ -12,7 +12,7 @@ import SaveButton from "../videoModal/SaveButton";
 import UploaderInfo from "../videoModal/UploaderInfo";
 import CommentsList from "../videoModal/CommentsList";
 import CommentInput from "../videoModal/CommentInput";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, X, ChevronDown, ChevronUp } from "lucide-react";
 import type { Profile } from "@/types/Profile";
 import { useRouter } from "next/navigation";
 
@@ -30,6 +30,7 @@ export default function VideoModal({
   const { user } = useUser();
   const { gameSpheres } = useGameSpheresContext();
   const modalRef = useRef<HTMLDivElement>(null);
+  const [commentsExpanded, setCommentsExpanded] = useState(false);
 
   // Hooks for logic
   const { likesCount, isLiked, toggleLike, isLiking } = useClipLikes(
@@ -109,16 +110,16 @@ export default function VideoModal({
         {/* Close button - visible on mobile */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 z-10 bg-black bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 transition-all lg:hidden"
+          className="absolute top-3 right-3 z-10 bg-black bg-opacity-90 rounded-full p-2 transition-all lg:hidden"
           aria-label="Close modal"
         >
           <X className="w-5 h-5 text-white" />
         </button>
 
         {/* Left side: video + info */}
-        <div className="flex-1 flex flex-col overflow-y-auto lg:overflow-y-visible">
+        <div className="flex-1 flex flex-col min-h-0 lg:overflow-y-visible">
           {/* Video container */}
-          <div className="w-full bg-black flex-shrink-0 overflow-hidden">
+          <div className="w-full bg-black flex-shrink-0">
             <div
               className="relative w-full"
               style={{ paddingBottom: "56.25%" }}
@@ -166,30 +167,51 @@ export default function VideoModal({
         </div>
 
         {/* Right side: comments */}
-        <div className="w-full lg:w-80 bg-[#1a1a1a] border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col min-h-[250px] lg:min-h-0 flex-shrink-0">
+        <div className="w-full lg:w-80 bg-[#1a1a1a] border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col flex-shrink-0 lg:min-h-0">
           {/* Header */}
-          <div className="p-4 border-b border-gray-700 flex items-center gap-2 flex-shrink-0">
-            <MessageCircle className="w-5 h-5 text-gray-400" />
-            <h2 className="text-lg font-semibold text-white">Comments</h2>
-          </div>
+          <button
+            onClick={() => setCommentsExpanded(!commentsExpanded)}
+            className="p-4 border-b border-gray-700 flex items-center justify-between gap-2 flex-shrink-0 lg:cursor-default hover:bg-[#222] lg:hover:bg-transparent transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-gray-400" />
+              <h2 className="text-lg font-semibold text-white">
+                Comments {comments.length > 0 && `(${comments.length})`}
+              </h2>
+            </div>
+            {commentsExpanded ? (
+              <ChevronDown className="w-5 h-5 text-gray-400 lg:hidden" />
+            ) : (
+              <ChevronUp className="w-5 h-5 text-gray-400 lg:hidden" />
+            )}
+          </button>
 
-          {/* Comments list */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            <CommentsList
-              comments={comments}
-              userId={user?.uid}
-              uploaderId={clip.uploadedBy}
-              onDelete={remove}
-            />
-          </div>
+          {/* Comments content */}
+          <div
+            className={`flex flex-col transition-all duration-300 lg:flex-1 lg:min-h-0 ${
+              commentsExpanded
+                ? "max-h-[50vh]"
+                : "max-h-0 lg:max-h-none overflow-hidden lg:overflow-visible"
+            }`}
+          >
+            {/* Comments list */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+              <CommentsList
+                comments={comments}
+                userId={user?.uid}
+                uploaderId={clip.uploadedBy}
+                onDelete={remove}
+              />
+            </div>
 
-          {/* Input */}
-          <div className="flex-shrink-0">
-            <CommentInput
-              onAdd={(text) => {
-                add(text);
-              }}
-            />
+            {/* Input */}
+            <div className="flex-shrink-0">
+              <CommentInput
+                onAdd={(text) => {
+                  add(text);
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

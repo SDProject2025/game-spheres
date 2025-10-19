@@ -168,7 +168,6 @@ export default function ClipGrid({
   };
 
   const loadGSClips = async (gameSphereFilter: string) => {
-    console.log("Loading clips for GameSPhere:", gameSphereFilter);
     try {
       const q = query(
         collection(db, "clips"),

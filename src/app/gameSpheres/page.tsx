@@ -15,11 +15,27 @@ export default function GameSpheres() {
   const { gameSpheres } = useGameSpheresContext();
   const [selectedGame, setSelectedGame] = useState<FullGameSphere | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false); // use for dynamic button text
+  const [suggested, setSuggested] = useState<FullGameSphere[]>([]);
+  const [userSubs, setUserSubs] = useState<Set<string>>(new Set());
 
   const router = useRouter();
   const { user, loading } = useUser();
 
   const fuseRef = useRef<Fuse<FullGameSphere> | null>(null);
+
+  // Helper for getting user IDs from the Firestore reference
+  const extractUid = (subscriber: unknown): string | null => {
+    if (typeof subscriber === "string") return subscriber;
+    if (
+      subscriber &&
+      typeof subscriber === "object" &&
+      "referencePath" in subscriber
+    ) {
+      const path = (subscriber as { referencePath: string }).referencePath;
+      return path.split("/").pop() || null;
+    }
+    return null;
+  };
 
   // Update Fuse instance when gameSpheres changes
   useEffect(() => {
@@ -33,6 +49,37 @@ export default function GameSpheres() {
       router.replace("/");
     }
   }, [router]);
+
+  // Get suggested GameSphere
+  const getSuggestedGameSpheres = useCallback(() => {
+    if (!gameSpheres.length || !user) return [];
+
+    // Filter out GameSpheres user is already subscribed to
+    const unsubscribed = gameSpheres.filter((gs) => {
+      if (!gs.subscribers || gs.subscribers.length === 0) return true;
+
+      // Extract all subscriber UIDs and check if current user is in the list
+      const subscriberUids = gs.subscribers
+        .map(extractUid)
+        .filter((uid): uid is string => uid !== null);
+
+      return !subscriberUids.includes(user.uid);
+    });
+
+    // Sort by subscriber count and return top 5
+    return unsubscribed
+      .sort(
+        (a, b) => (b.subscribers?.length || 0) - (a.subscribers?.length || 0)
+      )
+      .slice(0, 5);
+  }, [gameSpheres, user]);
+
+  // Update suggestions
+  useEffect(() => {
+    if (gameSpheres.length > 0) {
+      setSuggested(getSuggestedGameSpheres());
+    }
+  }, [gameSpheres, user, getSuggestedGameSpheres]);
 
   // check sub status
   useEffect(() => {
@@ -99,12 +146,31 @@ export default function GameSpheres() {
         setIsSubscribed(data.isSubscribed);
 
         toast.success(toastMessage);
+
+        // update local cache
+        const userRef = {
+          type: "firestore/documentReference/1.0",
+          referencePath: `users/${user.uid}`,
+        };
+
+        if (action === "subscribe") {
+          // Add user to subscribers array
+          gameSphere.subscribers = [...(gameSphere.subscribers || []), userRef];
+        } else {
+          // Remove user from subscribers array
+          gameSphere.subscribers = (gameSphere.subscribers || []).filter(
+            (sub) => extractUid(sub) !== user.uid
+          );
+        }
+
+        // Refresh suggestions after subscription change
+        setSuggested(getSuggestedGameSpheres());
       } catch (error) {
         console.error("Error updating subscription:", error);
         toast.error("Something went wrong :(");
       }
     },
-    [user, router, isSubscribed]
+    [user, router, isSubscribed, getSuggestedGameSpheres]
   );
 
   // Render item for GameSphere items in the list returned after searching - memoized
@@ -195,6 +261,8 @@ export default function GameSpheres() {
         onItemAction={handleSubButtonClicked}
         actionButtonText={actionButtonText}
         onSelectionChange={handleSelection}
+        suggestions={suggested}
+        suggestionsLabel="Popular GameSpheres"
       />
       <Toaster />
     </>

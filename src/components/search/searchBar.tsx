@@ -18,6 +18,8 @@ export interface SearchBarProps<T extends SearchItem> {
   onItemAction?: (item: T) => void; // action button (for GameSpheres - subscribe | for users - view profile?)
   actionButtonText?: (item: T) => string;
   onSelectionChange?: (item: T | null) => void;
+  suggestions?: T[];
+  suggestionsLabel?: string;
 }
 
 export default function SearchBar<T extends SearchItem>({
@@ -29,6 +31,8 @@ export default function SearchBar<T extends SearchItem>({
   onItemAction,
   actionButtonText,
   onSelectionChange,
+  suggestions = [],
+  suggestionsLabel,
 }: SearchBarProps<T>) {
   const [search, setSearch] = useState("");
   const [debounce, setDebounce] = useState(search);
@@ -105,6 +109,10 @@ export default function SearchBar<T extends SearchItem>({
     [onSelectionChange]
   );
 
+  // Check if we need to show suggestions (no search input)
+  const showSuggestions = search.trim() === "" && suggestions.length > 0;
+  const displayItems = showSuggestions ? suggestions : results;
+
   return (
     <div className="min-h-screen text-white p-6 flex flex-col items-center">
       <div className="flex flex-col md:flex-row w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
@@ -122,6 +130,12 @@ export default function SearchBar<T extends SearchItem>({
             className="mb-4 px-3 py-2 rounded-lg border border-gray-600 bg-[#222] text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
 
+          {showSuggestions && (
+            <p className="text-sm text-gray-400 mb-2 px-1">
+              {suggestionsLabel}
+            </p>
+          )}
+
           {loading && <p>Loading...</p>}
 
           {!loading && results.length === 0 && search.trim() !== "" && (
@@ -129,7 +143,7 @@ export default function SearchBar<T extends SearchItem>({
           )}
 
           <div className="overflow-y-auto flex-1 max-h-[300px] md:max-h-[600px] scrollbar-thin pr-1">
-            {results.map((item) => {
+            {displayItems.map((item) => {
               const itemId = item.id || item.uid;
               const selectedId = selected?.id || selected?.uid;
               const isSelected = itemId === selectedId;
@@ -171,7 +185,9 @@ export default function SearchBar<T extends SearchItem>({
             </>
           ) : (
             <p className="text-gray-400 self-center text-center">
-              Search and select an item to see details here.
+              {showSuggestions
+                ? "Select a GameSphere to see details"
+                : "Search and select an item to see details here."}
             </p>
           )}
         </div>

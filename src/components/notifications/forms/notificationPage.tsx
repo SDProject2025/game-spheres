@@ -7,8 +7,8 @@ import { Clip } from "@/types/Clip";
 type Props = {
   notifications: Notification[];
   profiles: Record<string, Profile>;
-  getComment: (postId: string, commentId: string) => Promise<string>;
-  getClip: (postId: string) => Promise<Clip>;
+  getComment: (postId: string, commentId: string) => Promise<string | undefined>;
+  getClip: (postId: string) => Promise<Clip | undefined>;
   handlePlayClip: (clip: Clip) => void;
   markRead: () => void;
 };

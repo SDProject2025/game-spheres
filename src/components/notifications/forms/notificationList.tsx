@@ -8,8 +8,8 @@ import { Clip } from "@/types/Clip";
 type Props = {
   notifications: Notification[];
   profiles: Record<string, Profile>;
-  getComment: (postId: string, commentId: string) => Promise<string>;
-  getClip: (postId: string) => Promise<Clip>;
+  getComment: (postId: string, commentId: string) => Promise<string | undefined>;
+  getClip: (postId: string) => Promise<Clip | undefined>;
   handlePlayClip: (clip: Clip) => void;
 };
 
@@ -28,17 +28,19 @@ export default function NotificationList({
         notifications.map(async (notif) => {
           if ((notif.type === "comment" || notif.type === "like") && notif.postId) {
             const clip = await getClip(notif.postId);
+            if (clip === undefined) return undefined;
             notif.clip = clip;
           }
 
           if (notif.type === "comment" && notif.commentId && notif.postId) {
             const content = await getComment(notif.postId, notif.commentId);
+            if (content === undefined) return undefined;
             return { ...notif, commentContent: content };
           }
           return notif;
         })
       );
-      setEnhancedNotifs(updated);
+      setEnhancedNotifs(updated.filter((n): n is Notification => n !== undefined));
     }
     enrich();
   }, [notifications, getComment]);

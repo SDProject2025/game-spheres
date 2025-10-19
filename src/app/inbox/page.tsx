@@ -63,23 +63,23 @@ export default function Inbox() {
     if (notifications.length > 0) fetchProfiles();
   }, [notifications]);
 
-  async function getComment(postId: string, commentId: string) {
+  async function getComment(postId: string, commentId: string): Promise<string | undefined> {
     const commentRef = doc(db, CLIPS_COLLECTION, postId, "comments", commentId);
     const snap = await getDoc(commentRef);
 
     if (!snap.exists()) {
-      throw new Error(`Comment ${commentId} not found on post ${postId}`);
+      return undefined;
     }
 
     return snap.data().text;
   }
 
-  async function getClip(postId: string): Promise<Clip> {
+  async function getClip(postId: string): Promise<Clip | undefined> {
     const clipRef = doc(db, CLIPS_COLLECTION, postId);
     const snap = await getDoc(clipRef);
 
     if (!snap.exists()) {
-      throw new Error(`Clip ${postId} not found`);
+      return undefined;
     }
 
     const data = snap.data();

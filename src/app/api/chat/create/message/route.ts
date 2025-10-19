@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     const messageRef = conversationRef.collection("messages").doc();
     batch.set(messageRef, {
+      type: message.type,
       content: message.content,
       senderId: message.senderId,
       createdAt: now,
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
       {
         lastMessage: {
           id: messageRef.id,
-          content: message.content,
+          content: message.type === "clip" ? "Sent a post" : message.content,
           senderId: message.senderId,
           createdAt: now,
         },

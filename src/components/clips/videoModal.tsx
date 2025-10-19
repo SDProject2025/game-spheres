@@ -15,6 +15,11 @@ import CommentInput from "../videoModal/CommentInput";
 import { MessageCircle, X, ChevronDown, ChevronUp } from "lucide-react";
 import type { Profile } from "@/types/Profile";
 import { useRouter } from "next/navigation";
+import ShareButton from "../videoModal/ShareButton";
+import { authFetch } from "@/config/authorisation";
+import { MessageInput } from "@/types/Message";
+import ChatList from "../chat/forms/chatList";
+import { ConversationInput } from "@/types/Conversation";
 
 interface VideoModalProps {
   clip: Clip;
@@ -41,6 +46,8 @@ export default function VideoModal({
   const { saved, toggleSave } = useSaveStatus(clip.id, user, clipSaved);
   const { comments, add, remove } = useComments(clip.id, user, clip.uploadedBy);
   const [uploader, setUploader] = useState<Profile | null>(null);
+  const [openType, setOpenType] = useState<"chat" | null>(null);
+
   const router = useRouter();
 
   // fetch uploader
@@ -89,14 +96,60 @@ export default function VideoModal({
   const formatTimeSinceUpload = (date: Date) => {
     const now = new Date();
     const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    const formatUnit = (value: number, unit: string) =>
+      `${value} ${unit}${value === 1 ? "" : "s"} ago`;
+
     if (diff < 60) return "just now";
-    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)} days ago`;
-    if (diff < 2592000) return `${Math.floor(diff / 604800)} weeks ago`;
-    if (diff < 31536000) return `${Math.floor(diff / 2592000)} months ago`;
-    return `${Math.floor(diff / 31536000)} years ago`;
+    if (diff < 3600) {
+      const minutes = Math.floor(diff / 60);
+      return formatUnit(minutes, "minute");
+    }
+    if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      return formatUnit(hours, "hour");
+    }
+    if (diff < 604800) {
+      const days = Math.floor(diff / 86400);
+      return formatUnit(days, "day");
+    }
+    if (diff < 2592000) {
+      const weeks = Math.floor(diff / 604800);
+      return formatUnit(weeks, "week");
+    }
+    if (diff < 31536000) {
+      const months = Math.floor(diff / 2592000);
+      return formatUnit(months, "month");
+    }
+    const years = Math.floor(diff / 31536000);
+    return formatUnit(years, "year");
   };
+
+  async function shareClip(chat: ConversationInput) {
+    if (!user || !chat.conversationId) return;
+    const message: MessageInput = {
+      type: "clip",
+      content: clip.id,
+      senderId: user.uid,
+      read: false,
+      createdAt: new Date().toISOString(),
+      conversationId: chat.conversationId,
+    };
+
+    try {
+      const res = await authFetch("/api/chat/create/message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(message),
+      });
+
+      if (!res.ok) throw new Error("Failed to send message");
+    } catch (e: unknown) {
+      console.error(e instanceof Error ? e.message : "Unable to send message");
+    }
+  }
 
   return (
     <div
@@ -145,6 +198,7 @@ export default function VideoModal({
                     disabled={isLiking}
                   />
                   <SaveButton saved={!!saved} onClick={toggleSave} />
+                  <ShareButton onClick={() => setOpenType("chat")} />
                 </div>
               </div>
               <div className="flex items-center text-gray-400 mt-1 text-sm lg:text-base flex-wrap gap-2">
@@ -215,6 +269,21 @@ export default function VideoModal({
           </div>
         </div>
       </div>
+      {openType && uploader && (
+        <ChatList
+          type={openType}
+          isOpen={true}
+          onClose={() => setOpenType(null)}
+          renderButton={(chat) => (
+            <button
+              onClick={() => shareClip(chat)}
+              className="px-4 py-2 bg-green-700 text-white hover:bg-green-600 transition"
+            >
+              Send
+            </button>
+          )}
+        />
+      )}
     </div>
   );
 }

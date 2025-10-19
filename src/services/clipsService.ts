@@ -138,7 +138,7 @@ export const addComment = async (clipId: string, user: User, text: string) => {
       userId: user.uid,
       text,
       createdAt: serverTimestamp(),
-      displayName: user.displayName || user.username || "Anonymous",
+      displayName: user.username || user.displayName || "Anonymous",
       photoURL: user.photoURL || null,
     });
 

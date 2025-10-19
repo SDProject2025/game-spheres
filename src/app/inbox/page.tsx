@@ -16,6 +16,7 @@ export default function Inbox() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
+  const [clipSaved, setClipSaved] = useState(false);
 
   async function fetchNotifications() {
     const res = await authFetch("/api/notifications/get");
@@ -62,6 +63,36 @@ export default function Inbox() {
 
     if (notifications.length > 0) fetchProfiles();
   }, [notifications]);
+
+  useEffect(() => {
+    const isClipSaved = async () => {
+      try {
+        // assume you have access to current user
+        if (!user || !selectedClip) {
+          setClipSaved(false);
+          return;
+        }
+
+        const userRef = doc(db, USERS_COLLECTION, user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          setClipSaved(false);
+          return;
+        }
+
+        const userData = userSnap.data();
+        const savedClips = userData.savedClips || [];
+
+        setClipSaved(savedClips.includes(selectedClip.id));
+      } catch (err) {
+        console.error("Error checking saved clip:", err);
+        setClipSaved(false);
+      }
+    };
+
+    isClipSaved();
+  }, [selectedClip]);
 
   async function getComment(
     postId: string,
@@ -156,7 +187,7 @@ export default function Inbox() {
       />
 
       {selectedClip && (
-        <VideoModal clip={selectedClip} onClose={handleCloseModal} />
+        <VideoModal clip={selectedClip} onClose={handleCloseModal} clipSaved={clipSaved}/>
       )}
     </>
   );

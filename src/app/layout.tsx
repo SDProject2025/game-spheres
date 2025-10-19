@@ -1,6 +1,7 @@
 import { UserProvider } from "@/config/userProvider";
 import { SidebarProvider } from "@/config/sidebarProvider";
 import { GameSpheresProvider } from "@/config/gameSpheresContext";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import AuthGuard from "@/config/authGuard";
 import SidebarWrapper from "@/components/sidebar/sidebarWrapper";
 import "@/styles/globals.css";
@@ -33,6 +34,7 @@ export default function RootLayout({
             </GameSpheresProvider>
           </SidebarProvider>
         </UserProvider>
+        <SpeedInsights/>
       </body>
     </html>
   );

@@ -25,11 +25,11 @@ export default function RootLayout({
             <GameSpheresProvider>
               <SidebarWrapper />
               <main
-                className="flex-1 h-screen overflow-y-auto transition-all duration-300 ease-in-out"
+                className="flex-1 h-screen overflow-y-auto transition-[margin-left] duration-300 ease-in-out"
                 style={{ marginLeft: "var(--sidebar-width, 0px)" }}
               >
                 <AuthGuard>
-                  <div className="px-6 py-4">{children}</div>
+                  <div className="h-full w-full px-6 py-6 pb-10 flex flex-col">{children}</div>
                 </AuthGuard>
               </main>
             </GameSpheresProvider>

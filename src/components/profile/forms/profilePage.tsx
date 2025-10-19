@@ -118,142 +118,139 @@ export default function ProfilePage({ profile }: { profile: Profile | null }) {
   const isOwner = user?.uid === profile.uid;
 
   return (
-    <div>
-    <div className="min-h-screen bg-[#111] text-white">
-  <div className="w-full max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8 lg:ml-64">
-    {/* Profile Header */}
-    <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-center sm:items-start">
-      {/* Profile Picture */}
-      <ProfilePicture src={profile.photoURL} />
+    <div className="h-full w-full flex flex-col items-center justify-start">
+      <div className="w-full max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8 lg:ml-64">
+        {/* Profile Header */}
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-center sm:items-start">
+          {/* Profile Picture */}
+          <ProfilePicture src={profile.photoURL} />
 
-      {/* Info Section */}
-      <div className="flex-1 text-center sm:text-left">
-        {/* Name + Username */}
-        <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
-              {profile.displayName}
-            </h1>
-            <h2 className="text-md sm:text-lg text-gray-400">
-              @{profile.username}
-            </h2>
+          {/* Info Section */}
+          <div className="flex-1 text-center sm:text-left">
+            {/* Name + Username */}
+            <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
+                  {profile.displayName}
+                </h1>
+                <h2 className="text-md sm:text-lg text-gray-400">
+                  @{profile.username}
+                </h2>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="flex justify-center sm:justify-start gap-6 sm:gap-8 mt-3">
+              <ProfileStat
+                stat={profile.following.length}
+                type="Following"
+                onClick={() => setOpenType("following")}
+              />
+              <ProfileStat
+                stat={profile.followers.length}
+                type="Followers"
+                onClick={() => setOpenType("followers")}
+              />
+            </div>
+
+            {/* Bio */}
+            <p className="mt-4 max-w-xl mx-auto sm:mx-0">{profile.bio}</p>
+          </div>
+
+          {/* Buttons (Edit / Follow) */}
+          <div className="mt-4 sm:mt-0">
+            {isOwner ? (
+              <ProfileButton />
+            ) : (
+              <FollowButton
+                isFollowing={isFollowing}
+                handleFollowClick={sendFollow}
+                handleUnfollowClick={sendUnfollow}
+              />
+            )}
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="flex justify-center sm:justify-start gap-6 sm:gap-8 mt-3">
-          <ProfileStat
-            stat={profile.following.length}
-            type="Following"
-            onClick={() => setOpenType("following")}
-          />
-          <ProfileStat
-            stat={profile.followers.length}
-            type="Followers"
-            onClick={() => setOpenType("followers")}
-          />
+        {/* Tabs */}
+        <div className="flex overflow-x-auto border-b border-gray-700 mt-8">
+          <button
+            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
+              activeTab === "videos"
+                ? "border-white text-white"
+                : "border-transparent text-gray-400 hover:text-gray-300"
+            }`}
+            onClick={() => setActiveTab("videos")}
+          >
+            Clips
+          </button>
+          <button
+            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
+              activeTab === "saved"
+                ? "border-white text-white"
+                : "border-transparent text-gray-400 hover:text-gray-300"
+            }`}
+            onClick={() => setActiveTab("saved")}
+          >
+            Saved
+          </button>
         </div>
 
-        {/* Bio */}
-        <p className="mt-4 max-w-xl mx-auto sm:mx-0">{profile.bio}</p>
+            {/* Content */}
+            <div className="mt-6">
+              {activeTab === "videos" && (
+                <>
+                  {/* Filter Controls */}
+                  <div className="mb-6 flex justify-end items-center">
+                    <div className="flex flex-col items-end">
+                      <GameSphereFilter
+                        selectedGameSphere={selectedGameSphere}
+                        onGameSphereChange={setSelectedGameSphere}
+                        className="w-full"
+                      />
+                      {selectedGameSphere && (
+                        <button
+                          onClick={() => setSelectedGameSphere("")}
+                          className="mt-1 text-sm text-blue-400 hover:text-blue-300"
+                        >
+                          Clear filter
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+              {/* Clips Grid */}
+              <ClipGrid
+                gameSphereFilter={selectedGameSphere}
+                profileFilter={profile.uid}
+                key={`${profile.uid}-${selectedGameSphere}`}
+              />
+            </>
+          )}
+
+          {activeTab === "saved" && (
+            <ClipGrid
+              savedClips={true}
+              profileFilter={profile.uid}
+              key={`${profile.uid}`}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Buttons (Edit / Follow) */}
-      <div className="mt-4 sm:mt-0">
-        {isOwner ? (
-          <ProfileButton />
-        ) : (
-          <FollowButton
-            isFollowing={isFollowing}
-            handleFollowClick={sendFollow}
-            handleUnfollowClick={sendUnfollow}
-          />
-        )}
-      </div>
-    </div>
-
-    {/* Tabs */}
-    <div className="flex overflow-x-auto border-b border-gray-700 mt-8">
-      <button
-        className={`px-4 py-3 font-medium border-b-2 transition-colors ${
-          activeTab === "videos"
-            ? "border-white text-white"
-            : "border-transparent text-gray-400 hover:text-gray-300"
-        }`}
-        onClick={() => setActiveTab("videos")}
-      >
-        Clips
-      </button>
-      <button
-        className={`px-4 py-3 font-medium border-b-2 transition-colors ${
-          activeTab === "saved"
-            ? "border-white text-white"
-            : "border-transparent text-gray-400 hover:text-gray-300"
-        }`}
-        onClick={() => setActiveTab("saved")}
-      >
-        Saved
-      </button>
-    </div>
-
-        {/* Content */}
-        <div className="mt-6">
-          {activeTab === "videos" && (
-            <>
-              {/* Filter Controls */}
-              <div className="mb-6 flex justify-end items-center">
-                <div className="flex flex-col items-end">
-                  <GameSphereFilter
-                    selectedGameSphere={selectedGameSphere}
-                    onGameSphereChange={setSelectedGameSphere}
-                    className="w-full"
-                  />
-                  {selectedGameSphere && (
-                    <button
-                      onClick={() => setSelectedGameSphere("")}
-                      className="mt-1 text-sm text-blue-400 hover:text-blue-300"
-                    >
-                      Clear filter
-                    </button>
-                  )}
-                </div>
-              </div>
-
-          {/* Clips Grid */}
-          <ClipGrid
-            gameSphereFilter={selectedGameSphere}
-            profileFilter={profile.uid}
-            key={`${profile.uid}-${selectedGameSphere}`}
-          />
-        </>
-      )}
-
-      {activeTab === "saved" && (
-        <ClipGrid
-          savedClips={true}
-          profileFilter={profile.uid}
-          key={`${profile.uid}`}
+      {/* Follow Modal */}
+      {openType && (
+        <FollowList
+          type={openType}
+          count={
+            openType === "followers"
+              ? profile.followers.length
+              : profile.following.length
+          }
+          isOpen={true}
+          onClose={() => setOpenType(null)}
+          onFetchData={fetchFollowData}
         />
       )}
-    </div>
-  </div>
-
-  {/* Follow Modal */}
-  {openType && (
-    <FollowList
-      type={openType}
-      count={
-        openType === "followers"
-          ? profile.followers.length
-          : profile.following.length
-      }
-      isOpen={true}
-      onClose={() => setOpenType(null)}
-      onFetchData={fetchFollowData}
-    />
-  )}
-</div>
-
     </div>
   );
 }

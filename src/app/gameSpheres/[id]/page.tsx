@@ -34,7 +34,7 @@ export default function GameSpherePage() {
     : null;
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6 flex flex-col">
+    <div className="w-full max-w-6xl mx-auto px-4 pb-6 sm:px-4 md:px-6 flex flex-col">
       {/* Header Section */}
       <div className="w-full mb-4 sm:mb-6">
         <div className="flex items-start gap-3 sm:gap-4 mb-2 sm:mb-3">

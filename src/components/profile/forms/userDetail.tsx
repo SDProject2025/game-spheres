@@ -109,7 +109,7 @@ export default function UserDetail({ profile }: { profile: Profile | null }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#111] text-white">
+    <div className="min-h-screen bg-[#111] text-white flex items-center justify-center">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-col gap-8 items-center">
           <ProfilePicture src={profile.photoURL} />

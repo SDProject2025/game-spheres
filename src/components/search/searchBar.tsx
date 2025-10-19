@@ -114,8 +114,8 @@ export default function SearchBar<T extends SearchItem>({
   const displayItems = showSuggestions ? suggestions : results;
 
   return (
-    <div className="min-h-screen text-white p-6 flex flex-col items-center">
-      <div className="flex flex-col md:flex-row w-full max-w-5xl rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
+    <div className="w-full flex flex-col p-8 items-center justify-center py-8">
+      <div className="flex flex-col md:flex-row w-full rounded-2xl overflow-hidden shadow-lg bg-[#111] transition-all duration-300 hover:shadow-[0_0_30px_1px_rgba(0,255,117,0.3)]">
         {/* Left pane */}
         <div className="w-full md:w-1/3 bg-[#111111] p-4 border-b md:border-b-0 md:border-r border-cyan-500 flex flex-col">
           <h2 className="text-lg md:text-xl font-semibold mb-4 text-cyan-400 text-center md:text-left">
@@ -142,7 +142,7 @@ export default function SearchBar<T extends SearchItem>({
             <p className="text-center md:lext-left">No results found.</p>
           )}
 
-          <div className="overflow-y-auto flex-1 max-h-[300px] md:max-h-[600px] scrollbar-thin pr-1">
+          <div className="overflow-y-auto flex-1 max-h-[50vh] md:max-h-[75vh] scrollbar-thin pr-1">
             {displayItems.map((item) => {
               const itemId = item.id || item.uid;
               const selectedId = selected?.id || selected?.uid;

@@ -16,6 +16,7 @@ export default function GameSpheres() {
   const [selectedGame, setSelectedGame] = useState<FullGameSphere | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false); // use for dynamic button text
   const [suggested, setSuggested] = useState<FullGameSphere[]>([]);
+  const [userSubs, setUserSubs] = useState<Set<string>>(new Set());
 
   const router = useRouter();
   const { user, loading } = useUser();
@@ -145,12 +146,31 @@ export default function GameSpheres() {
         setIsSubscribed(data.isSubscribed);
 
         toast.success(toastMessage);
+
+        // update local cache
+        const userRef = {
+          type: "firestore/documentReference/1.0",
+          referencePath: `users/${user.uid}`,
+        };
+
+        if (action === "subscribe") {
+          // Add user to subscribers array
+          gameSphere.subscribers = [...(gameSphere.subscribers || []), userRef];
+        } else {
+          // Remove user from subscribers array
+          gameSphere.subscribers = (gameSphere.subscribers || []).filter(
+            (sub) => extractUid(sub) !== user.uid
+          );
+        }
+
+        // Refresh suggestions after subscription change
+        setSuggested(getSuggestedGameSpheres());
       } catch (error) {
         console.error("Error updating subscription:", error);
         toast.error("Something went wrong :(");
       }
     },
-    [user, router, isSubscribed]
+    [user, router, isSubscribed, getSuggestedGameSpheres]
   );
 
   // Render item for GameSphere items in the list returned after searching - memoized

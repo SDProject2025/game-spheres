@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 
-export default function CommentInput({ onAdd }: { onAdd: (text: string) => void }) {
+export default function CommentInput({
+  onAdd,
+}: {
+  onAdd: (text: string) => void;
+}) {
   const [newComment, setNewComment] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (newComment.trim() === "") return;
     onAdd(newComment);
     setNewComment("");
   };
 
   return (
-    <div className="p-3 border-t border-gray-700 flex gap-2">
+    <form
+      className="p-3 border-t border-gray-700 flex gap-2"
+      onSubmit={handleSubmit}
+    >
       <input
         type="text"
         value={newComment}
@@ -18,11 +27,12 @@ export default function CommentInput({ onAdd }: { onAdd: (text: string) => void 
         className="flex-1 rounded-lg bg-[#222] text-white p-2 text-sm outline-none"
       />
       <button
-        onClick={handleSubmit}
-        className="px-3 py-1 bg-[#00ffd5] text-black font-medium rounded-lg hover:opacity-90"
+        type="submit"
+        disabled={!newComment.trim()}
+        className="px-3 py-1 bg-[#00ffd5] text-black font-medium rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Send
       </button>
-    </div>
+    </form>
   );
 }

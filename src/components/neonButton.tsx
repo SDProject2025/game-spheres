@@ -92,14 +92,15 @@ const StyledWrapper = styled.div<{ neonColor: string, variant: "filled" | "outli
   }
 
   strong {
-    z-index: 2;
-    font-family: "Montserrat", sans-serif;
-    font-size: 12px;
-    letter-spacing: 5px;
-    color: ${(props) =>
-      props.variant === "filled" ? "#fff" : props.neonColor}; // text white if filled, neon if outline
-    text-shadow: 0 0 4px ${(props) => (props.variant === "filled" ? "white" : props.neonColor)};
-  }
+   z-index: 2;
+   font-family: "Montserrat", sans-serif;
+   font-size: 11px;
+   letter-spacing: 5px;
+   color: ${(props) =>
+     props.variant === "filled" ? "#fff" : props.neonColor};
+   text-shadow: 0 0 4px ${(props) => (props.variant === "filled" ? "white" : props.neonColor)};
+   padding: 10 50rem; 
+ }
 
   #glow {
     position: absolute;

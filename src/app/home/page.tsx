@@ -22,7 +22,7 @@ export default function Home() {
   );
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 flex flex-col items-center">
+    <div className="w-full max-w-6xl mx-auto px-4 pb-6 flex flex-col items-center">
       <div className="w-full flex justify-begin">
         <h1 className="text-3xl sm:text-4xl mb-6">GameSpheres</h1>
       </div>

@@ -15,11 +15,26 @@ export default function GameSpheres() {
   const { gameSpheres } = useGameSpheresContext();
   const [selectedGame, setSelectedGame] = useState<FullGameSphere | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false); // use for dynamic button text
+  const [suggested, setSuggested] = useState<FullGameSphere[]>([]);
 
   const router = useRouter();
   const { user, loading } = useUser();
 
   const fuseRef = useRef<Fuse<FullGameSphere> | null>(null);
+
+  // Helper for getting user IDs from the Firestore reference
+  const extractUid = (subscriber: unknown): string | null => {
+    if (typeof subscriber === "string") return subscriber;
+    if (
+      subscriber &&
+      typeof subscriber === "object" &&
+      "referencePath" in subscriber
+    ) {
+      const path = (subscriber as { referencePath: string }).referencePath;
+      return path.split("/").pop() || null;
+    }
+    return null;
+  };
 
   // Update Fuse instance when gameSpheres changes
   useEffect(() => {
@@ -33,6 +48,37 @@ export default function GameSpheres() {
       router.replace("/");
     }
   }, [router]);
+
+  // Get suggested GameSphere
+  const getSuggestedGameSpheres = useCallback(() => {
+    if (!gameSpheres.length || !user) return [];
+
+    // Filter out GameSpheres user is already subscribed to
+    const unsubscribed = gameSpheres.filter((gs) => {
+      if (!gs.subscribers || gs.subscribers.length === 0) return true;
+
+      // Extract all subscriber UIDs and check if current user is in the list
+      const subscriberUids = gs.subscribers
+        .map(extractUid)
+        .filter((uid): uid is string => uid !== null);
+
+      return !subscriberUids.includes(user.uid);
+    });
+
+    // Sort by subscriber count and return top 5
+    return unsubscribed
+      .sort(
+        (a, b) => (b.subscribers?.length || 0) - (a.subscribers?.length || 0)
+      )
+      .slice(0, 5);
+  }, [gameSpheres, user]);
+
+  // Update suggestions
+  useEffect(() => {
+    if (gameSpheres.length > 0) {
+      setSuggested(getSuggestedGameSpheres());
+    }
+  }, [gameSpheres, user, getSuggestedGameSpheres]);
 
   // check sub status
   useEffect(() => {
@@ -195,6 +241,8 @@ export default function GameSpheres() {
         onItemAction={handleSubButtonClicked}
         actionButtonText={actionButtonText}
         onSelectionChange={handleSelection}
+        suggestions={suggested}
+        suggestionsLabel="Popular GameSpheres"
       />
       <Toaster />
     </>

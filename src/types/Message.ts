@@ -2,6 +2,7 @@ import { Timestamp, DocumentReference } from "firebase-admin/firestore";
 import { Profile } from "./Profile";
 
 export type MessageInput = {
+  type: "text" | "clip";
   messageId?: string;
   content: string;
   conversationId: string;

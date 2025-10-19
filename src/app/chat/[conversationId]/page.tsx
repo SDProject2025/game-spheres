@@ -16,6 +16,9 @@ import {
 } from "firebase/firestore";
 import { authFetch } from "@/config/authorisation";
 import { Profile } from "@/types/Profile";
+import { Clip } from "@/types/Clip";
+import VideoModal from "@/components/clips/videoModal";
+import { USERS_COLLECTION } from "@/app/api/collections";
 
 export default function Chat() {
   const { user } = useUser();
@@ -25,6 +28,16 @@ export default function Chat() {
 
   const [messages, setMessages] = useState<MessageInput[]>([]);
   const [otherUser, setOtherUser] = useState<Profile>();
+  const [selectedClip, setSelectedClip] = useState<Clip | null>(null);
+  const [clipSaved, setClipSaved] = useState(false);
+
+  const handlePlayClip = (clip: Clip) => {
+    setSelectedClip(clip);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedClip(null);
+  };
 
   // 🔹 fetch the conversation + other user's profile
   useEffect(() => {
@@ -65,6 +78,7 @@ export default function Chat() {
       const msgs: MessageInput[] = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {
+          type: data.type ?? "text",
           messageId: doc.id,
           content: data.content ?? "",
           conversationId: data.conversationId ?? conversationId,
@@ -90,11 +104,42 @@ export default function Chat() {
     return () => unsub();
   }, [conversationId, user]);
 
+  useEffect(() => {
+    const isClipSaved = async () => {
+      try {
+        // assume you have access to current user
+        if (!user || !selectedClip) {
+          setClipSaved(false);
+          return;
+        }
+
+        const userRef = doc(db, USERS_COLLECTION, user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          setClipSaved(false);
+          return;
+        }
+
+        const userData = userSnap.data();
+        const savedClips = userData.savedClips || [];
+
+        setClipSaved(savedClips.includes(selectedClip.id));
+      } catch (err) {
+        console.error("Error checking saved clip:", err);
+        setClipSaved(false);
+      }
+    };
+
+    isClipSaved();
+  }, [selectedClip]);
+
   async function sendMessage(content: string) {
     if (!user) return;
 
     const tempId = crypto.randomUUID();
     const msg: MessageInput = {
+      type: "text",
       messageId: tempId,
       content,
       conversationId,
@@ -135,17 +180,28 @@ export default function Chat() {
     }
   }
 
-  if (!otherUser) return <h1>Loading...</h1>
+  if (!otherUser) return <h1>Loading...</h1>;
 
   return (
-    <div className="h-full flex flex-col">
-      <ChatPage
-        messages={messages}
-        currentUserId={user?.uid}
-        onSendMessage={sendMessage}
-        otherUser={otherUser}
-        onBack={() => router.push("/chat")}
-      />
-    </div>
+    <>
+      <div className="h-full flex flex-col">
+        <ChatPage
+          messages={messages}
+          currentUserId={user?.uid}
+          onSendMessage={sendMessage}
+          otherUser={otherUser}
+          onBack={() => router.push("/chat")}
+          handlePlayVideo={handlePlayClip}
+        />
+      </div>
+
+      {selectedClip && (
+        <VideoModal
+          clip={selectedClip}
+          onClose={handleCloseModal}
+          clipSaved={clipSaved}
+        />
+      )}
+    </>
   );
 }
